@@ -1,14 +1,30 @@
-const express = require('express');
-const app = express();
+const server = require("http").createServer()
+const io = require("socket.io")(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+})
 
-// Define a route handler for GET requests to the root URL
-app.get('/', (req, res) => {
-    res.send('Hello, World!');
-});
+io.on("connection", socket => {
+    socket.on("get-document", documentId => {
+        const data = ""
+        socket.join(documentId)
+        socket.emit("load-document", data)
 
-// Define other route handlers as needed
+        socket.on("send-changes", delta => {
+            socket.broadcast.to(documentId).emit("receive-changes", delta)
+        })
+    })
+})
 
-// Start the server
+const express = require("express")
+const app = express()
+
+app.get("/", (req, res) => {
+    res.json("Hello")
+})
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
