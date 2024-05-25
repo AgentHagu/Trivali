@@ -2,27 +2,27 @@ import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
 import "quill/dist/quill.snow.css"
 import { io } from "socket.io-client"
-import {useParams} from "react-router-dom"
+import { useParams } from "react-router-dom"
 
 const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
     [{ font: [] }],
-    [{ list: "ordered"}, {list: "bullet"}],
+    [{ list: "ordered" }, { list: "bullet" }],
     ["bold", "italic", "underline"],
-    [{color: []}, {background: []}],
-    [{script: "sub"}, {script: "super"}],
-    [{align: []}],
+    [{ color: [] }, { background: [] }],
+    [{ script: "sub" }, { script: "super" }],
+    [{ align: [] }],
     ["image", "blockquote", "code-block"],
     ["clean"],
 ]
 
 export default function TextEditor() {
-    const {id: documentId} = useParams()
+    const { id: documentId } = useParams()
     const [socket, setSocket] = useState()
     const [quill, setQuill] = useState()
 
     useEffect(() => {
-        const s = io("https://trivali-server.vercel.app/")
+        const s = io("http://localhost:3001/") // Link to Server
         setSocket(s)
 
         return () => {
@@ -57,7 +57,7 @@ export default function TextEditor() {
 
     useEffect(() => {
         if (socket == null || quill == null) return
-        
+
         const handler = delta => {
             quill.updateContents(delta)
         }
@@ -75,7 +75,7 @@ export default function TextEditor() {
         const editor = document.createElement('div')
         wrapper.append(editor)
         //console.log("Initializing Quill Editor...")
-        const q = new Quill(editor, { theme: "snow", modules: {toolbar: TOOLBAR_OPTIONS}})
+        const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } })
         q.disable()
         q.setText("Loading...")
         setQuill(q);

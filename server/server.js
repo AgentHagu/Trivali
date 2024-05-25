@@ -1,7 +1,7 @@
-//const server = require("http").createServer()
+const server = require("http").createServer()
 const io = require("socket.io")(3001, {
     cors: {
-        origin: "https://trivali-client.vercel.app/",
+        origin: "*", // Link to Client
         methods: ["GET", "POST"]
     }
 })
@@ -18,14 +18,14 @@ io.on("connection", socket => {
     })
 })
 
-const express = require("express")
-const app = express()
+// const express = require("express")
+// const app = express()
 
-app.get("/", (req, res) => {
-    res.json("Hello")
-})
+// app.get("/", (req, res) => {
+//     res.json("Hello")
+// })
 
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+// const port = process.env.PORT || 3001;
+// app.listen(port, () => {
+//     console.log(`Server is running on port ${port}`);
+// });
