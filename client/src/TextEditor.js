@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
 import "quill/dist/quill.snow.css"
 import { io } from "socket.io-client"
-import {useParams, useResolvedPath} from "react-router-dom"
+import {useParams} from "react-router-dom"
 
 const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
