@@ -1,6 +1,7 @@
-const io = require("socket.io")(3001, {
+const server = require("http").createServer()
+const io = require("socket.io")(server, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: "*",
         methods: ["GET", "POST"]
     }
 })
@@ -16,3 +17,8 @@ io.on("connection", socket => {
         })
     })
 })
+
+const port = process.env.PORT || 3001;
+server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
