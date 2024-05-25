@@ -1,5 +1,5 @@
-const server = require("http").createServer()
-const io = require("socket.io")(server, {
+//const server = require("http").createServer()
+const io = require("socket.io")(3001, {
     cors: {
         origin: "https://trivali-client.vercel.app/",
         methods: ["GET", "POST"]
