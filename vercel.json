@@ -1,15 +1,19 @@
 {
     "version": 2,
+    "name": "Trivali",
     "builds": [
-      {
-        "src": "app.js",
-        "use": "@vercel/node"
-      }
+      { "src": "client/package.json", "use": "@vercel/static-build" },
+      { "src": "server/server.js", "use": "@vercel/node" }
     ],
     "routes": [
       {
+        "src": "/api/(.*)",
+        "dest": "server/$1"
+      },
+      {
         "src": "/(.*)",
-        "dest": "/app.js"
+        "dest": "client/$1"
       }
     ]
-  }  
+  }
+  
