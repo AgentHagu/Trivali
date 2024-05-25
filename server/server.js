@@ -18,7 +18,14 @@ io.on("connection", socket => {
     })
 })
 
+const express = require("express")
+const app = express()
+
+app.get("/", (req, res) => {
+    res.json("Hello")
+})
+
 const port = process.env.PORT || 3001;
-server.listen(port, () => {
+app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
