@@ -22,7 +22,7 @@ export default function TextEditor() {
     const [quill, setQuill] = useState()
 
     useEffect(() => {
-        const s = io("http://localhost:3001/") // Link to Server
+        const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
         setSocket(s)
 
         return () => {
