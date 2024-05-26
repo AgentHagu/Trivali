@@ -74,7 +74,7 @@ export default function TextEditor() {
         wrapper.innerHTML = "";
         const editor = document.createElement('div')
         wrapper.append(editor)
-        //console.log("Initializing Quill Editor...")
+
         const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } })
         q.disable()
         q.setText("Loading...")
