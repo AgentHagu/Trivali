@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
 import "quill/dist/quill.snow.css"
 import { io } from "socket.io-client"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 
 const SAVE_INTERVAL_MS = 2000
 const TOOLBAR_OPTIONS = [
@@ -13,14 +13,24 @@ const TOOLBAR_OPTIONS = [
     [{ color: [] }, { background: [] }],
     [{ script: "sub" }, { script: "super" }],
     [{ align: [] }],
-    ["image", "blockquote", "code-block"],
+    ["image", "blockquote"],
     ["clean"],
 ]
 
 export default function TextEditor() {
-    const { id: documentId } = useParams()
+    const { id, page } = useParams()
     const [socket, setSocket] = useState()
     const [quill, setQuill] = useState()
+    const navigate = useNavigate()
+
+    const documentId = id + "/" + page
+    const acceptablePages = ["details", "itinerary", "expenses", "map", "weather"]
+
+    useEffect(() => {
+        if (!acceptablePages.includes(page)) {
+            navigate(`/documents/${id}/details`)
+        }
+    }, [page])
 
     useEffect(() => {
         const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
