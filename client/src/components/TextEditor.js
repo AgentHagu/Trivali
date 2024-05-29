@@ -99,7 +99,7 @@ export default function TextEditor() {
         const editor = document.createElement('div')
         wrapper.append(editor)
 
-        const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } })
+        const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS, history: { userOnly: true } } })
         q.disable()
         q.setText("Loading...")
         setQuill(q);
