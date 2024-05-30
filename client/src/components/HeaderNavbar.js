@@ -1,5 +1,5 @@
 export default function HeaderNavbar() {
-    return <header>
+    return <header class="sticky-top">
         <div class="navbar navbar-expand-sm navbar-dark bg-dark">
             <div class="container d-flex justify-content-between">
                 <a class="navbar-brand d-flex align-items-center" href="/home">
