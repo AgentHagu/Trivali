@@ -21,7 +21,7 @@ export default function HomePage() {
                         {/*Feature 1 Card*/}
                         <div class="col-md-4">
                             <div class="card h-100 mb-4 shadow-sm">
-                                <div class="card-header">Feature 1</div>
+                                <div class="card-header">Trip Organizer and Planner</div>
                                 <img class="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 <div class="card-body">
@@ -37,7 +37,7 @@ export default function HomePage() {
                         {/*Feature 2 Card*/}
                         <div class="col-md-4">
                             <div class="card h-100 mb-4 shadow-sm">
-                                <div class="card-header">Feature 2</div>
+                                <div class="card-header">Manage Travel Finances</div>
                                 <img class="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 <div class="card-body">
@@ -53,7 +53,7 @@ export default function HomePage() {
                         {/*Feature 3 Card*/}
                         <div class="col-md-4">
                             <div class="card h-100 mb-4 shadow-sm">
-                                <div class="card-header">Feature 3</div>
+                                <div class="card-header">Collaboration Support</div>
                                 <img class="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 <div class="card-body">
