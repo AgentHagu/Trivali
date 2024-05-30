@@ -1,8 +1,11 @@
 export default function HeaderNavbar() {
-    return <header class="header">
-        <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/home">Trivali</a>
+    return <header>
+        <div class="navbar navbar-expand-sm navbar-dark bg-dark">
+            <div class="container d-flex justify-content-between">
+                <a class="navbar-brand d-flex align-items-center" href="/home">
+                    {/* add logo here */}
+                    <strong>Trivali</strong>
+                </a>
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="/login">Login</a>
@@ -12,7 +15,6 @@ export default function HeaderNavbar() {
                     </li>
                 </ul>
             </div>
-        </nav>
-        <div class="navbar-spacer"></div>
-    </header> 
+        </div>
+    </header>
 }

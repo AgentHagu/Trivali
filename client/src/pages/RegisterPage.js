@@ -1,8 +1,8 @@
-import HeaderNavbar from "./HeaderNavbar";
+import HeaderNavbar from "../components/HeaderNavbar";
 
 export default function RegisterPage() {
     return <>
-    <HeaderNavbar />
+        <HeaderNavbar />
         <form>
             <input placeholder="Username" type="text" required /> <br />
             <input placeholder="Password" type="password" required /> <br />

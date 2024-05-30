@@ -1,13 +1,13 @@
 import TextEditor from "./components/TextEditor"
-import HomePage from "./components/HomePage"
+import HomePage from "./pages/HomePage"
 import {
   Navigate,
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom"
 import { v4 as uuidV4 } from "uuid"
-import LoginPage from "./components/LoginPage"
-import RegisterPage from "./components/RegisterPage"
+import LoginPage from "./pages/LoginPage"
+import RegisterPage from "./pages/RegisterPage"
 import Test from "./components/Test"
 
 const router = createBrowserRouter([
