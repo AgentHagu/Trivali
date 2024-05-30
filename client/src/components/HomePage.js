@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom"
+import HeaderNavbar from "./HeaderNavbar"
 
 export default function HomePage() {
-    return <div>
+    return <>
+    <HeaderNavbar />
+    <body class="body pt-5">
+        <h1>HELLO??</h1>
         <h1>Welcome to Trivali</h1>
         <h2>The one-stop solution to your travel planning problems</h2>
         <Link to="/login">
@@ -11,5 +15,6 @@ export default function HomePage() {
         <Link to="/register">
             <button>Register</button>
         </Link>
-    </div>
+    </body>
+    </>
 }

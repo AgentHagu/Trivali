@@ -5,9 +5,10 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom"
-import { v4 as uuidV4 } from "uuid";
-import LoginPage from "./components/LoginPage";
-import RegisterPage from "./components/RegisterPage";
+import { v4 as uuidV4 } from "uuid"
+import LoginPage from "./components/LoginPage"
+import RegisterPage from "./components/RegisterPage"
+import Test from "./components/Test"
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
   {
     path: "/home",
     element: <HomePage />
+  },
+  {
+    path: "/test",
+    element: <Test />
   },
   {
     path: "/login",
