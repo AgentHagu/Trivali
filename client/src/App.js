@@ -1,5 +1,5 @@
 import TextEditor from "./components/TextEditor"
-import HomePage from "./pages/HomePage"
+import WelcomePage from "./pages/WelcomePage"
 import {
   Navigate,
   createBrowserRouter,
@@ -9,19 +9,21 @@ import { v4 as uuidV4 } from "uuid"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
 import Test from "./components/Test"
+import HomePage from "./pages/HomePage"
+import { useEffect, useState } from "react"
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Navigate to={"/home"} />
-  },
-  {
-    path: "/home",
-    element: <HomePage />
-  },
-  {
     path: "/test",
     element: <Test />
+  },
+  {
+    path: "/",
+    element: <Navigate to={"/welcome"} />
+  },
+  {
+    path: "/welcome",
+    element: <WelcomePage />
   },
   {
     path: "/login",
@@ -30,6 +32,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />
+  },
+  {
+    path: "/home",
+    element: <HomePage />
   },
   {
     path: "/documents",
@@ -47,6 +53,34 @@ const router = createBrowserRouter([
 
 function App() {
   return <RouterProvider router={router} />
+}
+
+function PrivateRoute({ element }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/', {
+      method: 'GET',
+      credentials: 'include'
+    })
+    .then(response => {
+      console.log("authenticating...")
+      if (response.status === 401) {
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(true);
+      }
+    })
+    .catch(() => {
+      setIsAuthenticated(false);
+    });
+  }, []);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+  return isAuthenticated ? element : <Navigate to="/welcome" />;
 }
 
 export default App;

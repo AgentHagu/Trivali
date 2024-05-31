@@ -15,34 +15,34 @@ const io = socketIo(server, {
     }
 });
 
-// const mongoUri = process.env.MONGO_URI
-// mongoose.connect(mongoUri)
+const mongoUri = process.env.MONGO_URI
+mongoose.connect(mongoUri)
 
-// const defaultValue = ""
+const defaultValue = ""
 
-// io.on("connection", socket => {
-//     socket.on("get-document", async documentId => {
-//         const document = await findOrCreateDocument(documentId)
-//         socket.join(documentId)
-//         socket.emit("load-document", document.data)
+io.on("connection", socket => {
+    socket.on("get-document", async documentId => {
+        const document = await findOrCreateDocument(documentId)
+        socket.join(documentId)
+        socket.emit("load-document", document.data)
 
-//         socket.on("send-changes", delta => {
-//             socket.broadcast.to(documentId).emit("receive-changes", delta)
-//         })
+        socket.on("send-changes", delta => {
+            socket.broadcast.to(documentId).emit("receive-changes", delta)
+        })
 
-//         socket.on("save-document", async data => {
-//             await Document.findByIdAndUpdate(documentId, { data })
-//         })
-//     })
-// })
+        socket.on("save-document", async data => {
+            await Document.findByIdAndUpdate(documentId, { data })
+        })
+    })
+})
 
-// async function findOrCreateDocument(id) {
-//     if (id == null) return
+async function findOrCreateDocument(id) {
+    if (id == null) return
 
-//     const document = await Document.findById(id);
-//     if (document) return document
-//     return await Document.create({ _id: id, data: defaultValue })
-// }
+    const document = await Document.findById(id);
+    if (document) return document
+    return await Document.create({ _id: id, data: defaultValue })
+}
 
 const bcrypt = require('bcrypt')
 const passport = require('passport')
@@ -52,7 +52,7 @@ const methodOverride = require('method-override')
 
 const initialisedPassport = require('./passport-config')
 initialisedPassport(
-    passport, 
+    passport,
     email => users.find(user => user.email === email),
     id => users.find(user => user.id === id))
 
@@ -63,7 +63,7 @@ app.use(flash())
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialised: false
+    saveUninitialized: false
 }))
 app.use(passport.initialize())
 app.use(passport.session())
@@ -71,43 +71,60 @@ app.use(methodOverride('_method'))
 app.use(cors())
 app.use(express.json())
 
-// app.get('/', checkAuthenticated, (req, res) => {
-//     console.log("HELLO")
-//     //res.render('index.ejs', { name: req.user.name })
-// })
+app.get('/', checkAuthenticated, (req, res) => {
+    res.json({ message: "Hello", name: req.user.name });
+})
 
-// app.get('/login', checkNotAuthenticated, (req, res) => {
-//     console.log("HEYEHYE")
-//     //res.render('login.ejs') 
-// })
+app.get('/login', checkNotAuthenticated, (req, res) => {
+    res.json({success: false})
+})
 
-// app.post('/login', passport.authenticate('local', {
-//     successRedirect: '/',
-//     failureRedirect: '/login',
-//     failureFlash: true
-// }))
+app.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true
+}))
+
+// app.post('/login', (req, res, next) => {
+//     passport.authenticate('local', (err, user, info) => {
+//         if (err) {
+//           return next(err);
+//         }
+
+//         if (!user) {
+//           return res.status(401).json({ message: 'Authentication failed', error: info, success: false });
+//         }
+        
+//         req.logIn(user, (err) => {
+//           if (err) {
+//             return res.status(500).json({ message: 'Login failed', error: err, success: false });
+//           }
+//           return res.json({ message: 'Authenticated', user, success: true });
+//         });
+//       })(req, res, next);
+//     });
 
 // app.post('/login', passport.authenticate('local'), (req, res) => {
 //     console.log("hey")
 //     res.json({ message: 'Login successful' });
 // });
 
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-  
-    // Here you can handle the login logic, e.g., validate credentials
-    // For simplicity, I'll just echo back the received data
-    res.json({ email, password });
-  });
+// app.post('/login', (req, res) => {
+//     const { email, password } = req.body;
+
+//     // Here you can handle the login logic, e.g., validate credentials
+//     // For simplicity, I'll just echo back the received data
+//     res.json({ email, password });
+// });
 
 // app.get('/register', checkNotAuthenticated, (req, res) => {
 //     res.render('register.ejs')
 // })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
-    const username = req.body.username;
-    const email = req.body.email;
-    let password;
+    // const username = req.body.username;
+    // const email = req.body.email;
+    // let password;
 
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
@@ -118,31 +135,33 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
             email: req.body.email,
             password: hashedPassword
         })
-        res.json({username, email, password})
-    } catch { 
-        res.redirect('/register')
+        res.json({ success: true })
+    } catch {
+        // res.redirect('/register')
+        res.json({ success: false })
     }
 })
 
 app.delete('/logout', (req, res, next) => {
+    console.log("attempting log out")
     req.logOut((err) => {
-        if(err) {
+        if (err) {
             return next(err)
         }
-        res.redirect('/login')
+        res.json({ success: true, message: 'Logged out' });
     })
 })
 
 function checkAuthenticated(req, res, next) {
-    if(req.isAuthenticated()) {
+    if (req.isAuthenticated()) {
         return next()
     }
 
-    res.redirect('/login')
+    res.status(401).json({ message: 'Unauthorized' });
 }
 
 function checkNotAuthenticated(req, res, next) {
-    if(req.isAuthenticated()) {
+    if (req.isAuthenticated()) {
         return res.redirect('/')
     }
     next()
