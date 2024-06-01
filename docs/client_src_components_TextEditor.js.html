@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/components/TextEditor.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/components/TextEditor.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useCallback, useEffect, useState } from 'react'
+import Quill from "quill"
+import "quill/dist/quill.snow.css"
+import { io } from "socket.io-client"
+import { useParams, useNavigate } from "react-router-dom"
+import HeaderNavbar from './HeaderNavbar'
+
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
+const SAVE_INTERVAL_MS = 2000
+const TOOLBAR_OPTIONS = [
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ font: [] }],
+    [{ list: "ordered" }, { list: "bullet" }],
+    ["bold", "italic", "underline"],
+    [{ color: [] }, { background: [] }],
+    [{ script: "sub" }, { script: "super" }],
+    [{ align: [] }],
+    ["image", "blockquote"],
+    ["clean"],
+]
+
+/**
+ * TextEditor component for editing documents with real-time collaboration.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
+export default function TextEditor() {
+    const { id, page } = useParams()
+    const [socket, setSocket] = useState()
+    const [quill, setQuill] = useState()
+    const navigate = useNavigate()
+
+    const documentId = id + "/" + page
+    const acceptablePages = ["details", "itinerary", "expenses", "map", "weather"]
+
+    // Redirect if the page parameter is not possible
+    useEffect(() => {
+        if (!acceptablePages.includes(page)) {
+            navigate(`/documents/${id}/details`)
+        }
+    }, [page])
+
+    // Establish socket connection with server
+    useEffect(() => {
+        const s = io(`${SERVER_URL}`)
+        setSocket(s)
+
+        return () => {
+            s.disconnect()
+        }
+    }, [])
+
+    // Load document from server on component mount
+    useEffect(() => {
+        if (socket == null || quill == null) return
+
+        socket.once("load-document", document => {
+            quill.setContents(document);
+            quill.enable();
+        })
+
+        socket.emit("get-document", documentId)
+    }, [socket, quill, documentId])
+
+    // Save document to server at regular intervals
+    useEffect(() => {
+        if (socket == null || quill == null) return
+
+        const interval = setInterval(() => {
+            socket.emit("save-document", quill.getContents())
+        }, SAVE_INTERVAL_MS)
+
+        return () => {
+            clearInterval(interval)
+        }
+    }, [socket, quill])
+
+    // Send changes to server when user edits the document
+    useEffect(() => {
+        if (socket == null || quill == null) return
+
+        const handler = (delta, oldDelta, source) => {
+            if (source !== "user") return
+            socket.emit("send-changes", delta)
+        }
+        quill.on("text-change", handler)
+
+        return () => {
+            quill.off("text-change", handler)
+        }
+    }, [socket, quill])
+
+    // Receive changes from server and update document
+    useEffect(() => {
+        if (socket == null || quill == null) return
+
+        const handler = delta => {
+            quill.updateContents(delta)
+        }
+        socket.on("receive-changes", handler)
+
+        return () => {
+            socket.off("receive-changes", handler)
+        }
+    }, [socket, quill])
+
+    // Initialize Quill editor
+    const wrapperRef = useCallback(wrapper => {
+        if (wrapper == null) return
+
+        wrapper.innerHTML = "";
+        const editor = document.createElement('div')
+        wrapper.append(editor)
+
+        const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS, history: { userOnly: true } } })
+        q.disable()
+        q.setText("Loading...")
+        setQuill(q);
+    }, [])
+    return &lt;>
+        &lt;HeaderNavbar />
+        &lt;div className="container" ref={wrapperRef}>&lt;/div>
+    &lt;/>
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Document">Document</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#initialize">initialize</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sat Jun 01 2024 17:00:23 GMT+0800 (Singapore Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -14,7 +14,7 @@ function initialize(passport, getUserByEmail, getUserById) {
      *
      * @param {string} email - The email of the user.
      * @param {string} password - The password of the user.
-     * @param {function(Error|null, Object|boolean, Object=): void} done - The callback function.
+     * @param {function(Error|null, Object|boolean, Object): void} done - The callback function.
      */
     const authenticateUser = async (email, password, done) => {
         const user = await getUserByEmail(email);
@@ -52,7 +52,7 @@ function initialize(passport, getUserByEmail, getUserById) {
      * Deserializes a user from a session.
      *
      * @param {string} id - The ID of the user.
-     * @param {function(Error|null, Object|boolean): void} done - The callback function.
+     * @param {function(Error|null, Object|boolean, Object): void} done - The callback function.
      */
     passport.deserializeUser((id, done) => {
         const user = getUserById(id);

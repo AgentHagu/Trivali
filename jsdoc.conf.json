@@ -1,0 +1,17 @@
+{
+    "source": {
+        "include": [
+            "server/server.js",
+            "server/modules",
+            "server/schema",
+            "client/src/App.js",
+            "client/src/components",
+            "client/src/pages",
+            "client/src/pages"
+        ]
+    },
+    "opts": {
+        "recurse": true,
+        "destination": "docs"
+    }
+}
