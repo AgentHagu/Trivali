@@ -1,5 +1,7 @@
 # Trivali
-## Project Overview
+Visit the website [here](13.212.6.226:3000/welcome)
+
+# Project Overview
 **Orbital Project 2024** - Trivali 
 
 **Level of Achievement** - Apollo
@@ -60,3 +62,8 @@ Our UX design will focus on ease of use, with user testing conducted to gather f
 1. **Itinerary Creation and Planning** - Users can create and organize their trip itineraries, including accomodation and transportation details.
 2. **Manage Travel Finances** - Users can input expenses and the web app will automatically calculate who owes whom how much money at the end of the trip, relieving them of the trouble of managing expenses.
 3. **Collaboration Support** - Users will be able to collaborate and plan trips together in real-time. -->
+# Documentation
+Our documentation can be found on our [GitHub Pages](https://agenthagu.github.io/Trivali/).
+
+# Acknowledgements
+- **Bootstrap Album Template** - This project uses the [Bootstrap Album Template](https://getbootstrap.com/docs/4.0/examples/album/).
