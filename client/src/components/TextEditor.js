@@ -33,8 +33,8 @@ export default function TextEditor() {
     }, [page])
 
     useEffect(() => {
-        const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
-        //const s = io("http://localhost:3001") // For local debugging
+        //const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
+        const s = io("http://localhost:3001") // For local debugging
         setSocket(s)
 
         return () => {

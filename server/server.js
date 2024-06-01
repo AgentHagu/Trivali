@@ -1,49 +1,26 @@
-const express = require('express');
+const express = require('express')
+const cors = require('cors')
 const http = require('http');
-const socketIo = require('socket.io');
-const mongoose = require("mongoose")
-const Document = require("./document")
+
 require("dotenv").config()
 
-const app = express();
+const app = express()
 const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
 
+// Middleware
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}))
+app.use(express.json())
 
-const mongoUri = process.env.MONGO_URI
-mongoose.connect(mongoUri)
+// Import and use auth module
+require('./modules/auth')(app);
 
-const defaultValue = ""
+// Import and use text-editor module
+require('./modules/text-editor')(server);
 
-io.on("connection", socket => {
-    socket.on("get-document", async documentId => {
-        const document = await findOrCreateDocument(documentId)
-        socket.join(documentId)
-        socket.emit("load-document", document.data)
-
-        socket.on("send-changes", delta => {
-            socket.broadcast.to(documentId).emit("receive-changes", delta)
-        })
-
-        socket.on("save-document", async data => {
-            await Document.findByIdAndUpdate(documentId, { data })
-        })
-    })
-})
-
-async function findOrCreateDocument(id) {
-    if (id == null) return
-
-    const document = await Document.findById(id);
-    if (document) return document
-    return await Document.create({ _id: id, data: defaultValue })
-}
 
 server.listen(3001, () => {
-    console.log("Server running on port 3001")
+  console.log("Server running on port 3001")
 })
