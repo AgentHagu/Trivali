@@ -15,8 +15,7 @@ Core features include tools for itinerary creation and planning, allowing users 
 itinerary recommendations based on user interests, map navigation support for online and offline use and real-time recommendations for nearby attractions and activities, as well as weather updates for locations of interest.
 
 ## Milestone 1 (Ideation)
-**Problem Motivation** - Many travelers struggle to plan their trips effectively, especially when planning as a group. Often, they have problems coordinating their schedules or interests and have to juggle multiple tools and platforms for itinerary creation, recommendations and expense tracking, making the process even more complicated.
-
+**Problem Motivation** - Many travelers struggle to plan their trips effectively, especially when planning as a group. Often, they have problems coordinating their schedules or interests and have to juggle multiple tools and platforms for itinerary creation, recommendations and expense tracking, making the process even more complicated. So, we created the idea for this collaborative travel planner to help such users. 
 
 ### User Stories
 1. **Itinerary Creation and Planning**
