@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import HeaderNavbar from "../components/HeaderNavbar";
 import { useNavigate } from "react-router-dom";
 
@@ -6,6 +6,26 @@ export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const navigate = useNavigate()
+
+    useEffect(() => {
+        async function fetchUser() {
+            const response = await fetch('http://localhost:3001/login', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+
+            if (response.ok) {
+                console.log("Allowed to login")
+            } else {
+                navigate('/home')
+            }
+        }
+
+        fetchUser()
+    }, [])
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -16,34 +36,25 @@ export default function LoginPage() {
         }
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
-        fetch('http://localhost:3001/login', {
+        const response = await fetch('http://localhost:3001/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({email, password})
         })
-        .then(response => {
-            console.log(response)
-            return response.json()})
-        .then(data => {
-            console.log(data); // Handle response from server
 
-            if (data.success) {
-                //const username = data.user.name
-                navigate('/home', { state: { username: "Test" }})
-            } else {
-                setEmail('')
-                setPassword('')
-                alert("Login Failed")
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        console.log(response)
+        if (response.ok) {
+            navigate('/home')
+            console.log("Logged in successfully")
+        } else {
+            console.log("Login failed")
+        }
     };
 
     return (
@@ -56,16 +67,4 @@ export default function LoginPage() {
             </form>
         </>
     );
-
-    // return (
-    //     <>
-            
-    //         <form onSubmit={handleSubmit}>
-    //         <input type="text" name="username" value={email} onChange={handleChange}/>
-    //         <input type="password" name="password" value={password} onChange={handleChange}/>
-    //         <button type="submit">Login</button>
-    //         </form>
-    //         <a href="/register">Register</a>
-    //     </>
-    // );
 }

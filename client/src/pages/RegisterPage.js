@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import HeaderNavbar from "../components/HeaderNavbar";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,26 @@ export default function RegisterPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const navigate = useNavigate()
+
+    useEffect(() => {
+        async function fetchUser() {
+            const response = await fetch('http://localhost:3001/register', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+
+            if (response.ok) {
+                console.log("Allowed to register")
+            } else {
+                navigate('/home')
+            }
+        }
+
+        fetchUser()
+    }, [navigate])
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -19,45 +39,35 @@ export default function RegisterPage() {
         }
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
-        fetch('http://localhost:3001/register', {
+        const response = await fetch('http://localhost:3001/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({username, email, password})
+            credentials: 'include',
+            body: JSON.stringify({ username, email, password })
         })
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            console.log(data)
-            
-            if (data.success) {
-                navigate('/login')
-            } else {
-                setUsername('')
-                setEmail('')
-                setPassword('')
 
-                alert("Registration failed")
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        if (response.ok) {
+            console.log("Register Success")
+            navigate('/login')
+        } else {
+            console.log("Register failed")
+            navigate('/register')
+        }
     };
 
     return (
         <>
             <HeaderNavbar />
             <form onSubmit={handleSubmit}>
-            <input type="text" name="username" placeholder="Username" value={username} onChange={handleChange} /> <br/>
-            <input type="text" name="email" placeholder="Email" value={email} onChange={handleChange} /> <br/>
-            <input type="password" name="password" placeholder="Password" value={password} onChange={handleChange} />
-            <button type="submit">Register</button>
+                <input type="text" name="username" placeholder="Username" value={username} onChange={handleChange} /> <br />
+                <input type="text" name="email" placeholder="Email" value={email} onChange={handleChange} /> <br />
+                <input type="password" name="password" placeholder="Password" value={password} onChange={handleChange} />
+                <button type="submit">Register</button>
             </form>
         </>
     );

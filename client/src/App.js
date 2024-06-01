@@ -35,7 +35,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <HomePage />
+    element: <PrivateRoute element={<HomePage />} />
   },
   {
     path: "/documents",
@@ -59,21 +59,37 @@ function PrivateRoute({ element }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/', {
-      method: 'GET',
-      credentials: 'include'
-    })
-    .then(response => {
-      console.log("authenticating...")
-      if (response.status === 401) {
-        setIsAuthenticated(false);
+
+    async function fetchUser() {
+      const response = await fetch('http://localhost:3001/', {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        console.log(response)
+        //const data = await response.json()
+        console.log("Authenticated")
+        //console.log(data)
+        setIsAuthenticated(true)
       } else {
-        setIsAuthenticated(true);
+        setIsAuthenticated(false)
       }
-    })
-    .catch(() => {
-      setIsAuthenticated(false);
-    });
+    }
+
+    fetchUser()
+
+    // .then(response => {
+    //   console.log("authenticating...")
+    //   if (response.status === 401) {
+    //     setIsAuthenticated(false);
+    //   } else {
+    //     setIsAuthenticated(true);
+    //   }
+    // })
+    // .catch(() => {
+    //   setIsAuthenticated(false);
+    // });
   }, []);
 
   if (isAuthenticated === null) {

@@ -4,27 +4,23 @@ import HeaderNavbar from "../components/HeaderNavbar";
 export default function HomePage() {
     const navigate = useNavigate()
 
-    const handleLogout = (event) => {
+    const handleLogout = async (event) => {
         event.preventDefault();
 
-        fetch('http://localhost:3001/logout', {
+        const response = await fetch('http://localhost:3001/logout', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include'
         })
-        .then(response => {
-            return response.json()})
-        .then(data => {
-            console.log(data); // Handle response from server
 
-            if (data.success) {
-                navigate('/welcome')
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        if (response.ok) {
+            navigate('/welcome')
+        } else {
+            // Not sure if this shld be procedure
+            navigate('/welcome')
+        }
     };
 
     const location = useLocation();
@@ -33,7 +29,6 @@ export default function HomePage() {
     return <>
         <HeaderNavbar />
         <h1>Hi {username}</h1>
-        {/* <form action="/logout?_method=DELETE" method="POST"> */}
         <form onSubmit={handleLogout}>
             <button type="submit"> Log Out</button>
         </form>
