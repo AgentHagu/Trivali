@@ -5,21 +5,15 @@
 **Level of Achievement** - Apollo
 
 ## Project Scope:
-**Short Version**
+**Short Version** - Our project aims to develop a collaborative travel planner web application, Trivali. Trivali will offer itinerary planning tools and itinerary recommendations based on user preferences, map navigation support with real-time recommendations to locations, real-time collaboration support as well as budgeting tools to track and manage travel expenses.
 
-Our project aims to develop a collaborative travel planner web application, Trivali. Trivali will offer itinerary planning tools and itinerary recommendations based on user preferences, map navigation support with real-time recommendations to locations, real-time collaboration support as well as budgeting tools to track and manage travel expenses.
-
-**Long Version**
-
-The project scope encompasses the development of a web application that serves as a collaborative travel planner, similar to Google Docs but tailored towards itinerary creation. 
+**Long Version** - The project scope encompasses the development of a web application that serves as a collaborative travel planner, similar to Google Docs but tailored towards itinerary creation. 
 
 Core features include tools for itinerary creation and planning, allowing users to plan their trips comprehensively within one app. Additionally, the app will offer collaborative itinerary editing, sharing recommendations with other users, and tools for budgeting travel expenses and tracking travel documents. Extension features include
 itinerary recommendations based on user interests, map navigation support for online and offline use and real-time recommendations for nearby attractions and activities, as well as weather updates for locations of interest.
 
 ## Milestone 1 (Ideation)
-**Problem Motivation**
-
-Many travelers struggle to plan their trips effectively, especially when planning as a group. Often, they have problems coordinating their schedules or interests and have to juggle multiple tools and platforms for itinerary creation, recommendations and expense tracking, making the process even more complicated.
+**Problem Motivation** - Many travelers struggle to plan their trips effectively, especially when planning as a group. Often, they have problems coordinating their schedules or interests and have to juggle multiple tools and platforms for itinerary creation, recommendations and expense tracking, making the process even more complicated.
 
 
 ### User Stories
@@ -42,9 +36,7 @@ Many travelers struggle to plan their trips effectively, especially when plannin
     - As a user, I want to check on weather updates in areas that I'll be vistiting
 
 ### Design
-- **Architecture**
-
-Our application will have a client-server architecture with a separate front-end and back-end. The front-end will be a single-page application (SPA) built using React, and the back-end will be an API server built using Node.js and Express.
+- **Architecture** - Our application will have a client-server architecture with a separate front-end and back-end. The front-end will be a single-page application (SPA) built using React, and the back-end will be an API server built using Node.js and Express.
 <!-- The front-end and back-end will communicate via RESTful APIs. -->
 
 - **Tech Stack**
@@ -60,13 +52,9 @@ We will use a clean and modern design with a focus on usability. Wireframes and 
 <!-- - **User Experience (UX) Design**
 Our UX design will focus on ease of use, with user testing conducted to gather feedback and iterate on the design. Key considerations will include intuitive navigation, clear labeling, and providing helpful prompts and tooltips. -->
 
-- **Data Flow**
+- **Data Flow** - The front-end will handle user interactions and send requests to the back-end API. The back-end will process these requests, interact with the database as needed, and return the appropriate responses to the front-end. We will use React for state management in the front-end to ensure a smooth and predictable data flow.
 
-The front-end will handle user interactions and send requests to the back-end API. The back-end will process these requests, interact with the database as needed, and return the appropriate responses to the front-end. We will use React for state management in the front-end to ensure a smooth and predictable data flow.
-
-- **Security and Performance**
-
-We will implement security best practices such as input validation, secure authentication, and data encryption. Performance optimization will include efficient database queries, caching strategies, and minimizing the load time of the front-end application.
+- **Security and Performance** - We will implement security best practices such as input validation, secure authentication, and data encryption. Performance optimization will include efficient database queries, caching strategies, and minimizing the load time of the front-end application.
 
 <!-- **Proposed Core Features**
 1. **Itinerary Creation and Planning** - Users can create and organize their trip itineraries, including accomodation and transportation details.
