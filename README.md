@@ -1,5 +1,5 @@
 # Trivali
-Visit the website [here](13.212.6.226:3000/welcome)
+Visit the website [here](http://13.212.6.226:3000/welcome)
 
 # Project Overview
 **Orbital Project 2024** - Trivali 
