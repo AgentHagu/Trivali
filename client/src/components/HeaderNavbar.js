@@ -1,17 +1,17 @@
 export default function HeaderNavbar() {
-    return <header class="sticky-top">
-        <div class="navbar navbar-expand-sm navbar-dark bg-dark">
-            <div class="container d-flex justify-content-between">
-                <a class="navbar-brand d-flex align-items-center" href="/welcome">
+    return <header className="sticky-top">
+        <div className="navbar navbar-expand-sm navbar-dark bg-dark">
+            <div className="container d-flex justify-content-between">
+                <a className="navbar-brand d-flex align-items-center" href="/welcome">
                     {/* add logo here */}
                     <strong>Trivali</strong>
                 </a>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
+                <ul className="navbar-nav">
+                    <li className="nav-item">
+                        <a className="nav-link" href="/login">Login</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/register">Sign up</a>
+                    <li className="nav-item">
+                        <a className="nav-link" href="/register">Sign up</a>
                     </li>
                 </ul>
             </div>
