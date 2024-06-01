@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import HeaderNavbar from "../components/HeaderNavbar";
 import { useNavigate } from "react-router-dom";
 
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -10,7 +12,7 @@ export default function LoginPage() {
 
     useEffect(() => {
         async function validateUser() {
-            const response = await fetch('http://localhost:3001/login', {
+            const response = await fetch(`${SERVER_URL}/login`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -40,7 +42,7 @@ export default function LoginPage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const response = await fetch('http://localhost:3001/login', {
+        const response = await fetch(`${SERVER_URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

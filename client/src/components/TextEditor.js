@@ -5,6 +5,8 @@ import { io } from "socket.io-client"
 import { useParams, useNavigate } from "react-router-dom"
 import HeaderNavbar from './HeaderNavbar'
 
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
 const SAVE_INTERVAL_MS = 2000
 const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -35,7 +37,7 @@ export default function TextEditor() {
 
     useEffect(() => {
         //const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
-        const s = io("http://localhost:3001") // For local debugging
+        const s = io(`${SERVER_URL}`) // For local debugging
         setSocket(s)
 
         return () => {

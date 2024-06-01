@@ -12,6 +12,8 @@ import Test from "./components/Test"
 import HomePage from "./pages/HomePage"
 import { useEffect, useState } from "react"
 
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
 const router = createBrowserRouter([
   {
     path: "/test",
@@ -61,7 +63,7 @@ function PrivateRoute({ element }) {
   useEffect(() => {
 
     async function fetchUser() {
-      const response = await fetch('http://localhost:3001/', {
+      const response = await fetch(`${SERVER_URL}`, {
         method: 'GET',
         credentials: 'include'
       })

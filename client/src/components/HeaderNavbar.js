@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import useUserData from "../hooks/useUserData"
 
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
 export default function HeaderNavbar() {
     const user = useUserData();
     const navigate = useNavigate()
@@ -8,7 +10,7 @@ export default function HeaderNavbar() {
     const handleLogout = async (event) => {
         event.preventDefault();
 
-        const response = await fetch('http://localhost:3001/logout', {
+        const response = await fetch(`${SERVER_URL}/logout`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -33,14 +35,9 @@ export default function HeaderNavbar() {
                 </a>
                 <ul className="navbar-nav">
                     {
-                        user// === null ? <></> : user
-
-
+                        user
                             ? <li className="nav-item">
-                                {/* <form onSubmit={handleLogout}>
-                                    <button type="submit"> Log Out</button>
-                                </form> */}
-                                <a className="nav-link" onClick={handleLogout} href="http://localhost:3001/logout">Logout</a>
+                                <a className="nav-link" onClick={handleLogout} href={`${SERVER_URL}/logout`}>Logout</a>
                             </li>
                             : <>
                                 <li className="nav-item">

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
 function useUserData() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
         async function fetchUserData() {
             try {
-                const response = await fetch("http://localhost:3001/", {
+                const response = await fetch(`${SERVER_URL}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'

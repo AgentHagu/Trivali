@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import HeaderNavbar from "../components/HeaderNavbar";
 import { useNavigate } from "react-router-dom";
 
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
 export default function RegisterPage() {
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
@@ -11,7 +13,7 @@ export default function RegisterPage() {
 
     useEffect(() => {
         async function validateUser() {
-            const response = await fetch('http://localhost:3001/register', {
+            const response = await fetch(`${SERVER_URL}/register`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -43,7 +45,7 @@ export default function RegisterPage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const response = await fetch('http://localhost:3001/register', {
+        const response = await fetch(`${SERVER_URL}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
