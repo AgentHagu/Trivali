@@ -5,6 +5,8 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
+const mongoose = require("mongoose")
+const User = require("../schema/user")
 
 /**
  * Initializes authentication middleware and routes.
@@ -12,15 +14,16 @@ const methodOverride = require('method-override')
  * @returns {void}
  */
 module.exports = (app) => {
-    // TODO: Switch to MongoDB Atlas storage of users
-    const users = []
+    const mongoUri = process.env.MONGO_URI
+    mongoose.connect(mongoUri)
 
     // Middleware
     const initialisedPassport = require('./passport-config')
     initialisedPassport(
         passport,
-        email => users.find(user => user.email === email),
-        id => users.find(user => user.id === id)
+        async email => await User.findOne({email: email}),
+        async id => await User.findById(id)
+            //users.find(user => user.id === id)
     )
     app.use(express.urlencoded({ extended: false }))
     app.use(flash())
@@ -35,8 +38,8 @@ module.exports = (app) => {
     app.use(methodOverride('_method'))
 
     // Authentication Route
-    app.get('/', checkAuthenticated, (req, res) => {
-        res.send('Authenticated')
+    app.get('/', checkAuthenticated, async (req, res) => {
+        res.send(await req.user)
     })
 
     // Login Route
@@ -49,11 +52,31 @@ module.exports = (app) => {
      * Authenticates the user using passport-local strategy.
      * @param {Object} req - The Express request object.
      * @param {Object} res - The Express response object.
+     * @param {Function} next - The next middleware function.
      * @returns {void}
      */
-    app.post('/login', passport.authenticate('local'), (req, res) => {
-        res.send('Logged in');
+    app.post('/login', (req, res, next) => {
+        passport.authenticate('local', (err, user, info) => {
+            if (err) {
+                // Handle error
+                return next(err);
+            }
+            if (!user) {
+                // Authentication failed, send error message to client
+                return res.status(401).send(info.message );
+            }
+            // Authentication successful, log in user
+            req.logIn(user, (err) => {
+                if (err) {
+                    // Handle error
+                    return next(err);
+                }
+                // Redirect or send success response
+                return res.send("Logged in successfully")
+            });
+        })(req, res, next);
     });
+
 
     // Register Route
     app.get('/register', checkNotAuthenticated, (req, res) => {
@@ -70,16 +93,21 @@ module.exports = (app) => {
     app.post('/register', checkNotAuthenticated, async (req, res) => {
         try {
             const hashedPassword = await bcrypt.hash(req.body.password, 10)
-            users.push({
-                id: Date.now().toString(),
-                name: req.body.name,
+
+            await User.create({
+                _id: Date.now().toString(),
+                username: req.body.username,
                 email: req.body.email,
                 password: hashedPassword
             })
+
             res.send('Registered!')
-        } catch {
-            // Not sure if this status/procedure is correct
-            res.status(400).send("Failed for some reason")
+        } catch (error) {
+            if (error.code == 11000) {
+                res.status(400).send("Email is already registered")
+            } else {
+                res.status(500).send("Registration failed")
+            }
         }
     })
 
@@ -115,7 +143,7 @@ function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     } else {
-        res.status(401).send('Unauthorized');
+        res.status(401);
     }
 }
 
@@ -132,6 +160,6 @@ function checkNotAuthenticated(req, res, next) {
     if (!req.isAuthenticated || !req.isAuthenticated()) {
         return next();
     } else {
-        res.status(403).send('Already authenticated');
+        res.status(403);
     }
 }

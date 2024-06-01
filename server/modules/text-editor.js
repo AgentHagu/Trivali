@@ -33,7 +33,7 @@ module.exports = (server) => {
 }
 
 /**
- * Default value for new documents.
+ * Default value for documents.
  * @type {string}
  */
 const defaultValue = ""

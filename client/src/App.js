@@ -67,10 +67,6 @@ function PrivateRoute({ element }) {
       })
 
       if (response.ok) {
-        console.log(response)
-        //const data = await response.json()
-        console.log("Authenticated")
-        //console.log(data)
         setIsAuthenticated(true)
       } else {
         setIsAuthenticated(false)
@@ -78,18 +74,6 @@ function PrivateRoute({ element }) {
     }
 
     fetchUser()
-
-    // .then(response => {
-    //   console.log("authenticating...")
-    //   if (response.status === 401) {
-    //     setIsAuthenticated(false);
-    //   } else {
-    //     setIsAuthenticated(true);
-    //   }
-    // })
-    // .catch(() => {
-    //   setIsAuthenticated(false);
-    // });
   }, []);
 
   if (isAuthenticated === null) {

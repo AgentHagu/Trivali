@@ -5,10 +5,11 @@ import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
     const navigate = useNavigate()
 
     useEffect(() => {
-        async function fetchUser() {
+        async function validateUser() {
             const response = await fetch('http://localhost:3001/login', {
                 method: 'GET',
                 headers: {
@@ -18,21 +19,21 @@ export default function LoginPage() {
             })
 
             if (response.ok) {
-                console.log("Allowed to login")
+                //console.log("Allowed to login")
             } else {
                 navigate('/home')
             }
         }
 
-        fetchUser()
+        validateUser()
     }, [])
 
     const handleChange = (event) => {
         const { name, value } = event.target;
         if (name === 'email') {
-        setEmail(value)
+            setEmail(value)
         } else if (name === 'password') {
-        setPassword(value)
+            setPassword(value)
         }
     };
 
@@ -45,15 +46,15 @@ export default function LoginPage() {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify({email, password})
+            body: JSON.stringify({ email, password })
         })
 
-        console.log(response)
         if (response.ok) {
             navigate('/home')
-            console.log("Logged in successfully")
         } else {
-            console.log("Login failed")
+            response.text().then(errorMessage => {
+                setError(errorMessage)
+            });
         }
     };
 
@@ -61,10 +62,11 @@ export default function LoginPage() {
         <>
             <HeaderNavbar />
             <form onSubmit={handleSubmit}>
-            <input type="text" name="email" value={email} placeholder="Email" onChange={handleChange} /> <br/>
-            <input type="password" name="password" value={password} placeholder="Password" onChange={handleChange} />
-            <button type="submit">Login</button>
+                <input type="email" name="email" value={email} placeholder="Email" required onChange={handleChange} /> <br />
+                <input type="password" name="password" value={password} placeholder="Password" required onChange={handleChange} />
+                <button type="submit">Login</button>
             </form>
+            <p>{error}</p>
         </>
     );
 }

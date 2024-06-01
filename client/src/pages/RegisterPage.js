@@ -6,10 +6,11 @@ export default function RegisterPage() {
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
     const navigate = useNavigate()
 
     useEffect(() => {
-        async function fetchUser() {
+        async function validateUser() {
             const response = await fetch('http://localhost:3001/register', {
                 method: 'GET',
                 headers: {
@@ -19,13 +20,13 @@ export default function RegisterPage() {
             })
 
             if (response.ok) {
-                console.log("Allowed to register")
+                //console.log("Allowed to register")
             } else {
                 navigate('/home')
             }
         }
 
-        fetchUser()
+        validateUser()
     }, [navigate])
 
     const handleChange = (event) => {
@@ -52,11 +53,11 @@ export default function RegisterPage() {
         })
 
         if (response.ok) {
-            console.log("Register Success")
             navigate('/login')
         } else {
-            console.log("Register failed")
-            navigate('/register')
+            response.text().then(errorMessage => {
+                setError(errorMessage)
+            });
         }
     };
 
@@ -64,11 +65,12 @@ export default function RegisterPage() {
         <>
             <HeaderNavbar />
             <form onSubmit={handleSubmit}>
-                <input type="text" name="username" placeholder="Username" value={username} onChange={handleChange} /> <br />
-                <input type="text" name="email" placeholder="Email" value={email} onChange={handleChange} /> <br />
-                <input type="password" name="password" placeholder="Password" value={password} onChange={handleChange} />
+                <input type="text" name="username" placeholder="Username" required value={username} onChange={handleChange} /> <br />
+                <input type="email" name="email" placeholder="Email" required value={email} onChange={handleChange} /> <br />
+                <input type="password" name="password" placeholder="Password" required value={password} onChange={handleChange} />
                 <button type="submit">Register</button>
             </form>
+            <p>{error}</p>
         </>
     );
 }
