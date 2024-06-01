@@ -1,6 +1,12 @@
 import HeaderNavbar from "../components/HeaderNavbar";
 import useUserData from "../hooks/useUserData";
 
+/**
+ * HomePage component to display the home page content.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function HomePage() {
     const user = useUserData();
     

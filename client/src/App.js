@@ -14,6 +14,7 @@ import { useEffect, useState } from "react"
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+// Create router configuration
 const router = createBrowserRouter([
   {
     path: "/test",
@@ -53,15 +54,27 @@ const router = createBrowserRouter([
   }
 ])
 
+/**
+ * Main App component.
+ * 
+ * @returns {JSX.Element} The rendered component.
+ */
 function App() {
   return <RouterProvider router={router} />
 }
 
+/**
+ * PrivateRoute component to protect routes.
+ * 
+ * @param {Object} props - Component props.
+ * @param {JSX.Element} props.element - The element to render if authenticated.
+ * @returns {JSX.Element} The rendered component.
+ */
 function PrivateRoute({ element }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
+  // Validate user session on component mount
   useEffect(() => {
-
     async function fetchUser() {
       const response = await fetch(`${SERVER_URL}`, {
         method: 'GET',

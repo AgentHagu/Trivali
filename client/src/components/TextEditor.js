@@ -20,6 +20,12 @@ const TOOLBAR_OPTIONS = [
     ["clean"],
 ]
 
+/**
+ * TextEditor component for editing documents with real-time collaboration.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function TextEditor() {
     const { id, page } = useParams()
     const [socket, setSocket] = useState()
@@ -29,15 +35,16 @@ export default function TextEditor() {
     const documentId = id + "/" + page
     const acceptablePages = ["details", "itinerary", "expenses", "map", "weather"]
 
+    // Redirect if the page parameter is not possible
     useEffect(() => {
         if (!acceptablePages.includes(page)) {
             navigate(`/documents/${id}/details`)
         }
     }, [page])
 
+    // Establish socket connection with server
     useEffect(() => {
-        //const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
-        const s = io(`${SERVER_URL}`) // For local debugging
+        const s = io(`${SERVER_URL}`)
         setSocket(s)
 
         return () => {
@@ -45,6 +52,7 @@ export default function TextEditor() {
         }
     }, [])
 
+    // Load document from server on component mount
     useEffect(() => {
         if (socket == null || quill == null) return
 
@@ -56,6 +64,7 @@ export default function TextEditor() {
         socket.emit("get-document", documentId)
     }, [socket, quill, documentId])
 
+    // Save document to server at regular intervals
     useEffect(() => {
         if (socket == null || quill == null) return
 
@@ -68,6 +77,7 @@ export default function TextEditor() {
         }
     }, [socket, quill])
 
+    // Send changes to server when user edits the document
     useEffect(() => {
         if (socket == null || quill == null) return
 
@@ -82,6 +92,7 @@ export default function TextEditor() {
         }
     }, [socket, quill])
 
+    // Receive changes from server and update document
     useEffect(() => {
         if (socket == null || quill == null) return
 
@@ -95,6 +106,7 @@ export default function TextEditor() {
         }
     }, [socket, quill])
 
+    // Initialize Quill editor
     const wrapperRef = useCallback(wrapper => {
         if (wrapper == null) return
 

@@ -4,6 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+/**
+ * RegisterPage component for user registration functionality.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function RegisterPage() {
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
@@ -11,6 +17,7 @@ export default function RegisterPage() {
     const [error, setError] = useState('')
     const navigate = useNavigate()
 
+    // Validate user session on component mount
     useEffect(() => {
         async function validateUser() {
             const response = await fetch(`${SERVER_URL}/register`, {
@@ -31,6 +38,7 @@ export default function RegisterPage() {
         validateUser()
     }, [navigate])
 
+    // Handle input change
     const handleChange = (event) => {
         const { name, value } = event.target;
         if (name === 'email') {
@@ -42,6 +50,7 @@ export default function RegisterPage() {
         }
     };
 
+    // Handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
 

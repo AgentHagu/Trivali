@@ -3,10 +3,22 @@ import useUserData from "../hooks/useUserData"
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+/**
+ * HeaderNavbar component provides web-app navigation bar.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function HeaderNavbar() {
     const user = useUserData();
     const navigate = useNavigate()
 
+    /**
+     * Handles user logout by sending a DELETE request to the server.
+     *
+     * @param {React.MouseEvent<HTMLAnchorElement, MouseEvent>} event - The click event.
+     * @returns {Promise<void>} A promise that resolves when the logout process is complete.
+     */
     const handleLogout = async (event) => {
         event.preventDefault();
 
@@ -35,6 +47,8 @@ export default function HeaderNavbar() {
                 </a>
                 <ul className="navbar-nav">
                     {
+                        // If user is logged in, show the logout button
+                        // Else, show login and sign up buttons
                         user
                             ? <li className="nav-item">
                                 <a className="nav-link" onClick={handleLogout} href={`${SERVER_URL}/logout`}>Logout</a>

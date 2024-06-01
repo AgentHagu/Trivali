@@ -4,6 +4,12 @@ const mongoose = require("mongoose")
 const socketIo = require('socket.io');
 const Document = require("../schema/document")
 
+/**
+ * Initializes the WebSocket server with the provided HTTP server.
+ * This server communicates and allows for real-time collaborative text-editting
+ * @param {Object} server - The HTTP server instance.
+ * @returns {void}
+ */
 module.exports = (server) => {
     const io = socketIo(server, {
         cors: {
@@ -16,15 +22,33 @@ module.exports = (server) => {
     mongoose.connect(mongoUri)
 
     io.on("connection", socket => {
+        /**
+         * Event listener for when a client requests a document by ID.
+         *
+         * @event connection#get-document
+         * @param {string} documentId - The ID of the document.
+         */
         socket.on("get-document", async documentId => {
             const document = await findOrCreateDocument(documentId)
             socket.join(documentId)
             socket.emit("load-document", document.data)
 
+            /**
+             * Event listener for when a client sends changes to the document.
+             *
+             * @event connection#send-changes
+             * @param {Object} delta - The changes made to the document.
+             */
             socket.on("send-changes", delta => {
                 socket.broadcast.to(documentId).emit("receive-changes", delta)
             })
 
+            /**
+             * Event listener for when a client saves the document.
+             *
+             * @event connection#save-document
+             * @param {Object} data - The data to save in the document.
+             */
             socket.on("save-document", async data => {
                 await Document.findByIdAndUpdate(documentId, { data })
             })

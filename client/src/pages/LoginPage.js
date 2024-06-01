@@ -4,12 +4,19 @@ import { useNavigate } from "react-router-dom";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+/**
+ * LoginPage component for user login functionality.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const navigate = useNavigate()
 
+    // Validate user session on component mount
     useEffect(() => {
         async function validateUser() {
             const response = await fetch(`${SERVER_URL}/login`, {
@@ -30,6 +37,7 @@ export default function LoginPage() {
         validateUser()
     }, [])
 
+    // Handle input change
     const handleChange = (event) => {
         const { name, value } = event.target;
         if (name === 'email') {
@@ -39,6 +47,7 @@ export default function LoginPage() {
         }
     };
 
+    // Handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
 
