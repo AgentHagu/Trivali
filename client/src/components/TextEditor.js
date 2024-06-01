@@ -3,6 +3,7 @@ import Quill from "quill"
 import "quill/dist/quill.snow.css"
 import { io } from "socket.io-client"
 import { useParams, useNavigate } from "react-router-dom"
+import HeaderNavbar from './HeaderNavbar'
 
 const SAVE_INTERVAL_MS = 2000
 const TOOLBAR_OPTIONS = [
@@ -33,8 +34,8 @@ export default function TextEditor() {
     }, [page])
 
     useEffect(() => {
-        const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
-        //const s = io("http://localhost:3001") // For local debugging
+        //const s = io("http://18.143.138.119:3001/") // Link to AWS Server instance
+        const s = io("http://localhost:3001") // For local debugging
         setSocket(s)
 
         return () => {
@@ -104,5 +105,8 @@ export default function TextEditor() {
         q.setText("Loading...")
         setQuill(q);
     }, [])
-    return <div className="container" ref={wrapperRef}></div>
+    return <>
+        <HeaderNavbar />
+        <div className="container" ref={wrapperRef}></div>
+    </>
 }
