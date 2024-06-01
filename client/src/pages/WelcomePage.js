@@ -3,6 +3,12 @@ import HeaderNavbar from "../components/HeaderNavbar"
 // TODO: Credit Bootstrap for the Album page example
 // TODO: Credit Bootstrap and other packages (i think)
 
+/**
+ * WelcomePage component to display the welcome page content.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function WelcomePage() {
     return <>
         <HeaderNavbar />

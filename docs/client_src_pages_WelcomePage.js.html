@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/pages/WelcomePage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/pages/WelcomePage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import HeaderNavbar from "../components/HeaderNavbar"
+
+// TODO: Credit Bootstrap for the Album page example
+// TODO: Credit Bootstrap and other packages (i think)
+
+/**
+ * WelcomePage component to display the welcome page content.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ */
+export default function WelcomePage() {
+    return &lt;>
+        &lt;HeaderNavbar />
+        &lt;main role="main">
+            &lt;section className="p-5 rounded text-center">
+                &lt;div className="container">
+                    &lt;h1 className="jumbotron-heading">Welcome to &lt;br /> Trivali&lt;/h1>
+                    &lt;p className="lead text-muted">The one-stop solution to your &lt;br /> travel planning problems&lt;/p>
+                    &lt;img className="img-fluid" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                        alt="Trivali Logo" />
+                &lt;/div>
+            &lt;/section>
+            
+            &lt;div className="py-5 bg-light">
+                &lt;div className="container">
+                    &lt;div className="row">
+                        {/*Feature 1 Card*/}
+                        &lt;div className="col-md-4">
+                            &lt;div className="card h-100 mb-4 shadow-sm">
+                                &lt;div className="card-header">Trip Organizer and Planner&lt;/div>
+                                &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                    alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
+                                &lt;div className="card-body">
+                                    &lt;p className="card-text">
+                                        Our web-app will provide tools such as itinerary
+                                        creation and planning, accommodation bookings and
+                                        transportation arrangements.
+                                    &lt;/p>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>
+
+                        {/*Feature 2 Card*/}
+                        &lt;div className="col-md-4">
+                            &lt;div className="card h-100 mb-4 shadow-sm">
+                                &lt;div className="card-header">Manage Travel Finances&lt;/div>
+                                &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                    alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
+                                &lt;div className="card-body">
+                                    &lt;p className="card-text">
+                                        Allow users to input expenses and automatically
+                                        calculate who owes whom money at the end of the
+                                        trip.
+                                    &lt;/p>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>
+
+                        {/*Feature 3 Card*/}
+                        &lt;div className="col-md-4">
+                            &lt;div className="card h-100 mb-4 shadow-sm">
+                                &lt;div className="card-header">Collaboration Support&lt;/div>
+                                &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                    alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
+                                &lt;div className="card-body">
+                                    &lt;p className="card-text">
+                                        Easily coordinate and plan trips together with family and friends on our platform.
+                                    &lt;/p>
+                                &lt;/div>
+                            &lt;/div>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/main>
+    &lt;/>
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Document">Document</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#initialize">initialize</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sat Jun 01 2024 17:00:23 GMT+0800 (Singapore Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
