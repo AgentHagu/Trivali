@@ -34,7 +34,7 @@ export default function TextEditor() {
 
     const documentId = id + "/" + page
     const acceptablePages = ["details", "itinerary", "expenses", "map", "weather"]
-
+ 
     // Redirect if the page parameter is not possible
     useEffect(() => {
         if (!acceptablePages.includes(page)) {
