@@ -75,20 +75,30 @@ function PrivateRoute({ element }) {
 
   // Validate user session on component mount
   useEffect(() => {
-    async function fetchUser() {
-      const response = await fetch(`${SERVER_URL}`, {
-        method: 'GET',
-        credentials: 'include'
-      })
+    let isMounted = true; // Track if component is still mounted
 
-      if (response.ok) {
-        setIsAuthenticated(true)
-      } else {
-        setIsAuthenticated(false)
+    async function fetchUser() {
+      try {
+        const response = await fetch(`${SERVER_URL}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          if (isMounted) setIsAuthenticated(true);
+        } else {
+          if (isMounted) setIsAuthenticated(false);
+        }
+      } catch (error) {
+        if (isMounted) setIsAuthenticated(false);
       }
     }
 
-    fetchUser()
+    fetchUser();
+
+    return () => {
+      isMounted = false; // Cleanup on unmount
+    };
   }, []);
 
   if (isAuthenticated === null) {

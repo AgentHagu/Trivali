@@ -21,9 +21,9 @@ module.exports = (app) => {
     const initialisedPassport = require('./passport-config')
     initialisedPassport(
         passport,
-        async email => await User.findOne({email: email}),
+        async email => await User.findOne({ email: email }),
         async id => await User.findById(id)
-            //users.find(user => user.id === id)
+        //users.find(user => user.id === id)
     )
     app.use(express.urlencoded({ extended: false }))
     app.use(flash())
@@ -63,7 +63,7 @@ module.exports = (app) => {
             }
             if (!user) {
                 // Authentication failed, send error message to client
-                return res.status(401).send(info.message );
+                return res.status(401).send(info.message);
             }
             // Authentication successful, log in user
             req.logIn(user, (err) => {
@@ -143,7 +143,7 @@ function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     } else {
-        res.status(401);
+        res.status(401).send();
     }
 }
 
@@ -160,6 +160,6 @@ function checkNotAuthenticated(req, res, next) {
     if (!req.isAuthenticated || !req.isAuthenticated()) {
         return next();
     } else {
-        res.status(403);
+        res.status(403).send();
     }
 }
