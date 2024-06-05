@@ -18,7 +18,8 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 const router = createBrowserRouter([
   {
     path: "/test",
-    element: <PrivateRoute element = {<Test />}/>
+    // element: <PrivateRoute element = {<Test />}/>
+    element: <Test />
   },
   {
     path: "/",

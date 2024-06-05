@@ -11,9 +11,13 @@ const provider = new WebrtcProvider("hello", ydoc);
 export default function Tiptap(props) {
     const editor = useEditor({
         content: "<p>Hello World!<p/>",
-        extensions: [StarterKit, Collaboration.configure({
-            document: ydoc
-        }),
+        extensions: [
+            StarterKit.configure({
+                history: false
+            }),
+            Collaboration.configure({
+                document: ydoc
+            }),
             CollaborationCursor.configure({
                 provider: provider,
                 user: {
