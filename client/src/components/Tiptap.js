@@ -6,22 +6,22 @@ import * as Y from "yjs"
 import { WebrtcProvider } from "y-webrtc"
 
 const ydoc = new Y.Doc();
-const provider = new WebrtcProvider("tiptap-test", ydoc);
+const provider = new WebrtcProvider("hello", ydoc);
 
-export default function Tiptap() {
+export default function Tiptap(props) {
     const editor = useEditor({
         content: "<p>Hello World!<p/>",
         extensions: [StarterKit, Collaboration.configure({
             document: ydoc
         }),
-        CollaborationCursor.configure({
-            provider: provider,
-            user: {
-                name: "User1",
-                color: "#DDFD98"
-            }
-        })
-    ]
+            CollaborationCursor.configure({
+                provider: provider,
+                user: {
+                    name: "User1",
+                    color: "#DDFD98"
+                }
+            })
+        ]
     })
 
     return <EditorContent editor={editor} />

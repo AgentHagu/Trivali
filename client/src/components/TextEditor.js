@@ -33,14 +33,14 @@ export default function TextEditor() {
     const navigate = useNavigate()
 
     const documentId = id + "/" + page
-    const acceptablePages = ["details", "itinerary", "expenses", "map", "weather"]
+    // const acceptablePages = ["details", "itinerary", "expenses", "map", "weather"]
  
-    // Redirect if the page parameter is not possible
-    useEffect(() => {
-        if (!acceptablePages.includes(page)) {
-            navigate(`/documents/${id}/details`)
-        }
-    }, [page])
+    // // Redirect if the page parameter is not possible
+    // useEffect(() => {
+    //     if (!acceptablePages.includes(page)) {
+    //         navigate(`/documents/${id}/details`)
+    //     }
+    // }, [page])
 
     // Establish socket connection with server
     useEffect(() => {
@@ -120,7 +120,6 @@ export default function TextEditor() {
         setQuill(q);
     }, [])
     return <>
-        <HeaderNavbar />
         <div className="container" ref={wrapperRef}></div>
     </>
 }

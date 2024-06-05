@@ -8,7 +8,7 @@ import {
 import { v4 as uuidV4 } from "uuid"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
-import Test from "./components/Test"
+import Test from "./pages/Test"
 import HomePage from "./pages/HomePage"
 import { useEffect, useState } from "react"
 
@@ -18,7 +18,7 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 const router = createBrowserRouter([
   {
     path: "/test",
-    element: <Test />
+    element: <PrivateRoute element = {<Test />}/>
   },
   {
     path: "/",
