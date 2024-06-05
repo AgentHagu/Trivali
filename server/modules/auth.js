@@ -31,7 +31,7 @@ module.exports = (app) => {
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false, sameSite: 'None' }
+        cookie: { secure: false }
     }))
     app.use(passport.initialize())
     app.use(passport.session())
@@ -57,6 +57,8 @@ module.exports = (app) => {
      */
     app.post('/login', (req, res, next) => {
         passport.authenticate('local', (err, user, info) => {
+            console.log("HEYY")
+            console.log(err, user, info)
             if (err) {
                 // Handle error
                 return next(err);
@@ -65,8 +67,11 @@ module.exports = (app) => {
                 // Authentication failed, send error message to client
                 return res.status(401).send(info.message);
             }
+
+
             // Authentication successful, log in user
             req.logIn(user, (err) => {
+
                 if (err) {
                     // Handle error
                     return next(err);
@@ -140,6 +145,8 @@ module.exports = (app) => {
  * @returns {void}
  */
 function checkAuthenticated(req, res, next) {
+    console.log("authenticating...")
+    console.log(req.isAuthenticated())
     if (req.isAuthenticated()) {
         return next();
     } else {

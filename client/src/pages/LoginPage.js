@@ -60,6 +60,9 @@ export default function LoginPage() {
             body: JSON.stringify({ email, password })
         })
 
+        console.log("login response:")
+        console.log(response)
+
         if (response.ok) {
             navigate('/home')
         } else {
