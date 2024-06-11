@@ -33,6 +33,8 @@ module.exports = (app) => {
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
+        
+        // Need to move to https and change to secure: true, sameSite: 'None'
         cookie: { secure: false, sameSite: 'lax' }
     }))
 
@@ -144,7 +146,6 @@ module.exports = (app) => {
         }
     })
 
-    // Logout Route
     /**
      * Logout route handler.
      * Logs out the current user.
@@ -158,10 +159,8 @@ module.exports = (app) => {
             if (err) {
                 return next(err)
             }
-            res.send('Logged out')
+            res.send('/logout success')
         })
-        // req.session = null
-        // res.send("Logged out")
     })
 }
 
@@ -175,12 +174,10 @@ module.exports = (app) => {
  * @returns {void}
  */
 function checkAuthenticated(req, res, next) {
-    // console.log("Checking if authenticated:", req.session.user);
     if (req.isAuthenticated()) {
-    // if (req.session.user) {
         return next();
     } else {
-        res.status(401).send("Not authenticated");
+        res.status(401).send("checkAuthenticated failed");
     }
 }
 
@@ -195,9 +192,9 @@ function checkAuthenticated(req, res, next) {
  */
 function checkNotAuthenticated(req, res, next) {
     // if (!req.session.user) {
-        if (!req.isAuthenticated || !req.isAuthenticated()) {
+    if (!req.isAuthenticated || !req.isAuthenticated()) {
         return next();
     } else {
-        res.status(403).send();
+        res.status(403).send("checkNotAuthenticated failed");
     }
 }

@@ -10,17 +10,6 @@ export default function ProjectAbout() {
             <h2>Bali</h2>
             <h1>Duration:</h1>
             <h2>Jun 1 - Jun 14 (2 weeks)</h2>
-            <div class="row">
-                <div class="col">
-                    <Tiptap />
-                </div>
-                <div class="col">
-                    <Tiptap />
-                </div>
-                <div class="col">
-                    <Tiptap />
-                </div>
-            </div>
         </div>
     </>
 }

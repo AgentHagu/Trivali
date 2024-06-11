@@ -10,21 +10,23 @@ body {
 }
 
 .container .ql-editor {
-    width: 8.5in;
-    min-height: 11in;
-    padding: 1in;
-    margin: 1rem;
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+    width: 100%;
+    /* min-height: 11in; */
+    /* padding: 0.5in; */
+    /* margin: 1rem; */
+    /* box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5); */
     background-color: white;
 }
 
 .container .ql-container.ql-snow {
+    /* border-color: black; */
+    /* border-width: 4; */
     border: none;
     display: flex;
     justify-content: center;
 }
 
-.container .ql-toolbar.ql-snow {
+/* .container .ql-toolbar.ql-snow {
     display: flex;
     justify-content: center;
     position: sticky;
@@ -33,7 +35,7 @@ body {
     background-color: #F3F3F3;
     border: none;
     box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
-}
+} */
 
 @page {
     margin: 1in;
