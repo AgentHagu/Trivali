@@ -1,7 +1,7 @@
 import TextEditor from "./TextEditor";
 import Tiptap from "./Tiptap";
 
-export default function ProjectAbout() {
+export default function About() {
     return <>
         <div class="container">
             <h1>About:</h1>

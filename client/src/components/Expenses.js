@@ -1,4 +1,4 @@
-export default function ProjectAbout() {
+export default function Expenses() {
     return <>
         <div class="container">
             <h1>Expenses</h1>

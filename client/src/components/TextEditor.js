@@ -34,9 +34,9 @@ export default function TextEditor(props) {
     const { id } = useParams()
     const [socket, setSocket] = useState()
     const [quill, setQuill] = useState()
-    const navigate = useNavigate()
 
     const documentId = id + "/" + props.page + "/" + props.number
+    // const documentId = props.page + "/" + props.number
     // console.log(documentId)
     
     // Establish socket connection with server
