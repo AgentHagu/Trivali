@@ -15,6 +15,8 @@ const User = require("../schema/user")
  */
 module.exports = (app) => {
     const mongoUri = process.env.MONGO_URI
+    console.log(mongoUri)
+    console.log(process.env.MONGO_URI)
     mongoose.connect(mongoUri)
 
     // Middleware
@@ -31,7 +33,7 @@ module.exports = (app) => {
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false, sameSite: 'None' }
+        cookie: { secure: false }
     }))
     app.use(passport.initialize())
     app.use(passport.session())
