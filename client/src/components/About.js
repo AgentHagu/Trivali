@@ -1,9 +1,8 @@
 import TextEditor from "./TextEditor";
-import Tiptap from "./Tiptap";
 
 export default function About() {
     return <>
-        <div class="container">
+        <div className="container">
             <h1>About:</h1>
             <h2>Holiday to Bali with friends. Going to go to the beach and eat good food</h2>
             <h1>Destination:</h1>

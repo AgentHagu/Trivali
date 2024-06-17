@@ -17,7 +17,7 @@ app.use(express.json())
 require('./modules/auth')(app);
 
 // Import and use text-editor module
-require('./modules/text-editor')(server);
+require('./modules/collab')(server);
 
 
 // TipTap test

@@ -36,9 +36,7 @@ export default function TextEditor(props) {
     const [quill, setQuill] = useState()
 
     const documentId = id + "/" + props.page + "/" + props.number
-    // const documentId = props.page + "/" + props.number
-    // console.log(documentId)
-    
+
     // Establish socket connection with server
     useEffect(() => {
         const s = io(`${SERVER_URL}`)
@@ -80,7 +78,7 @@ export default function TextEditor(props) {
 
         const handler = (delta, oldDelta, source) => {
             if (source !== "user") return
-            socket.emit("send-changes", delta)
+            socket.emit("send-document-changes", delta)
         }
         quill.on("text-change", handler)
 
@@ -96,10 +94,10 @@ export default function TextEditor(props) {
         const handler = delta => {
             quill.updateContents(delta)
         }
-        socket.on("receive-changes", handler)
+        socket.on("receive-document-changes", handler)
 
         return () => {
-            socket.off("receive-changes", handler)
+            socket.off("receive-document-changes", handler)
         }
     }, [socket, quill])
 
@@ -117,20 +115,9 @@ export default function TextEditor(props) {
                 modules: {
                     toolbar: false,
                     history: { userOnly: true },
-                    table: false,
-                    'better-table': {
-                        operationMenu: {
-                            items: {
-                                unmergeCells: {
-                                    text: 'Another'
-                                }
-                            }
-                        }
-                    }
                 }
             })
-        // let tableModule = q.getModule('better-table')
-        // tableModule.insertTable(3, 3)
+
         q.disable()
         q.setText("Loading...")
         setQuill(q);

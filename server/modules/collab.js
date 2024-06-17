@@ -3,7 +3,8 @@
 const mongoose = require("mongoose")
 const socketIo = require('socket.io');
 const Document = require("../schema/document")
-
+const Project = require("../schema/project")
+const { parse } = require('flatted');
 /**
  * Initializes the WebSocket server with the provided HTTP server.
  * This server communicates and allows for real-time collaborative text-editting
@@ -39,8 +40,8 @@ module.exports = (server) => {
              * @listens connection#send-changes
              * @param {Object} delta - The changes made to the document.
              */
-            socket.on("send-changes", delta => {
-                socket.broadcast.to(documentId).emit("receive-changes", delta)
+            socket.on("send-document-changes", delta => {
+                socket.broadcast.to(documentId).emit("receive-document-changes", delta)
             })
 
             /**
@@ -52,6 +53,21 @@ module.exports = (server) => {
             socket.on("save-document", async data => {
                 await Document.findByIdAndUpdate(documentId, { data })
             })
+        })
+
+        socket.on("get-project", async projectId => {
+            const project = await findOrCreateProject(projectId)
+            socket.join(projectId)
+
+            socket.emit("load-project", project)
+            //socket.emit("load-about", project.about)
+            //socket.emit("load-itinerary", project.itinerary)
+            //socket.emit("load-expenses", project.expenses)
+
+            socket.on("send-itinerary-changes", clickData => {
+                socket.broadcast.to(projectId).emit("receive-itinerary-changes", clickData)
+            })
+
         })
     })
 }
@@ -71,9 +87,32 @@ const defaultValue = ""
 async function findOrCreateDocument(id) {
     if (id == null) return
 
-    const document = await Document.findById(id);
+    const document = await Document.findById(id)
     if (document) return document
 
     // If document doesn't exist, create a new one with the provided ID and default value
     return await Document.create({ _id: id, data: defaultValue })
+}
+
+async function findOrCreateProject(id) {
+    if (id == null) return
+
+    const project = await Project.findById(id)
+    if (project) return project
+
+    return await Project.create({
+        _id: id,
+        name: "DefaultName",
+        itinerary: {
+            rows: [{
+                id: Date.now(),
+                activities: [{
+                    id: Date.now(),
+                    time: '0600-0800',
+                    details: { page: "test", number: 0 }
+                    // TODO: Adjust the page and number provided here
+                }]
+            }]
+        }
+    })
 }
