@@ -59,12 +59,6 @@ module.exports = (server) => {
             const project = await findOrCreateProject(projectId)
             socket.join(projectId)
             socket.emit("load-project", project)
-        })
-
-        socket.on("get-itinerary", async projectId => {
-            const project = await findOrCreateProject(projectId)
-            console.log("hey")
-            socket.emit("load-itinerary", project.itinerary)
 
             socket.on("send-itinerary-changes", clickData => {
                 socket.broadcast.to(projectId).emit("receive-itinerary-changes", clickData)
@@ -76,6 +70,12 @@ module.exports = (server) => {
                     projectId,
                     { 'itinerary.rows': newRows })
             })
+        })
+
+        socket.on("get-itinerary", async projectId => {
+            const project = await findOrCreateProject(projectId)
+            console.log("hey")
+            socket.emit("load-itinerary", project.itinerary)
         })
     })
 }
