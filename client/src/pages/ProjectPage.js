@@ -41,6 +41,7 @@ export default function ProjectPage() {
 
     const switchContent = (newContent) => () => {
         setContent(newContent)
+        console.log(project.itinerary.rows)
     }
 
     if (project == null) {
@@ -56,9 +57,9 @@ export default function ProjectPage() {
                 <h1>Project {project.name}</h1>
                 <div className="row row-cols-2 mt-3">
                     <div className="btn-group btn-group-lg" role="group">
-                        <button type="button" className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark" onClick={switchContent(<About data={project.about} socket={socket}/>)}>About</button>
-                        <button type="button" className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark" onClick={switchContent(<Itinerary data={project.itinerary} socket={socket}/>)}>Itinerary</button>
-                        <button type="button" className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark" onClick={switchContent(<Expenses data={project.expenses} socket={socket}/>)}>Expenses</button>
+                        <button type="button" className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark" onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket}/>)}>About</button>
+                        <button type="button" className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark" onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket}/>)}>Itinerary</button>
+                        <button type="button" className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark" onClick={switchContent(<Expenses projectId={projectIdRef.current} data={project.expenses} socket={socket}/>)}>Expenses</button>
                     </div>
                 </div>
                 <div className="border border-2 border-dark">

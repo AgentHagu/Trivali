@@ -58,16 +58,24 @@ module.exports = (server) => {
         socket.on("get-project", async projectId => {
             const project = await findOrCreateProject(projectId)
             socket.join(projectId)
-
             socket.emit("load-project", project)
-            //socket.emit("load-about", project.about)
-            //socket.emit("load-itinerary", project.itinerary)
-            //socket.emit("load-expenses", project.expenses)
+        })
+
+        socket.on("get-itinerary", async projectId => {
+            const project = await findOrCreateProject(projectId)
+            console.log("hey")
+            socket.emit("load-itinerary", project.itinerary)
 
             socket.on("send-itinerary-changes", clickData => {
                 socket.broadcast.to(projectId).emit("receive-itinerary-changes", clickData)
             })
 
+            socket.on("save-itinerary", async newRows => {
+                console.log(newRows)
+                await Project.findByIdAndUpdate(
+                    projectId,
+                    { 'itinerary.rows': newRows })
+            })
         })
     })
 }

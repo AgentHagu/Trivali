@@ -71,8 +71,6 @@ function App() {
 function PrivateRoute({ element }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
-  console.log("hello")
-
   // Validate user session on component mount
   useEffect(() => {
     let isMounted = true; // Track if component is still mounted
@@ -83,8 +81,6 @@ function PrivateRoute({ element }) {
           method: 'GET',
           credentials: 'include'
         });
-
-        console.log(response)
 
         if (response.ok) {
           if (isMounted) setIsAuthenticated(true);

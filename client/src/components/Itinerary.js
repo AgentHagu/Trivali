@@ -6,11 +6,21 @@ import 'react-contexify/ReactContexify.css';
 import { io } from "socket.io-client";
 const { stringify } = require('flatted');
 
-function Table({ data, socket }) {
+function Table({projectId, data, socket }) {
     const MENU_ID = 'Itinerary Menu';
     //TODO: Fix the ids, they need to be unique
     //TODO: Adjust DEFAULT_ACTIVITY and DEFAULT_DAY
     const [rows, setRows] = useState(data)
+
+    useEffect(() => {
+        if (socket == null) return
+
+        socket.once("load-itinerary", itinerary => {
+            setRows(itinerary.rows)
+        })
+
+        socket.emit("get-itinerary", projectId)
+    }, [socket, projectId])
 
     // TODO: Possible issue, entries might cause integer overflow if enough new activities/days are spammed
     const [entries, setEntries] = useState(rows.reduce((total, curr) => total + curr.activities.length, 0));
@@ -47,6 +57,8 @@ function Table({ data, socket }) {
     // Menu Click Logic
     // TODO: Add "above" and "below" options for Add Day and Activity
     const itineraryUpdate = useCallback(({ id, currRowIndex, currDayIndex }) => {
+        let newRows;
+
         switch (id) {
             // Add an activity row to the current day
             case "addActivity": {
@@ -68,13 +80,12 @@ function Table({ data, socket }) {
                 const newDay = day
                 newDay.activities = newActivities
 
-                const newRows = [
+                newRows = [
                     ...rows.slice(0, currDayIndex),
                     newDay,
                     ...rows.slice(currDayIndex + 1)
                 ]
 
-                setRows(newRows)
                 break;
             }
 
@@ -95,7 +106,6 @@ function Table({ data, socket }) {
                     ...activities.slice(relativeRowIndex + 1)
                 ]
                 // If deleting the last activity, its the same as deleting the day
-                // TODO: Add warning/confirmation here for deleting last day
                 if (newActivities.length === 0) {
                     itineraryUpdate({ id: "delDay", currRowIndex, currDayIndex });
                     break;
@@ -104,25 +114,23 @@ function Table({ data, socket }) {
                 const newDay = day
                 newDay.activities = newActivities
 
-                const newRows = [
+                newRows = [
                     ...rows.slice(0, currDayIndex),
                     newDay,
                     ...rows.slice(currDayIndex + 1)
                 ]
 
-                setRows(newRows)
                 break;
             }
 
             // Add a Day table row to the itinerary
             case "addDay": {
-                const newRows = [
+                newRows = [
                     ...rows.slice(0, currDayIndex + 1),
                     createDay(),
                     ...rows.slice(currDayIndex + 1)
                 ]
 
-                setRows(newRows)
                 break;
             }
 
@@ -130,19 +138,23 @@ function Table({ data, socket }) {
             // TODO: Warn the user when deleting a day ("All activities for this day will be lost")
             // TODO: Prevent user from deleting day when only 1 day left
             case "delDay": {
-                const newRows = [
+                newRows = [
                     ...rows.slice(0, currDayIndex),
                     ...rows.slice(currDayIndex + 1)
                 ]
-
-                setRows(newRows)
                 break;
             }
 
             default:
                 break
         }
-    }, [rows, createActivity, createDay])
+
+        setRows(prevRows => {
+            socket.emit("save-itinerary", newRows)
+            return newRows
+        })
+        
+    }, [socket, rows, createActivity, createDay])
 
     function handleItemClick({ id, event, props }) {
         //if (props == null) return
@@ -202,6 +214,6 @@ function Table({ data, socket }) {
     </>
 }
 
-export default function Itinerary({ data, socket }) {
-    return <Table data={data.rows} socket={socket} />
+export default function Itinerary({projectId, data, socket }) {
+    return <Table projectId={projectId} data={data.rows} socket={socket} />
 }
