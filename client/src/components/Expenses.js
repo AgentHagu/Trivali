@@ -1,8 +1,17 @@
-export default function Expenses() {
+
+import React from 'react';
+import { Header }  from './expensescomponents/Header'
+import { Balance }  from './expensescomponents/Balance'
+
+import './Expenses.css'
+
+export default function ProjectAbout() {
     return <>
-        <div className="container">
-            <h1>Expenses</h1>
-            <h2>TEsting 1 2 3</h2>
+        <div class="container">
+            <Header />
+            <div className='container'>
+                <Balance />
+            </div>
         </div>
     </>
 }
