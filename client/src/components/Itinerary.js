@@ -1,15 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { createRoot } from 'react-dom/client';
 import TextEditor from "./TextEditor"
 import { Menu, Item, Separator, Submenu, useContextMenu } from 'react-contexify';
 import 'react-contexify/ReactContexify.css';
-import { io } from "socket.io-client";
-const { stringify } = require('flatted');
 
-function Table({projectId, data, socket }) {
+function Table({ projectId, data, socket }) {
     const MENU_ID = 'Itinerary Menu';
-    //TODO: Fix the ids, they need to be unique
-    //TODO: Adjust DEFAULT_ACTIVITY and DEFAULT_DAY
     const [rows, setRows] = useState(data)
 
     useEffect(() => {
@@ -22,17 +17,24 @@ function Table({projectId, data, socket }) {
         socket.emit("get-itinerary", projectId)
     }, [socket, projectId])
 
-    // TODO: Possible issue, entries might cause integer overflow if enough new activities/days are spammed
-    const [entries, setEntries] = useState(rows.reduce((total, curr) => total + curr.activities.length, 0));
-
     const createActivity = useCallback(() => {
-        setEntries(prev => prev + 1)
-        return { id: Date.now(), time: '0700-1200', details: { page: "itinerary", number: entries } }
-    }, [entries])
+        const id = Date.now()
+        return { id: id, time: '0700-1200', details: { page: "itinerary", number: id } }
+    }, [])
 
     const createDay = useCallback(() => {
         return { id: Date.now(), activities: [createActivity()] }
     }, [createActivity])
+
+    function deleteActivity(activity) {
+        socket.emit("delete-itinerary-activity", activity.details.page + "/" + activity.details.number)
+    }
+
+    function deleteDay(day) {
+        day.activities.forEach(activity => {
+            deleteActivity(activity)
+        });
+    }
 
     const { show } = useContextMenu({
         id: MENU_ID,
@@ -66,7 +68,7 @@ function Table({projectId, data, socket }) {
                 const activities = day.activities;
 
                 // Relative row index to the Day rather than to the Table
-                let relativeRowIndex = currRowIndex;
+                let relativeRowIndex = currRowIndex
                 for (let i = 0; i < currDayIndex; i++) {
                     relativeRowIndex -= rows[i].activities.length
                 }
@@ -86,14 +88,14 @@ function Table({projectId, data, socket }) {
                     ...rows.slice(currDayIndex + 1)
                 ]
 
-                break;
+                break
             }
 
             // Delete current activity row
             // TODO: Warn the user when deleting the last activity row of a day (i.e. only one activity left)
             case "delActivity": {
                 const day = rows[currDayIndex]
-                const activities = day.activities;
+                const activities = day.activities
 
                 // Relative row index to the Day rather than to the Table
                 let relativeRowIndex = currRowIndex;
@@ -107,8 +109,7 @@ function Table({projectId, data, socket }) {
                 ]
                 // If deleting the last activity, its the same as deleting the day
                 if (newActivities.length === 0) {
-                    itineraryUpdate({ id: "delDay", currRowIndex, currDayIndex });
-                    break;
+                    return itineraryUpdate({ id: "delDay", currRowIndex, currDayIndex });
                 }
 
                 const newDay = day
@@ -120,7 +121,11 @@ function Table({projectId, data, socket }) {
                     ...rows.slice(currDayIndex + 1)
                 ]
 
-                break;
+                const deletedActivity = activities[relativeRowIndex]
+                //TODO: pass in the deletedActivity and have the function settle the page and number part
+                deleteActivity(deletedActivity)
+
+                break
             }
 
             // Add a Day table row to the itinerary
@@ -131,59 +136,72 @@ function Table({projectId, data, socket }) {
                     ...rows.slice(currDayIndex + 1)
                 ]
 
-                break;
+                break
             }
 
             // Delete current activity row
             // TODO: Warn the user when deleting a day ("All activities for this day will be lost")
-            // TODO: Prevent user from deleting day when only 1 day left
             case "delDay": {
                 newRows = [
                     ...rows.slice(0, currDayIndex),
                     ...rows.slice(currDayIndex + 1)
                 ]
-                break;
+
+                // TODO: Make warning prettier with snackbar
+                if (newRows.length === 0) {
+                    alert("Itinerary cannot have less than 1 day")
+                    newRows = rows
+                }
+
+                deleteDay(rows[currDayIndex])
+
+                break
             }
 
             default:
                 break
         }
 
-        setRows(prevRows => {
-            socket.emit("save-itinerary", newRows)
-            return newRows
-        })
-        
-    }, [socket, rows, createActivity, createDay])
+        return newRows
+    }, [rows, createActivity, createDay])
 
     function handleItemClick({ id, event, props }) {
         //if (props == null) return
+
         // The referenced table data or header
         const element = props.element
         const currRowIndex = element.closest('tr').rowIndex - 1
         const currDayIndex = parseInt(element.closest('tr').getAttribute('day'), 10)
 
-        socket.emit("send-itinerary-changes", { id, currRowIndex, currDayIndex })
-        itineraryUpdate({ id, currRowIndex, currDayIndex })
+        const newRows = itineraryUpdate({ id, currRowIndex, currDayIndex })
+        socket.emit("send-itinerary-changes", newRows)
+        setRows(prevRows => {
+            socket.emit("save-itinerary", newRows)
+            return newRows
+        })
     }
 
     useEffect(() => {
         if (socket == null) return
 
-        socket.on("receive-itinerary-changes", itineraryUpdate)
+        const handler = newRows => {
+            setRows(newRows)
+        }
+
+        socket.on("receive-itinerary-changes", handler)
 
         return () => {
-            socket.off("receive-itinerary-changes", itineraryUpdate)
+            socket.off("receive-itinerary-changes", handler)
         }
     }, [socket, itineraryUpdate])
 
     return <>
-        <table className="table table-bordered m-0">
+        <table className="table table-bordered m-0 table-fit">
             <thead className="table-dark">
                 <tr>
                     <th scope="col" className="col-1">Day</th>
-                    <th scope="col" className="col-2">Time</th>
-                    <th scope="col">Activity</th>
+                    <th scope="col" className="col">Time</th>
+                    <th scope="col" className="col">Activity</th>
                 </tr>
             </thead>
             <tbody onContextMenu={handleContextMenu}>
@@ -192,8 +210,12 @@ function Table({projectId, data, socket }) {
                     row.activities.map((activity, index) => (
                         <tr key={activity.id} day={dayIndex}>
                             {/* Only render the Day for the first activity, have it span the other activities */}
-                            {index === 0 && (<th scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
-                            <td>{activity.time}</td>
+                            {index === 0 && (<th className="text-center align-middle" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
+
+                            {/* <td>{activity.time}</td> */}
+                            <td className="fit align-middle">
+                                <input className="border" type="time" id="startTime" defaultValue="00:00" /> - <input className="border" type="time" id="endTime" defaultValue="00:00" />
+                            </td>
 
                             <td className="p-0">
                                 <TextEditor page={activity.details.page} number={activity.details.number} />
@@ -214,6 +236,6 @@ function Table({projectId, data, socket }) {
     </>
 }
 
-export default function Itinerary({projectId, data, socket }) {
+export default function Itinerary({ projectId, data, socket }) {
     return <Table projectId={projectId} data={data.rows} socket={socket} />
 }

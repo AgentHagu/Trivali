@@ -1,14 +1,18 @@
+import useUserData from "../hooks/useUserData";
 import TextEditor from "./TextEditor";
 
 export default function About() {
+    const user = useUserData()
+    let content = "Loading..."
+    
+    if (user != null) {
+        content = user.username
+    }
+
     return <>
         <div className="container">
             <h1>About:</h1>
-            <h2>Holiday to Bali with friends. Going to go to the beach and eat good food</h2>
-            <h1>Destination:</h1>
-            <h2>Bali</h2>
-            <h1>Duration:</h1>
-            <h2>Jun 1 - Jun 14 (2 weeks)</h2>
+            <h2>{content}</h2>
         </div>
     </>
 }

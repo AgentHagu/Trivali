@@ -41,7 +41,6 @@ export default function ProjectPage() {
 
     const switchContent = (newContent) => () => {
         setContent(newContent)
-        console.log(project.itinerary.rows)
     }
 
     if (project == null) {

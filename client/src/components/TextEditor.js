@@ -123,6 +123,6 @@ export default function TextEditor(props) {
         setQuill(q);
     }, [])
     return <>
-        <div className="w-100 h-100" ref={wrapperRef}></div>
+        <div className= "w-100 h-100" ref={wrapperRef}></div>
     </>
 }

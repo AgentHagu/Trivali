@@ -20,7 +20,9 @@ module.exports = (server) => {
     });
 
     const mongoUri = process.env.MONGO_URI
-    mongoose.connect(mongoUri)
+    mongoose.connect(mongoUri).then(() => {
+        console.log("Connected to mongoDB")
+    })
 
     io.on("connection", socket => {
         /**
@@ -60,21 +62,23 @@ module.exports = (server) => {
             socket.join(projectId)
             socket.emit("load-project", project)
 
-            socket.on("send-itinerary-changes", clickData => {
-                socket.broadcast.to(projectId).emit("receive-itinerary-changes", clickData)
+            socket.on("send-itinerary-changes", newRows => {
+                socket.broadcast.to(projectId).emit("receive-itinerary-changes", newRows)
             })
 
             socket.on("save-itinerary", async newRows => {
-                console.log(newRows)
                 await Project.findByIdAndUpdate(
                     projectId,
                     { 'itinerary.rows': newRows })
+            })
+
+            socket.on("delete-itinerary-activity", async idPart => {
+                await Document.findByIdAndDelete(projectId + "/" + idPart)
             })
         })
 
         socket.on("get-itinerary", async projectId => {
             const project = await findOrCreateProject(projectId)
-            console.log("hey")
             socket.emit("load-itinerary", project.itinerary)
         })
     })
@@ -99,7 +103,13 @@ async function findOrCreateDocument(id) {
     if (document) return document
 
     // If document doesn't exist, create a new one with the provided ID and default value
-    return await Document.create({ _id: id, data: defaultValue })
+    try {
+        return await Document.create({ _id: id, data: defaultValue })
+    } catch(err) {
+        console.log("ASYNCHRONOUS SHENANIGANS")
+        return await Document.findById(id)
+    }
+    
 }
 
 async function findOrCreateProject(id) {
@@ -117,7 +127,7 @@ async function findOrCreateProject(id) {
                 activities: [{
                     id: Date.now(),
                     time: '0600-0800',
-                    details: { page: "test", number: 0 }
+                    details: { page: "itinerary", number: Date.now() }
                     // TODO: Adjust the page and number provided here
                 }]
             }]

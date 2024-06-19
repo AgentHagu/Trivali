@@ -20,7 +20,7 @@ function useUserData() {
                     },
                     credentials: 'include'
                 });
-
+                //console.log(response)
                 setUser(await response.json())
             } catch (error) {
                 // TODO: Handle error if needed
@@ -31,6 +31,7 @@ function useUserData() {
         fetchUserData();
     }, [])
 
+    console.log("USE USER DATA RETURNING: ", user)
     return user
 }
 
