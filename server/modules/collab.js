@@ -75,6 +75,10 @@ module.exports = (server) => {
             socket.on("delete-itinerary-activity", async idPart => {
                 await Document.findByIdAndDelete(projectId + "/" + idPart)
             })
+
+            socket.on("send-time-changes", timeChange => {
+                socket.broadcast.to(projectId).emit("receive-time-changes", timeChange)
+            })
         })
 
         socket.on("get-itinerary", async projectId => {
@@ -126,7 +130,7 @@ async function findOrCreateProject(id) {
                 id: Date.now(),
                 activities: [{
                     id: Date.now(),
-                    time: '0600-0800',
+                    time: { start: "00:00", end: "00:00" },
                     details: { page: "itinerary", number: Date.now() }
                     // TODO: Adjust the page and number provided here
                 }]

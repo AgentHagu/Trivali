@@ -4,7 +4,7 @@ import TextEditor from "./TextEditor";
 export default function About() {
     const user = useUserData()
     let content = "Loading..."
-    
+
     if (user != null) {
         content = user.username
     }

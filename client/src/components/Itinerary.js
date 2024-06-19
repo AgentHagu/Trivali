@@ -19,7 +19,7 @@ function Table({ projectId, data, socket }) {
 
     const createActivity = useCallback(() => {
         const id = Date.now()
-        return { id: id, time: '0700-1200', details: { page: "itinerary", number: id } }
+        return { id: id, time: { start: "00:00", end: "00:00" }, details: { page: "itinerary", number: id } }
     }, [])
 
     const createDay = useCallback(() => {
@@ -195,6 +195,47 @@ function Table({ projectId, data, socket }) {
         }
     }, [socket, itineraryUpdate])
 
+    function timeHandler(event) {
+        // The referenced table data or header
+        const element = event.target
+        const currRowIndex = element.closest('tr').rowIndex - 1
+        const currDayIndex = parseInt(element.closest('tr').getAttribute('day'), 10)
+
+        let relativeRowIndex = currRowIndex
+        for (let i = 0; i < currDayIndex; i++) {
+            relativeRowIndex -= rows[i].activities.length
+        }
+
+        const timeId = event.target.id
+        const newTime = event.target.value
+
+        socket.emit("send-time-changes", { id: timeId, newTime: newTime, day: currDayIndex, activity: relativeRowIndex })
+
+        const newRows = [...rows]
+        newRows[currDayIndex].activities[relativeRowIndex].time[timeId] = newTime
+
+        setRows(prevRows => {
+            socket.emit("save-itinerary", newRows)
+            return newRows
+        })
+    }
+
+    useEffect(() => {
+        if (socket == null) return
+
+        const handler = timeChange => {
+            const newRows = [...rows]
+            newRows[timeChange.day].activities[timeChange.activity].time[timeChange.id] = timeChange.newTime
+            setRows(newRows)
+        }
+
+        socket.on("receive-time-changes", handler)
+
+        return () => {
+            socket.off("receive-time-changes", handler)
+        }
+    }, [socket, rows])
+
     return <>
         <table className="table table-bordered m-0 table-fit">
             <thead className="table-dark">
@@ -214,7 +255,8 @@ function Table({ projectId, data, socket }) {
 
                             {/* <td>{activity.time}</td> */}
                             <td className="fit align-middle">
-                                <input className="border" type="time" id="startTime" defaultValue="00:00" /> - <input className="border" type="time" id="endTime" defaultValue="00:00" />
+
+                                <input className="border" type="time" id="start" value={activity.time.start} onChange={timeHandler} /> - <input className="border" type="time" id="end" value={activity.time.end} onChange={timeHandler} />
                             </td>
 
                             <td className="p-0">

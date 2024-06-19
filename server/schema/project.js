@@ -13,7 +13,10 @@ const Itinerary = new Schema({
         activities: [{
             _id: false,
             id: Number,
-            time: String,
+            time: {
+                start: String,
+                end: String
+            },
             details: {
                 page: String,
                 number: Number
