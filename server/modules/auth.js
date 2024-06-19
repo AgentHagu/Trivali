@@ -16,8 +16,6 @@ const User = require("../schema/user")
  */
 module.exports = (app) => {
     const mongoUri = process.env.MONGO_URI
-    console.log(mongoUri)
-    console.log(process.env.MONGO_URI)
     mongoose.connect(mongoUri)
 
     // Middleware

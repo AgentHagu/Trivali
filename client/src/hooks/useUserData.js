@@ -31,7 +31,6 @@ function useUserData() {
         fetchUserData();
     }, [])
 
-    console.log("USE USER DATA RETURNING: ", user)
     return user
 }
 
