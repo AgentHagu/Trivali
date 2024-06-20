@@ -4,6 +4,7 @@ const mongoose = require("mongoose")
 const socketIo = require('socket.io');
 const Document = require("../schema/document")
 const Project = require("../schema/project")
+const User = require("../schema/user")
 const { parse } = require('flatted');
 /**
  * Initializes the WebSocket server with the provided HTTP server.
@@ -57,8 +58,14 @@ module.exports = (server) => {
             })
         })
 
-        socket.on("get-project", async projectId => {
-            const project = await findOrCreateProject(projectId)
+        socket.on("create-project", async ({ projectId, userId }) => {
+            console.log("CREATING PROJECT WITH : ", projectId)
+            await findOrCreateProject(projectId, userId)
+        })
+
+        socket.on("get-project", async ({ projectId, userId }) => {
+            //const project = await findOrCreateProject(projectId, userId)
+            const project = await Project.findById(projectId)
             socket.join(projectId)
             socket.emit("load-project", project)
 
@@ -82,7 +89,7 @@ module.exports = (server) => {
         })
 
         socket.on("get-itinerary", async projectId => {
-            const project = await findOrCreateProject(projectId)
+            const project = await Project.findById(projectId)
             socket.emit("load-itinerary", project.itinerary)
         })
     })
@@ -109,32 +116,38 @@ async function findOrCreateDocument(id) {
     // If document doesn't exist, create a new one with the provided ID and default value
     try {
         return await Document.create({ _id: id, data: defaultValue })
-    } catch(err) {
+    } catch (err) {
         console.log("ASYNCHRONOUS SHENANIGANS")
         return await Document.findById(id)
     }
-    
+
 }
 
-async function findOrCreateProject(id) {
-    if (id == null) return
+async function findOrCreateProject(projectId, userId) {
+    if (projectId == null) return
 
-    const project = await Project.findById(id)
+    const project = await Project.findById(projectId)
     if (project) return project
 
-    return await Project.create({
-        _id: id,
-        name: "DefaultName",
-        itinerary: {
-            rows: [{
-                id: Date.now(),
-                activities: [{
+    try {
+        return await Project.create({
+            _id: projectId,
+            name: "DefaultName",
+            owner: await User.findById(userId),
+            itinerary: {
+                rows: [{
                     id: Date.now(),
-                    time: { start: "00:00", end: "00:00" },
-                    details: { page: "itinerary", number: Date.now() }
-                    // TODO: Adjust the page and number provided here
+                    activities: [{
+                        id: Date.now(),
+                        time: { start: "00:00", end: "00:00" },
+                        details: { page: "itinerary", number: Date.now() }
+                        // TODO: Adjust the page and number provided here
+                    }]
                 }]
-            }]
-        }
-    })
+            }
+        })
+    } catch (err) {
+        console.log("ASYNCHRONOUS SHENANIGANS")
+        return await Project.findById(projectId)
+    }
 }

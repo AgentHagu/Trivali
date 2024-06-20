@@ -1,4 +1,3 @@
-import TextEditor from "./components/TextEditor"
 import WelcomePage from "./pages/WelcomePage"
 import {
   Navigate,
@@ -17,11 +16,11 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 
 // Create router configuration
 const router = createBrowserRouter([
-  {
-    path: "/test",
-    // element: <PrivateRoute element = {<Test />}/>
-    element: <Test />
-  },
+  // {
+  //   path: "/test",
+  //   // element: <PrivateRoute element = {<Test />}/>
+  //   element: <Test />
+  // },
   {
     path: "/",
     element: <Navigate to={"/welcome"} />
@@ -42,13 +41,13 @@ const router = createBrowserRouter([
     path: "/home",
     element: <PrivateRoute element={<HomePage />} />
   },
-  {
-    path: "/projects",
-    element: <Navigate to={`/projects/${uuidV4()}`} />
-  },
+  // {
+  //   path: "/projects",
+  //   element: <Navigate to={`/projects/${uuidV4()}`} />
+  // },
   {
     path: "/projects/:id",
-    element: <ProjectPage />
+    element: <PrivateRoute element={<ProjectPage />} />
   },
 ])
 
@@ -103,6 +102,7 @@ function PrivateRoute({ element }) {
     return <div>Loading...</div>;
   }
 
+  // TODO: Snack bar with "You are not authorized" or "Not logged in!"
   return isAuthenticated ? element : <Navigate to="/welcome" />;
 }
 

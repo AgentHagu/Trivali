@@ -1,5 +1,4 @@
 import useUserData from "../hooks/useUserData";
-import TextEditor from "./TextEditor";
 
 export default function About() {
     const user = useUserData()

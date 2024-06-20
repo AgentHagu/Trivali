@@ -33,7 +33,7 @@ module.exports = (app) => {
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        
+
         // Need to move to https and change to secure: true, sameSite: 'None'
         cookie: { secure: false, sameSite: 'lax' }
     }))
