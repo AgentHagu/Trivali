@@ -15,6 +15,7 @@ import ProjectPage from "./pages/ProjectPage"
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+
 // Create router configuration
 const router = createBrowserRouter([
   {
