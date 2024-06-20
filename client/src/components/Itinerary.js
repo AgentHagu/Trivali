@@ -251,7 +251,7 @@ function Table({ projectId, data, socket }) {
                     row.activities.map((activity, index) => (
                         <tr key={activity.id} day={dayIndex}>
                             {/* Only render the Day for the first activity, have it span the other activities */}
-                            {index === 0 && (<th className="text-center align-middle fs-4" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
+                            {index === 0 && (<th className="text-center align-middle" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
 
                             {/* <td>{activity.time}</td> */}
                             <td className="fit align-middle">
