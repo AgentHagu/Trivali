@@ -32,9 +32,12 @@ const Expenses = new Schema({
 const Project = new Schema({
     _id: String,
     name: String,
-    owner: { type: Schema.Types.ObjectId, ref: 'User' },
-    adminList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    userList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    // owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    // adminList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    // userList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    owner: String,
+    adminList: [String],
+    userList: [String],
     // TODO: Replace with About and Expenses schema
     about: {},
     itinerary: Itinerary,

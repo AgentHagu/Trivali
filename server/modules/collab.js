@@ -5,7 +5,6 @@ const socketIo = require('socket.io');
 const Document = require("../schema/document")
 const Project = require("../schema/project")
 const User = require("../schema/user")
-const { parse } = require('flatted');
 /**
  * Initializes the WebSocket server with the provided HTTP server.
  * This server communicates and allows for real-time collaborative text-editting
@@ -59,13 +58,12 @@ module.exports = (server) => {
         })
 
         socket.on("create-project", async ({ projectId, userId }) => {
-            console.log("CREATING PROJECT WITH : ", projectId)
             await findOrCreateProject(projectId, userId)
         })
 
-        socket.on("get-project", async ({ projectId, userId }) => {
+        socket.on("get-project", async projectId => {
             //const project = await findOrCreateProject(projectId, userId)
-            const project = await Project.findById(projectId)
+            const project = await Project.findById(projectId).populate('adminList').populate('userList').exec()
             socket.join(projectId)
             socket.emit("load-project", project)
 
@@ -117,7 +115,6 @@ async function findOrCreateDocument(id) {
     try {
         return await Document.create({ _id: id, data: defaultValue })
     } catch (err) {
-        console.log("ASYNCHRONOUS SHENANIGANS")
         return await Document.findById(id)
     }
 
@@ -129,11 +126,15 @@ async function findOrCreateProject(projectId, userId) {
     const project = await Project.findById(projectId)
     if (project) return project
 
+    const owner = await User.findById(userId)
+
     try {
-        return await Project.create({
+        const project = await Project.create({
             _id: projectId,
             name: "DefaultName",
-            owner: await User.findById(userId),
+            owner: owner._id,
+            adminList: [owner._id],
+            userList: [owner._id],
             itinerary: {
                 rows: [{
                     id: Date.now(),
@@ -146,8 +147,9 @@ async function findOrCreateProject(projectId, userId) {
                 }]
             }
         })
+
+        return project
     } catch (err) {
-        console.log("ASYNCHRONOUS SHENANIGANS")
         return await Project.findById(projectId)
     }
 }

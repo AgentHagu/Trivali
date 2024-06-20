@@ -31,17 +31,16 @@ export default function HomePage() {
 
     function createProjectHandler() {
         const projectId = uuidV4()
-        socket.emit("create-project", { projectId: projectId, userId: user._id } )
+        socket.emit("create-project", { projectId: projectId, userId: user._id })
         navigate(`/projects/${projectId}`)
     }
 
     useEffect(() => {
-        const loadedContent = <>
-            <h1>Welcome</h1>
-            <button type="button" class="btn btn-primary" onClick={createProjectHandler}>Create Project</button>
-        </>
-
         if (!loading) {
+            const loadedContent = <>
+                <h1>Welcome {user.username}</h1>
+                <button type="button" className="btn btn-primary" onClick={createProjectHandler}>Create Project</button>
+            </>
             setContent(loadedContent)
         }
     }, [loading])

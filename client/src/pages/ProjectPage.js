@@ -34,16 +34,25 @@ export default function ProjectPage() {
     useEffect(() => {
         if (socket == null) return
 
+        
         socket.once("load-project", project => {
+            // Regardless of outcome, setProject and setProjectLoading
             setProject(project)
             setProjectLoading(false)
+            
+            // TODO: Navigate to home page, add toast "Not authorized to view this project"
+            if (!loading && !project.userList.includes(user._id)) {
+                console.log("YOU'RE NOT ALLOWED IN!!!")
+            }
+
+            // If project isnt null, i.e. valid project id, set content
             if (project) {
                 setContent(<About data={project.about} />)
             }
         })
 
         if (!loading && user) {
-            socket.emit("get-project", { projectId: projectIdRef.current, userId: user._id })
+            socket.emit("get-project", projectIdRef.current)
         }
     }, [socket, projectIdRef, loading, user])
 
@@ -89,19 +98,19 @@ export default function ProjectPage() {
                 <div className="row row-cols-2 mt-3">
                     <div className="btn-group btn-group-lg" role="group">
                         <button
-                            class="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                            className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
                             onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
                             About
                         </button>
 
                         <button
-                            class="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                            className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
                             onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} />)} >
                             Itinerary
                         </button>
 
                         <button
-                            class="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                            className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
                             onClick={switchContent(<Expenses projectId={projectIdRef.current} data={project.expenses} socket={socket} />)} >
                             Expenses
                         </button>
