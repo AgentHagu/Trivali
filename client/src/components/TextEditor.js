@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
+import QuillBetterTable from 'quill-better-table'
 import "quill/dist/quill.snow.css"
 import { io } from "socket.io-client"
 import { useParams, useNavigate } from "react-router-dom"
-import HeaderNavbar from './HeaderNavbar'
+
+Quill.register({
+    'modules/better-table': QuillBetterTable
+}, true)
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -26,21 +30,12 @@ const TOOLBAR_OPTIONS = [
  * @component
  * @returns {JSX.Element} The rendered component.
  */
-export default function TextEditor() {
-    const { id, page } = useParams()
+export default function TextEditor(props) {
+    const { id } = useParams()
     const [socket, setSocket] = useState()
     const [quill, setQuill] = useState()
-    const navigate = useNavigate()
 
-    const documentId = id + "/" + page
-    const acceptablePages = ["details", "itinerary", "expenses", "map", "weather"]
-
-    // Redirect if the page parameter is not possible
-    useEffect(() => {
-        if (!acceptablePages.includes(page)) {
-            navigate(`/documents/${id}/details`)
-        }
-    }, [page])
+    const documentId = id + "/" + props.page + "/" + props.number
 
     // Establish socket connection with server
     useEffect(() => {
@@ -83,7 +78,7 @@ export default function TextEditor() {
 
         const handler = (delta, oldDelta, source) => {
             if (source !== "user") return
-            socket.emit("send-changes", delta)
+            socket.emit("send-document-changes", delta)
         }
         quill.on("text-change", handler)
 
@@ -99,10 +94,10 @@ export default function TextEditor() {
         const handler = delta => {
             quill.updateContents(delta)
         }
-        socket.on("receive-changes", handler)
+        socket.on("receive-document-changes", handler)
 
         return () => {
-            socket.off("receive-changes", handler)
+            socket.off("receive-document-changes", handler)
         }
     }, [socket, quill])
 
@@ -114,13 +109,20 @@ export default function TextEditor() {
         const editor = document.createElement('div')
         wrapper.append(editor)
 
-        const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS, history: { userOnly: true } } })
+        const q = new Quill(editor,
+            {
+                theme: "snow",
+                modules: {
+                    toolbar: false,
+                    history: { userOnly: true },
+                }
+            })
+
         q.disable()
         q.setText("Loading...")
         setQuill(q);
     }, [])
     return <>
-        <HeaderNavbar />
-        <div className="container" ref={wrapperRef}></div>
+        <div className="w-100 h-100" ref={wrapperRef}></div>
     </>
 }

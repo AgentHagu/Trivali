@@ -8,12 +8,12 @@ import useUserData from "../hooks/useUserData";
  * @returns {JSX.Element} The rendered component.
  */
 export default function HomePage() {
-    const user = useUserData();
+    const { user, loading } = useUserData();
     
     return <>
         <HeaderNavbar />
         <div className="container">
-            {user ? <h1>Hi {user.username}</h1> : <h1>Loading...</h1>}
+            {loading ? <h1>Loading...</h1> : user ? <h1>Hi {user.username}</h1> : <h1>No USER</h1>}
         </div>
     </>
 }

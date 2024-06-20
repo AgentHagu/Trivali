@@ -3,7 +3,8 @@
 const mongoose = require("mongoose")
 const socketIo = require('socket.io');
 const Document = require("../schema/document")
-
+const Project = require("../schema/project")
+const { parse } = require('flatted');
 /**
  * Initializes the WebSocket server with the provided HTTP server.
  * This server communicates and allows for real-time collaborative text-editting
@@ -19,7 +20,9 @@ module.exports = (server) => {
     });
 
     const mongoUri = process.env.MONGO_URI
-    mongoose.connect(mongoUri)
+    mongoose.connect(mongoUri).then(() => {
+        console.log("Connected to mongoDB")
+    })
 
     io.on("connection", socket => {
         /**
@@ -39,8 +42,8 @@ module.exports = (server) => {
              * @listens connection#send-changes
              * @param {Object} delta - The changes made to the document.
              */
-            socket.on("send-changes", delta => {
-                socket.broadcast.to(documentId).emit("receive-changes", delta)
+            socket.on("send-document-changes", delta => {
+                socket.broadcast.to(documentId).emit("receive-document-changes", delta)
             })
 
             /**
@@ -52,6 +55,35 @@ module.exports = (server) => {
             socket.on("save-document", async data => {
                 await Document.findByIdAndUpdate(documentId, { data })
             })
+        })
+
+        socket.on("get-project", async projectId => {
+            const project = await findOrCreateProject(projectId)
+            socket.join(projectId)
+            socket.emit("load-project", project)
+
+            socket.on("send-itinerary-changes", newRows => {
+                socket.broadcast.to(projectId).emit("receive-itinerary-changes", newRows)
+            })
+
+            socket.on("save-itinerary", async newRows => {
+                await Project.findByIdAndUpdate(
+                    projectId,
+                    { 'itinerary.rows': newRows })
+            })
+
+            socket.on("delete-itinerary-activity", async idPart => {
+                await Document.findByIdAndDelete(projectId + "/" + idPart)
+            })
+
+            socket.on("send-time-changes", timeChange => {
+                socket.broadcast.to(projectId).emit("receive-time-changes", timeChange)
+            })
+        })
+
+        socket.on("get-itinerary", async projectId => {
+            const project = await findOrCreateProject(projectId)
+            socket.emit("load-itinerary", project.itinerary)
         })
     })
 }
@@ -71,9 +103,38 @@ const defaultValue = ""
 async function findOrCreateDocument(id) {
     if (id == null) return
 
-    const document = await Document.findById(id);
+    const document = await Document.findById(id)
     if (document) return document
 
     // If document doesn't exist, create a new one with the provided ID and default value
-    return await Document.create({ _id: id, data: defaultValue })
+    try {
+        return await Document.create({ _id: id, data: defaultValue })
+    } catch(err) {
+        console.log("ASYNCHRONOUS SHENANIGANS")
+        return await Document.findById(id)
+    }
+    
+}
+
+async function findOrCreateProject(id) {
+    if (id == null) return
+
+    const project = await Project.findById(id)
+    if (project) return project
+
+    return await Project.create({
+        _id: id,
+        name: "DefaultName",
+        itinerary: {
+            rows: [{
+                id: Date.now(),
+                activities: [{
+                    id: Date.now(),
+                    time: { start: "00:00", end: "00:00" },
+                    details: { page: "itinerary", number: Date.now() }
+                    // TODO: Adjust the page and number provided here
+                }]
+            }]
+        }
+    })
 }

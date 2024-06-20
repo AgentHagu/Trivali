@@ -10,7 +10,7 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
  * @returns {JSX.Element} The rendered component.
  */
 export default function HeaderNavbar() {
-    const user = useUserData();
+    const { user } = useUserData();
     const navigate = useNavigate()
 
     /**

@@ -8,9 +8,10 @@ import {
 import { v4 as uuidV4 } from "uuid"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
-import Test from "./components/Test"
+import Test from "./pages/Test"
 import HomePage from "./pages/HomePage"
 import { useEffect, useState } from "react"
+import ProjectPage from "./pages/ProjectPage"
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -18,6 +19,7 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 const router = createBrowserRouter([
   {
     path: "/test",
+    // element: <PrivateRoute element = {<Test />}/>
     element: <Test />
   },
   {
@@ -41,17 +43,13 @@ const router = createBrowserRouter([
     element: <PrivateRoute element={<HomePage />} />
   },
   {
-    path: "/documents",
-    element: <Navigate to={`/documents/${uuidV4()}`} />
+    path: "/projects",
+    element: <Navigate to={`/projects/${uuidV4()}`} />
   },
   {
-    path: "/documents/:id",
-    element: <Navigate to={`./details`} />
+    path: "/projects/:id",
+    element: <ProjectPage />
   },
-  {
-    path: "/documents/:id/:page",
-    element: <TextEditor />
-  }
 ])
 
 /**

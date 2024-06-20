@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
+const cookieSession = require('cookie-session')
 const methodOverride = require('method-override')
 const mongoose = require("mongoose")
 const User = require("../schema/user")
@@ -27,19 +28,41 @@ module.exports = (app) => {
     )
     app.use(express.urlencoded({ extended: false }))
     app.use(flash())
+
     app.use(session({
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false, sameSite: 'None' }
+        
+        // Need to move to https and change to secure: true, sameSite: 'None'
+        cookie: { secure: false, sameSite: 'lax' }
     }))
+
+    // app.use(cookieSession({
+    //     name: '__session',
+    //     keys: [process.env.SESSION_SECRET || 'default_secret_key'],
+    //     maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    //     secure: false,
+    //     httpOnly: true,
+    //     sameSite: 'lax'
+    // }));
+
     app.use(passport.initialize())
     app.use(passport.session())
     app.use(methodOverride('_method'))
 
+    // app.use((req, res, next) => {
+    //     if (req.session) {
+    //         req.session.regenerate = (cb) => cb();
+    //         req.session.save = (cb) => cb();
+    //     }
+    //     next();
+    // });
+
     // Authentication Route
     app.get('/', checkAuthenticated, async (req, res) => {
         res.send(await req.user)
+        // res.send(req.session.user)
     })
 
     // Login Route
@@ -57,6 +80,8 @@ module.exports = (app) => {
      */
     app.post('/login', (req, res, next) => {
         passport.authenticate('local', (err, user, info) => {
+            // console.log("HEYY")
+            // console.log(err, user, info)
             if (err) {
                 // Handle error
                 return next(err);
@@ -65,6 +90,7 @@ module.exports = (app) => {
                 // Authentication failed, send error message to client
                 return res.status(401).send(info.message);
             }
+
             // Authentication successful, log in user
             req.logIn(user, (err) => {
                 if (err) {
@@ -74,6 +100,15 @@ module.exports = (app) => {
                 // Redirect or send success response
                 return res.send("Logged in successfully")
             });
+
+            // req.session.user = {
+            //     id: user._id,
+            //     username: user.username,
+            //     email: user.email
+            // };
+
+            // console.log("Session set:", req.session.user);
+            // return res.send("Logged in successfully")
         })(req, res, next);
     });
 
@@ -111,7 +146,6 @@ module.exports = (app) => {
         }
     })
 
-    // Logout Route
     /**
      * Logout route handler.
      * Logs out the current user.
@@ -125,7 +159,7 @@ module.exports = (app) => {
             if (err) {
                 return next(err)
             }
-            res.send('Logged out')
+            res.send('/logout success')
         })
     })
 }
@@ -143,7 +177,7 @@ function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     } else {
-        res.status(401).send();
+        res.status(401).send("checkAuthenticated failed");
     }
 }
 
@@ -157,9 +191,10 @@ function checkAuthenticated(req, res, next) {
  * @returns {void}
  */
 function checkNotAuthenticated(req, res, next) {
+    // if (!req.session.user) {
     if (!req.isAuthenticated || !req.isAuthenticated()) {
         return next();
     } else {
-        res.status(403).send();
+        res.status(403).send("checkNotAuthenticated failed");
     }
 }
