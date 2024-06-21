@@ -16,7 +16,7 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 export default function HomePage() {
     const { user, loading } = useUserData();
     const [content, setContent] = useState(<h1>Loading...</h1>)
-    const navigate = useNavigate()
+    const navigate = useNavigate()  
     const [socket, setSocket] = useState()
 
     // Establish socket connection with server
