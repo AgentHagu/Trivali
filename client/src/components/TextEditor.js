@@ -115,7 +115,8 @@ export default function TextEditor(props) {
                 modules: {
                     toolbar: false,
                     history: { userOnly: true },
-                }
+                },
+                placeholder: props.placeholder
             })
 
         q.disable()

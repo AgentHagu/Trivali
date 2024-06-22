@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import TextEditor from "./TextEditor"
 import { Menu, Item, Separator, Submenu, useContextMenu } from 'react-contexify';
 import 'react-contexify/ReactContexify.css';
+import { toast } from "react-toastify";
 
 function Table({ projectId, data, socket }) {
     const MENU_ID = 'Itinerary Menu';
@@ -149,7 +150,9 @@ function Table({ projectId, data, socket }) {
 
                 // TODO: Make warning prettier with snackbar
                 if (newRows.length === 0) {
-                    alert("Itinerary cannot have less than 1 day")
+                    toast.error("Must have at least 1 day!", {
+                        autoClose: 3000
+                    })
                     newRows = rows
                 }
 
@@ -251,11 +254,9 @@ function Table({ projectId, data, socket }) {
                     row.activities.map((activity, index) => (
                         <tr key={activity.id} day={dayIndex}>
                             {/* Only render the Day for the first activity, have it span the other activities */}
-                            {index === 0 && (<th className="text-center align-middle" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
+                            {index === 0 && (<th className="text-center align-middle fs-5" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
 
-                            {/* <td>{activity.time}</td> */}
                             <td className="fit align-middle">
-
                                 <input className="border" type="time" id="start" value={activity.time.start} onChange={timeHandler} /> - <input className="border" type="time" id="end" value={activity.time.end} onChange={timeHandler} />
                             </td>
 
