@@ -104,7 +104,11 @@ export default function ProjectPage() {
         <>
             <HeaderNavbar />
             <div className="container mt-3">
-                <h1>Project {project.name}</h1>
+                {
+                    !project.name 
+                    ? <h1>Untitled Project</h1>
+                    : <h1>{project.name}</h1>
+                }
                 <div className="row row-cols-2 mt-3">
                     <div className="btn-group btn-group-lg" role="group">
                         <button

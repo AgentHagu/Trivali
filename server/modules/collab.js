@@ -56,8 +56,8 @@ module.exports = (server) => {
             })
         })
 
-        socket.on("create-project", async ({ projectId, userId }) => {
-            await findOrCreateProject(projectId, userId)
+        socket.on("create-project", async ({ projectId, projectName, userId }) => {
+            await findOrCreateProject(projectId, projectName, userId)
 
             socket.emit("new-project-created")
         })
@@ -121,7 +121,7 @@ async function findOrCreateDocument(id) {
 
 }
 
-async function findOrCreateProject(projectId, userId) {
+async function findOrCreateProject(projectId, projectName, userId) {
     if (projectId == null) return
 
     const project = await Project.findById(projectId)
@@ -132,7 +132,7 @@ async function findOrCreateProject(projectId, userId) {
     try {
         const project = await Project.create({
             _id: projectId,
-            name: "DefaultName",
+            name: projectName,
             owner: owner._id,
             adminList: [owner._id],
             userList: [owner._id],

@@ -22,7 +22,6 @@ import HeaderNavbar from "./components/HeaderNavbar";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
 // Create router configuration
@@ -52,10 +51,10 @@ const router = createBrowserRouter([
     path: "/home",
     element: <PrivateRoute element={<HomePage />} />
   },
-  // {
-  //   path: "/projects",
-  //   element: <Navigate to={`/projects/${uuidV4()}`} />
-  // },
+  {
+    path: "/projects",
+    element: <Navigate to={"/home"} />
+  },
   {
     path: "/projects/:id",
     element: <PrivateRoute element={<ProjectPage />} />
@@ -113,6 +112,15 @@ function PrivateRoute({ element }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      toast.error("You haven't logged in! Redirecting to login page...", {
+        autoClose: 3000
+      })
+      navigate('/login')
+    }
+  }, [isAuthenticated, navigate])
+
   if (isAuthenticated === null) {
     return <>
       <HeaderNavbar />
@@ -124,15 +132,9 @@ function PrivateRoute({ element }) {
 
   if (isAuthenticated) {
     return element
-  } else {
-    toast.error("You haven't logged in! Redirecting to login page...", {
-      autoClose: 3000
-    })
-    navigate('/login')
   }
 
-  // TODO: Snack bar with "You are not authorized" or "Not logged in!"
-  // <Navigate to="/welcome" />;
+  return null
 }
 
 export default App;

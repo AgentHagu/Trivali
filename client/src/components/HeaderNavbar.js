@@ -41,10 +41,27 @@ export default function HeaderNavbar() {
     return <header className="sticky-top mb-2">
         <div className="navbar navbar-expand-sm navbar-dark bg-dark">
             <div className="container d-flex justify-content-between">
-                <a className="navbar-brand d-flex align-items-center" href="/welcome">
-                    {/* add logo here */}
-                    <strong>Trivali</strong>
-                </a>
+                {/* TODO: clean up code here for the loading and user conditionals */}
+
+                {
+                    loading
+                        ? <></>
+                        : user
+                            ? <>
+                                <a className="navbar-brand d-flex align-items-center" href="/home">
+                                    {/* add logo here */}
+                                    <strong>Trivali</strong>
+                                </a>
+                            </>
+                            : <>
+                                <a className="navbar-brand d-flex align-items-center" href="/welcome">
+                                    {/* add logo here */}
+                                    <strong>Trivali</strong>
+                                </a>
+                            </>
+
+                }
+
                 <ul className="navbar-nav">
                     {
                         // If still loading, leave blank
