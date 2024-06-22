@@ -5,8 +5,9 @@ import About from "../components/About";
 import Expenses from "../components/Expenses";
 import Itinerary from "../components/Itinerary";
 import useUserData from "../hooks/useUserData";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
+import { toast } from "react-toastify";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -18,7 +19,7 @@ export default function ProjectPage() {
     const [socket, setSocket] = useState()
     const [project, setProject] = useState()
     const [projectLoading, setProjectLoading] = useState(true)
-    const [selectedButton, setSelectedButton] = useState()
+    const navigate = useNavigate()
 
     // Establish socket connection with server
     useEffect(() => {
@@ -34,27 +35,37 @@ export default function ProjectPage() {
     useEffect(() => {
         if (socket == null) return
 
-        
         socket.once("load-project", project => {
             // Regardless of outcome, setProject and setProjectLoading
             setProject(project)
             setProjectLoading(false)
-            
-            // TODO: Navigate to home page, add toast "Not authorized to view this project"
-            if (!loading && !project.userList.includes(user._id)) {
-                console.log("YOU'RE NOT ALLOWED IN!!!")
+
+            // if project is null, i.e. it doesn't exist, go to home page
+            if (project == null) {
+                toast.error("No such project exists! Redirecting to home page...", {
+                    //position: toast.POSITION.TOP_CENTER,
+                    autoClose: 3000
+                })
+                navigate('/home')
+                return
             }
 
-            // If project isnt null, i.e. valid project id, set content
-            if (project) {
-                setContent(<About data={project.about} />)
+            // TODO: Navigate to home page, add toast "Not authorized to view this project"
+            if (!loading && !project.userList.includes(user._id)) {
+                toast.error("You don't have access to this project. Redirecting to home page...", {
+                    //position: toast.POSITION.TOP_CENTER,
+                    autoClose: 3000
+                })
+                navigate('/home')
             }
+
+            setContent(<About data={project.about} />)
         })
 
         if (!loading && user) {
             socket.emit("get-project", projectIdRef.current)
         }
-    }, [socket, projectIdRef, loading, user])
+    }, [socket, projectIdRef, loading, user, navigate])
 
     const switchContent = (newContent) => () => {
         setContent(newContent)
@@ -80,14 +91,7 @@ export default function ProjectPage() {
             </>
         }
 
-        // TODO: Navigate to home page with toast "no such project"
-        return <>
-            <HeaderNavbar />
-            <div className="container mt-3">
-                <h1>No such project</h1>
-            </div>
-        </>
-
+        return
     }
 
     return (

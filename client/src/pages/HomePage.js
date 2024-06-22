@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import HeaderNavbar from "../components/HeaderNavbar";
 import useUserData from "../hooks/useUserData";
 import { v4 as uuidV4 } from "uuid"
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
@@ -15,8 +15,8 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
  */
 export default function HomePage() {
     const { user, loading } = useUserData();
-    const [content, setContent] = useState(<h1>Loading...</h1>)
-    const navigate = useNavigate()  
+    const [content, setContent] = useState(<h1>Loading Home Page content...</h1>)
+    const navigate = useNavigate()
     const [socket, setSocket] = useState()
 
     // Establish socket connection with server
@@ -29,21 +29,27 @@ export default function HomePage() {
         }
     }, [])
 
-    function createProjectHandler() {
+    const createProjectHandler = useCallback(() => {
         const projectId = uuidV4()
         socket.emit("create-project", { projectId: projectId, userId: user._id })
+
+        // socket.on("new-project-created", () => {
+        //     navigate(`/projects/${projectId}`)
+        // })
         navigate(`/projects/${projectId}`)
-    }
+    }, [navigate, socket, user])
 
     useEffect(() => {
         if (!loading) {
             const loadedContent = <>
-                <h1>Welcome {user.username}</h1>
+                <h1>Welcome {user.username}</h1> <br />
+                <h2>User ID: {user._id}</h2>
+                <h2>Email: {user.email}</h2> <br/>
                 <button type="button" className="btn btn-primary" onClick={createProjectHandler}>Create Project</button>
             </>
             setContent(loadedContent)
         }
-    }, [loading])
+    }, [loading, createProjectHandler, user])
 
 
     return <>

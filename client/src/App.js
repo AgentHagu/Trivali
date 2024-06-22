@@ -3,14 +3,16 @@ import {
   Navigate,
   createBrowserRouter,
   RouterProvider,
+  useNavigate,
 } from "react-router-dom"
-import { v4 as uuidV4 } from "uuid"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
-import Test from "./pages/Test"
 import HomePage from "./pages/HomePage"
 import { useEffect, useState } from "react"
 import ProjectPage from "./pages/ProjectPage"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import HeaderNavbar from "./components/HeaderNavbar"
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -57,7 +59,10 @@ const router = createBrowserRouter([
  * @returns {JSX.Element} The rendered component.
  */
 function App() {
-  return <RouterProvider router={router} />
+  return <>
+    <ToastContainer />
+    <RouterProvider router={router} />
+  </>
 }
 
 /**
@@ -69,6 +74,7 @@ function App() {
  */
 function PrivateRoute({ element }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate()
 
   // Validate user session on component mount
   useEffect(() => {
@@ -99,11 +105,25 @@ function PrivateRoute({ element }) {
   }, []);
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return <>
+      <HeaderNavbar />
+      <div className="container">
+        <h1>Authenticating user...</h1>
+      </div>
+    </>
+  }
+
+  if (isAuthenticated) {
+    return element
+  } else {
+    toast.error("You haven't logged in! Redirecting to login page...", {
+      autoClose: 3000
+    })
+    navigate('/login')
   }
 
   // TODO: Snack bar with "You are not authorized" or "Not logged in!"
-  return isAuthenticated ? element : <Navigate to="/welcome" />;
+  // <Navigate to="/welcome" />;
 }
 
 export default App;

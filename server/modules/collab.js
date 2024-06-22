@@ -1,5 +1,4 @@
 // TextEditor Packages
-// TODO: Switch to TipTap
 const mongoose = require("mongoose")
 const socketIo = require('socket.io');
 const Document = require("../schema/document")
@@ -59,6 +58,8 @@ module.exports = (server) => {
 
         socket.on("create-project", async ({ projectId, userId }) => {
             await findOrCreateProject(projectId, userId)
+
+            socket.emit("new-project-created")
         })
 
         socket.on("get-project", async projectId => {
