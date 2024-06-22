@@ -1,28 +1,37 @@
-import WelcomePage from "./pages/WelcomePage"
+// React and React Router imports
+import React, { useEffect, useState } from "react";
 import {
   Navigate,
   createBrowserRouter,
   RouterProvider,
   useNavigate,
-} from "react-router-dom"
-import LoginPage from "./pages/LoginPage"
-import RegisterPage from "./pages/RegisterPage"
-import HomePage from "./pages/HomePage"
-import { useEffect, useState } from "react"
-import ProjectPage from "./pages/ProjectPage"
+} from "react-router-dom";
+
+// Page components
+import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import HomePage from "./pages/HomePage";
+import ProjectPage from "./pages/ProjectPage";
+import Test from "./pages/Test";
+
+// Other components
+import HeaderNavbar from "./components/HeaderNavbar";
+
+// Third-party libraries
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import HeaderNavbar from "./components/HeaderNavbar"
+
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
 // Create router configuration
 const router = createBrowserRouter([
-  // {
-  //   path: "/test",
-  //   // element: <PrivateRoute element = {<Test />}/>
-  //   element: <Test />
-  // },
+  {
+    path: "/test",
+    // element: <PrivateRoute element = {<Test />}/>
+    element: <Test />
+  },
   {
     path: "/",
     element: <Navigate to={"/welcome"} />

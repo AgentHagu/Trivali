@@ -1,7 +1,14 @@
+// React and Hooks
 import { useCallback, useEffect, useState } from "react";
+
+// Components
 import HeaderNavbar from "../components/HeaderNavbar";
+
+// Custom Hooks
 import useUserData from "../hooks/useUserData";
-import { v4 as uuidV4 } from "uuid"
+
+// External Libraries
+import { v4 as uuidV4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
@@ -44,7 +51,7 @@ export default function HomePage() {
             const loadedContent = <>
                 <h1>Welcome {user.username}</h1> <br />
                 <h2>User ID: {user._id}</h2>
-                <h2>Email: {user.email}</h2> <br/>
+                <h2>Email: {user.email}</h2> <br />
                 <button type="button" className="btn btn-primary" onClick={createProjectHandler}>Create Project</button>
             </>
             setContent(loadedContent)

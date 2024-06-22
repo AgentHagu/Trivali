@@ -1,11 +1,17 @@
+// React and 
 import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+// Components
 import HeaderNavbar from "../components/HeaderNavbar";
-import WelcomePage from "./WelcomePage"
 import About from "../components/About";
 import Expenses from "../components/Expenses";
 import Itinerary from "../components/Itinerary";
+
+// Custom Hooks
 import useUserData from "../hooks/useUserData";
-import { useNavigate, useParams } from "react-router-dom";
+
+// Libraries
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
 

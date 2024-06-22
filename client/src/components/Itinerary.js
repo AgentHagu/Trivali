@@ -1,7 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import TextEditor from "./TextEditor"
+
+// Components
+import TextEditor from "./TextEditor";
+
+// Context Menu
 import { Menu, Item, Separator, Submenu, useContextMenu } from 'react-contexify';
 import 'react-contexify/ReactContexify.css';
+
+// Toast Notifications
 import { toast } from "react-toastify";
 
 function Table({ projectId, data, socket }) {
