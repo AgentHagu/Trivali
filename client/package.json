@@ -15,6 +15,7 @@
     "@tiptap/starter-kit": "^2.4.0",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "jquery": "^3.7.1",
     "popper.js": "^1.16.1",
     "quill": "^2.0.2",

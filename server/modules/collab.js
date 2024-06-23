@@ -56,10 +56,22 @@ module.exports = (server) => {
             })
         })
 
-        socket.on("create-project", async ({ projectId, projectName, userId }) => {
-            await findOrCreateProject(projectId, projectName, userId)
+        socket.on("create-project", async ({ projectId, projectName, userId, userList }) => {
+            await findOrCreateProject(projectId, projectName, userId, userList)
 
             socket.emit("new-project-created")
+        })
+
+        socket.on("search-user", async userInfo => {
+            if (userInfo == null) return
+            
+            let user = await User.findById(userInfo)
+
+            if (user == null) {
+                user = await User.findOne({ email: userInfo })
+            }
+
+            socket.emit("found-user", user)
         })
 
         socket.on("get-project", async projectId => {
@@ -121,7 +133,7 @@ async function findOrCreateDocument(id) {
 
 }
 
-async function findOrCreateProject(projectId, projectName, userId) {
+async function findOrCreateProject(projectId, projectName, userId, userList) {
     if (projectId == null) return
 
     const project = await Project.findById(projectId)
@@ -129,13 +141,16 @@ async function findOrCreateProject(projectId, projectName, userId) {
 
     const owner = await User.findById(userId)
 
+    userList = userList.map(user => user._id)
+    userList.push(owner._id)
+
     try {
         const project = await Project.create({
             _id: projectId,
             name: projectName,
             owner: owner._id,
             adminList: [owner._id],
-            userList: [owner._id],
+            userList: userList,
             itinerary: {
                 rows: [{
                     id: Date.now(),

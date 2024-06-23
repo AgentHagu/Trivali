@@ -14,6 +14,79 @@ import { io } from "socket.io-client";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    useEffect(() => {
+        const handleUserFound = user => {
+            if (user == null) {
+                //TODO: Add toast or something for this message
+                console.log("NO USER FOUND")
+                return
+            }
+
+            if (user._id === currUser._id) {
+                //TODO: Add toast or something for this message
+                console.log("ITS YOU")
+                return
+            }
+
+            const isUserInArray = addedUsersList.some(addedUser =>
+                addedUser._id === user._id
+            )
+
+            if (!isUserInArray) {
+                console.log("USER HASNT BEEN ADDED")
+                const newList = [...addedUsersList, user]
+                setAddedUsersList(newList)
+            } else {
+                console.log("User is already added")
+            }
+        }
+
+        socket.on("found-user", handleUserFound)
+
+        return () => {
+            socket.off("found-user", handleUserFound)
+        }
+    }, [socket, addedUsersList, currUser, setAddedUsersList])
+
+
+    function searchHandler(e) {
+        e.preventDefault()
+        const userSearch = e.target[0].value
+
+        socket.emit("search-user", userSearch)
+    }
+
+    return <>
+        <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
+
+        <form className="mb-3 d-flex" onSubmit={searchHandler}>
+            <input type="search" className="form-control me-2" id="addUsers" placeholder="Search with ID or Email" />
+            <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+        </form>
+
+        {
+            addedUsersList.length > 0
+                ? <>
+                    <label className="form-label">Added Users</label>
+                    <ul className="list-group">
+                        {addedUsersList.map(user => (
+                            //TODO: Add unique key for list item
+                            <li className="list-group-item" key={user._id}>
+                                {user.username} (Email: {user.email})
+                            </li>
+                        ))}
+                    </ul>
+
+                </>
+                : <>
+                    <label className="form-label">No added Users</label>
+                </>
+        }
+
+    </>
+}
+
 /**
  * HomePage component to display the home page content.
  *
@@ -21,7 +94,8 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
  * @returns {JSX.Element} The rendered component.
  */
 export default function HomePage() {
-    const { user, loading } = useUserData();
+    const { user, loading } = useUserData()
+    const [addedUsersList, setAddedUsersList] = useState([])
     const [content, setContent] = useState(<h1>Loading Home Page content...</h1>)
     const navigate = useNavigate()
     const [socket, setSocket] = useState()
@@ -40,12 +114,12 @@ export default function HomePage() {
         e.preventDefault()
         const projectName = e.target[0].value
         const projectId = uuidV4()
-        socket.emit("create-project", { projectId: projectId, projectName: projectName, userId: user._id })
+        socket.emit("create-project", { projectId: projectId, projectName: projectName, userId: user._id, userList: addedUsersList })
 
         socket.on("new-project-created", () => {
             navigate(`/projects/${projectId}`)
         })
-    }, [navigate, socket, user])
+    }, [addedUsersList, navigate, socket, user])
 
     useEffect(() => {
         if (!loading) {
@@ -70,7 +144,7 @@ export default function HomePage() {
                 <h1>Your Projects:</h1>
 
                 {/* Create Project Modal Form */}
-                <div className="modal fade" id="createProjectModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal fade" id="createProjectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
                             <div className="modal-header">
@@ -82,14 +156,11 @@ export default function HomePage() {
                                 <form id="createProjectForm" onSubmit={submitHandler}>
                                     <div className="mb-3">
                                         <label htmlFor="projectName" className="form-label">Project Name</label>
-                                        <input type="text" className="form-control" id="projectName" />
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
-                                        <input type="search" className="form-control" id="addUsers" placeholder="Search for users here" />
+                                        <input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" />
                                     </div>
                                 </form>
+
+                                <SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
                             </div>
 
                             <div className="modal-footer">
@@ -102,7 +173,7 @@ export default function HomePage() {
             </>
             setContent(loadedContent)
         }
-    }, [loading, user, submitHandler])
+    }, [loading, user, submitHandler, socket])
 
 
     return <>
