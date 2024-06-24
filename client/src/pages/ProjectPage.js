@@ -17,6 +17,102 @@ import { toast } from "react-toastify";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    function userToSimpleUser(user) {
+        const simpleUser = {
+            _id: user._id,
+            username: user.username,
+            email: user.email
+        }
+
+        return simpleUser
+    }
+
+    function searchHandler(e) {
+        e.preventDefault()
+        const userSearch = e.target[0].value
+
+        socket.emit("search-user", userSearch)
+    }
+
+    useEffect(() => {
+        const handleUserFound = user => {
+            if (user == null) {
+                //TODO: Add toast or something for this message
+                console.log("NO USER FOUND")
+                return
+            }
+
+            if (user._id === currUser._id) {
+                //TODO: Add toast or something for this message
+                console.log("ITS YOU")
+                return
+            }
+
+            const isUserInArray = addedUsersList.some(addedUser =>
+                addedUser._id === user._id
+            )
+
+            if (!isUserInArray) {
+                console.log("USER HASNT BEEN ADDED")
+                const newList = [...addedUsersList, user]
+                setAddedUsersList(newList)
+                socket.emit("add-user", userToSimpleUser(user))
+            } else {
+                console.log("User is already added")
+            }
+        }
+
+        socket.on("found-user", handleUserFound)
+
+        return () => {
+            socket.off("found-user", handleUserFound)
+        }
+    }, [socket, addedUsersList, currUser, setAddedUsersList])
+
+    function removeUserHandler(simpleUser) {
+        const newList = addedUsersList.filter(addedUser => addedUser._id !== simpleUser._id)
+        setAddedUsersList(newList)
+        socket.emit("remove-user", simpleUser)
+    }
+
+    return <>
+        <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
+
+        <form className="mb-3 d-flex" onSubmit={searchHandler}>
+            <input type="search" className="form-control me-2" id="addUsers" placeholder="Search with ID or Email" />
+            <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+        </form>
+
+        {
+            addedUsersList.length > 0
+                ? <>
+                    <label className="form-label">Added Users</label>
+                    <ul className="list-group">
+                        {addedUsersList.map(user => (
+                            //TODO: Add unique key for list item
+                            <li className="list-group-item d-flex justify-content-between align-items-center" key={user._id}>
+                                <span>
+                                    {user.username} (Email: {user.email})
+                                </span>
+                                {
+                                    user._id !== currUser._id
+                                        ? <button className="btn ms-auto p-0" onClick={() => removeUserHandler(user)}><i className="bi bi-person-fill-dash" /></button>
+                                        : <>Owner</>
+                                }
+                            </li>
+                        ))}
+                    </ul>
+
+                </>
+                : <>
+                    <label className="form-label">No added Users</label>
+                </>
+        }
+
+    </>
+}
+
 export default function ProjectPage() {
     const { user, loading } = useUserData()
     const { id } = useParams()
@@ -26,6 +122,7 @@ export default function ProjectPage() {
     const [project, setProject] = useState()
     const [projectLoading, setProjectLoading] = useState(true)
     const navigate = useNavigate()
+    const [addedUsersList, setAddedUsersList] = useState([])
 
     // Establish socket connection with server
     useEffect(() => {
@@ -47,6 +144,7 @@ export default function ProjectPage() {
             setProjectLoading(false)
 
             // if project is null, i.e. it doesn't exist, go to home page
+            // Otherwise, it exists and we can refer to its properties
             if (project == null) {
                 toast.error("No such project exists! Redirecting to home page...", {
                     //position: toast.POSITION.TOP_CENTER,
@@ -57,7 +155,8 @@ export default function ProjectPage() {
             }
 
             // TODO: Navigate to home page, add toast "Not authorized to view this project"
-            if (!loading && !project.userList.includes(user._id)) {
+            if (!loading && !project.userList.some(addedUser =>
+                addedUser._id === user._id)) {
                 toast.error("You don't have access to this project. Redirecting to home page...", {
                     //position: toast.POSITION.TOP_CENTER,
                     autoClose: 3000
@@ -66,6 +165,7 @@ export default function ProjectPage() {
             }
 
             setContent(<About data={project.about} />)
+            setAddedUsersList(project.userList)
         })
 
         if (!loading && user) {
@@ -104,11 +204,29 @@ export default function ProjectPage() {
         <>
             <HeaderNavbar />
             <div className="container mt-3">
-                {
-                    !project.name 
-                    ? <h1>Untitled Project</h1>
-                    : <h1>{project.name}</h1>
-                }
+                <div className="row">
+                    <div className="col">
+                        {
+                            !project.name
+                                ? <h1>Untitled Project</h1>
+                                : <h1>{project.name}</h1>
+                        }
+                    </div>
+
+                    {/* Only render the manage user button for the owner */}
+                    {/* TODO: Have it exist for the admins as well */}
+                    {
+                        project.owner._id === user._id
+                            ? <div className="col d-flex">
+                                <button type="button" className="btn btn-primary ms-auto fs-4" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
+                                    Manage Users
+                                </button>
+                            </div>
+                            : <></>
+                    }
+
+                </div>
+
                 <div className="row row-cols-2 mt-3">
                     <div className="btn-group btn-group-lg" role="group">
                         <button
@@ -133,6 +251,22 @@ export default function ProjectPage() {
 
                 <div className="border border-2 border-dark bg-white">
                     {content}
+                </div>
+            </div>
+
+            {/* Create Project Modal Form */}
+            <div className="modal fade" id="manageUsersModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Manage Users</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div className="modal-body">
+                            <SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

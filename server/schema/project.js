@@ -1,5 +1,14 @@
 const { Schema, model } = require("mongoose")
 
+const SimpleUser = new Schema({
+    _id: String,
+    username: String,
+    email: {
+        type: String,
+        unique: true
+    }
+})
+
 const About = new Schema({
     _id: false
 })
@@ -35,9 +44,9 @@ const Project = new Schema({
     // owner: { type: Schema.Types.ObjectId, ref: 'User' },
     // adminList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     // userList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    owner: String,
-    adminList: [String],
-    userList: [String],
+    owner: SimpleUser,
+    adminList: [SimpleUser],
+    userList: [SimpleUser],
     // TODO: Replace with About and Expenses schema
     about: {},
     itinerary: Itinerary,

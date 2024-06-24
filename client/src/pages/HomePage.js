@@ -15,6 +15,13 @@ import { io } from "socket.io-client";
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
 function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    function searchHandler(e) {
+        e.preventDefault()
+        const userSearch = e.target[0].value
+
+        socket.emit("search-user", userSearch)
+    }
+
     useEffect(() => {
         const handleUserFound = user => {
             if (user == null) {
@@ -49,12 +56,9 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
         }
     }, [socket, addedUsersList, currUser, setAddedUsersList])
 
-
-    function searchHandler(e) {
-        e.preventDefault()
-        const userSearch = e.target[0].value
-
-        socket.emit("search-user", userSearch)
+    function removeUserHandler(user) {
+        const newList = addedUsersList.filter(addedUser => addedUser._id !== user._id)
+        setAddedUsersList(newList)
     }
 
     return <>
@@ -72,8 +76,16 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
                     <ul className="list-group">
                         {addedUsersList.map(user => (
                             //TODO: Add unique key for list item
-                            <li className="list-group-item" key={user._id}>
-                                {user.username} (Email: {user.email})
+                            <li className="list-group-item d-flex justify-content-between align-items-center" key={user._id}>
+                                <span>
+                                    {user.username} (Email: {user.email})
+                                </span>
+                                {
+                                    user._id !== currUser._id
+                                        ? <button className="btn ms-auto p-0" onClick={() => removeUserHandler(user)}><i className="bi bi-person-fill-dash" /></button>
+                                        : <>Owner</>
+                                }
+
                             </li>
                         ))}
                     </ul>
@@ -123,7 +135,12 @@ export default function HomePage() {
 
     useEffect(() => {
         if (!loading) {
+            setAddedUsersList([user])
+        }
+    }, [loading, user])
 
+    useEffect(() => {
+        if (!loading) {
             // Move to outside function
             const loadedContent = <>
                 <div className="row">
@@ -134,8 +151,8 @@ export default function HomePage() {
                     </div>
 
                     <div className="col">
-                        <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                            <h3>Create Project</h3>
+                        <button type="button" className="btn btn-primary fs-1" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+                            Create Project
                         </button>
                     </div>
                 </div>
@@ -173,7 +190,7 @@ export default function HomePage() {
             </>
             setContent(loadedContent)
         }
-    }, [loading, user, submitHandler, socket])
+    }, [loading, user, submitHandler, socket, addedUsersList])
 
 
     return <>

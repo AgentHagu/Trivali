@@ -76,9 +76,23 @@ module.exports = (server) => {
 
         socket.on("get-project", async projectId => {
             //const project = await findOrCreateProject(projectId, userId)
-            const project = await Project.findById(projectId).populate('adminList').populate('userList').exec()
+            const project = await Project.findById(projectId)
             socket.join(projectId)
             socket.emit("load-project", project)
+
+            socket.on("add-user", async simpleUser => {
+                await Project.findByIdAndUpdate(
+                    projectId,
+                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) }}
+                )
+            })
+
+            socket.on("remove-user", async simpleUser => {
+                await Project.findByIdAndUpdate(
+                    projectId,
+                    { $pull: { userList: { _id: simpleUser._id }}}
+                )
+            })
 
             socket.on("send-itinerary-changes", newRows => {
                 socket.broadcast.to(projectId).emit("receive-itinerary-changes", newRows)
@@ -104,6 +118,16 @@ module.exports = (server) => {
             socket.emit("load-itinerary", project.itinerary)
         })
     })
+}
+
+function userToSimpleUser(user) {
+    const simpleUser = {
+        _id: user._id,
+        username: user.username,
+        email: user.email
+    }
+
+    return simpleUser
 }
 
 /**
@@ -139,17 +163,15 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
     const project = await Project.findById(projectId)
     if (project) return project
 
-    const owner = await User.findById(userId)
-
-    userList = userList.map(user => user._id)
-    userList.push(owner._id)
+    const owner = userToSimpleUser(await User.findById(userId))
+    userList = userList.map(user => userToSimpleUser(user))
 
     try {
         const project = await Project.create({
             _id: projectId,
             name: projectName,
-            owner: owner._id,
-            adminList: [owner._id],
+            owner: owner,
+            adminList: [owner],
             userList: userList,
             itinerary: {
                 rows: [{
@@ -169,3 +191,4 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
         return await Project.findById(projectId)
     }
 }
+
