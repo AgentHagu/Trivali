@@ -66,7 +66,7 @@ module.exports = (server) => {
             userList.forEach(async user => {
                 await User.findByIdAndUpdate(
                     user._id,
-                    { $push : { projectList: simpleProject } }
+                    { $push: { projectList: simpleProject } }
                 )
             })
 
@@ -75,7 +75,7 @@ module.exports = (server) => {
 
         socket.on("search-user", async userInfo => {
             if (userInfo == null) return
-            
+
             let user = await User.findById(userInfo)
 
             if (user == null) {
@@ -88,11 +88,14 @@ module.exports = (server) => {
         socket.on("get-project", async projectId => {
             //const project = await findOrCreateProject(projectId, userId)
             const project = await Project.findById(projectId)
-            const simpleProject = {
-                _id: project._id,
-                name: project.name
+
+            if (project !== null) {
+                const simpleProject = {
+                    _id: project._id,
+                    name: project.name
+                }
+                socket.join(projectId)
             }
-            socket.join(projectId)
             socket.emit("load-project", project)
 
             socket.on("add-user", async simpleUser => {
@@ -103,20 +106,22 @@ module.exports = (server) => {
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
-                    { $push : { projectList: simpleProject } }
+                    { $push: { projectList: simpleProject } }
                 )
             })
 
             socket.on("remove-user", async simpleUser => {
                 await Project.findByIdAndUpdate(
                     projectId,
-                    { $pull: { userList: { _id: simpleUser._id }}}
+                    { $pull: { userList: { _id: simpleUser._id } } }
                 )
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
-                    { $pull : { projectList: simpleProject } }
+                    { $pull: { projectList: simpleProject } }
                 )
+
+                // socket.emit("kick-user", simpleUser)
             })
 
             socket.on("send-itinerary-changes", newRows => {

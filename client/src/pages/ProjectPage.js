@@ -136,7 +136,7 @@ export default function ProjectPage() {
 
     // Load document from server on component mount
     useEffect(() => {
-        if (socket == null) return
+        if (socket == null || loading) return
 
         socket.once("load-project", project => {
             // Regardless of outcome, setProject and setProjectLoading
@@ -154,7 +154,6 @@ export default function ProjectPage() {
                 return
             }
 
-            // TODO: Navigate to home page, add toast "Not authorized to view this project"
             if (!loading && !project.userList.some(addedUser =>
                 addedUser._id === user._id)) {
                 toast.error("You don't have access to this project. Redirecting to home page...", {
@@ -171,7 +170,31 @@ export default function ProjectPage() {
         if (!loading && user) {
             socket.emit("get-project", projectIdRef.current)
         }
-    }, [socket, projectIdRef, loading, user, navigate])
+    }, [socket, loading, user, navigate])
+
+    // useEffect(() => {
+    //     if (socket == null) return
+
+    //     socket.on("kick-user", simpleUser => {
+    //         // console.log("TRYING TO KICK USER -----")
+    //         // console.log("USER TO KICK: ", simpleUser._id)
+    //         // console.log("CURRENT USER: ", user._id)
+    //         // if (simpleUser._id === user._id) {
+    //         //     console.log("HEY")
+    //         //     toast.error("You don't have access to this project. Redirecting to home page...", {
+    //         //         //position: toast.POSITION.TOP_CENTER,
+    //         //         autoClose: 3000
+    //         //     })
+    //         //     navigate('/home')
+    //         // }
+
+    //         toast.error("You don't have access to this project. Redirecting to home page...", {
+    //             //position: toast.POSITION.TOP_CENTER,
+    //             autoClose: 3000
+    //         })
+    //         navigate('/home')
+    //     })
+    // }, [loading, navigate, project, socket, user])
 
     const switchContent = (newContent) => () => {
         setContent(newContent)

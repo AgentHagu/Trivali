@@ -167,7 +167,11 @@ export default function HomePage() {
                                     <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
                                         <a href={`../projects/${simpleProject._id}`} className="fs-4">
                                             <span>
-                                                {simpleProject.name}
+                                                {
+                                                    simpleProject.name
+                                                    ? <>{simpleProject.name}</>
+                                                    : <>Untitled Project</>
+                                                }
                                             </span>
                                         </a>
                                     </li>
