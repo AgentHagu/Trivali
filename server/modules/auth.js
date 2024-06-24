@@ -133,7 +133,8 @@ module.exports = (app) => {
                 _id: Date.now().toString(),
                 username: req.body.username,
                 email: req.body.email,
-                password: hashedPassword
+                password: hashedPassword,
+                projectList: []
             })
 
             res.send('Registered!')

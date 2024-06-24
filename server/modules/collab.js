@@ -57,7 +57,18 @@ module.exports = (server) => {
         })
 
         socket.on("create-project", async ({ projectId, projectName, userId, userList }) => {
-            await findOrCreateProject(projectId, projectName, userId, userList)
+            const project = await findOrCreateProject(projectId, projectName, userId, userList)
+            const simpleProject = {
+                _id: project._id,
+                name: project.name
+            }
+
+            userList.forEach(async user => {
+                await User.findByIdAndUpdate(
+                    user._id,
+                    { $push : { projectList: simpleProject } }
+                )
+            })
 
             socket.emit("new-project-created")
         })
@@ -77,13 +88,22 @@ module.exports = (server) => {
         socket.on("get-project", async projectId => {
             //const project = await findOrCreateProject(projectId, userId)
             const project = await Project.findById(projectId)
+            const simpleProject = {
+                _id: project._id,
+                name: project.name
+            }
             socket.join(projectId)
             socket.emit("load-project", project)
 
             socket.on("add-user", async simpleUser => {
                 await Project.findByIdAndUpdate(
                     projectId,
-                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) }}
+                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) } }
+                )
+
+                await User.findByIdAndUpdate(
+                    simpleUser._id,
+                    { $push : { projectList: simpleProject } }
                 )
             })
 
@@ -91,6 +111,11 @@ module.exports = (server) => {
                 await Project.findByIdAndUpdate(
                     projectId,
                     { $pull: { userList: { _id: simpleUser._id }}}
+                )
+
+                await User.findByIdAndUpdate(
+                    simpleUser._id,
+                    { $pull : { projectList: simpleProject } }
                 )
             })
 

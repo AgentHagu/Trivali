@@ -145,12 +145,12 @@ export default function HomePage() {
             const loadedContent = <>
                 <div className="row">
                     <div className="col">
-                        <h1>Welcome {user.username}</h1> <br />
+                        <h1>Welcome, {user.username}</h1>
                         <h2>User ID: {user._id}</h2>
-                        <h2>Email: {user.email}</h2> <br />
+                        <h2>Email: {user.email}</h2>
                     </div>
 
-                    <div className="col">
+                    <div className="col d-flex flex-column justify-content-end align-items-end">
                         <button type="button" className="btn btn-primary fs-1" data-bs-toggle="modal" data-bs-target="#createProjectModal">
                             Create Project
                         </button>
@@ -158,7 +158,36 @@ export default function HomePage() {
                 </div>
 
                 <hr />
-                <h1>Your Projects:</h1>
+                <h1 className="pb-2">Your Projects:</h1>
+                <ul className="list-group">
+                    <div className="row">
+                        {
+                            user.projectList.length > 0
+                                ? user.projectList.map(simpleProject => (
+                                    <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
+                                        <a href={`../projects/${simpleProject._id}`} className="fs-4">
+                                            <span>
+                                                {simpleProject.name}
+                                            </span>
+                                        </a>
+                                    </li>
+                                    // <a href={`../projects/${simpleProject._id}`} className="fs-4 col-md-4 d-block text-decoration-none">
+                                    //     <div className="card h-100 mb-4 shadow-sm">
+                                    //         <div className="card-header">{simpleProject.name}</div>
+                                    //         <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                    //             alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
+                                    //         <div className="card-body">
+                                    //             <p className="card-text fs-6">
+                                    //                 lorem
+                                    //             </p>
+                                    //         </div>
+                                    //     </div>
+                                    // </a>
+                                ))
+                                : <h3>You currently have no projects.</h3>
+                        }
+                    </div>
+                </ul>
 
                 {/* Create Project Modal Form */}
                 <div className="modal fade" id="createProjectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

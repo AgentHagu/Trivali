@@ -1,5 +1,10 @@
 const { Schema, model } = require("mongoose")
 
+const SimpleProject = new Schema({
+    _id: String,
+    name: String
+})
+
 /**
  * Mongoose schema for a user.
  *
@@ -22,7 +27,8 @@ const User = new Schema({
         type: String,
         unique: true
     },
-    password: String
+    password: String,
+    projectList: [SimpleProject]
 })
 
 module.exports = model("User", User)
