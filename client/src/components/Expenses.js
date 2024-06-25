@@ -63,7 +63,7 @@ export default function ProjectAbout() {
     </Container>
     <AddBudgetModal 
         show = {showAddBudgetModal} 
-        handleClose={() => setViewExpensesModalBudgetId(false)} 
+        handleClose={() => setShowAddBudgetModal(false)} 
     />
 
     <AddExpenseModal 
