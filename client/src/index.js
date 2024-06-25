@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.css';
 import "./styles.css"
+import { BudgetsProvider } from "./context/BudgetsContext"
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <BudgetsProvider>
+      <App />
+    </BudgetsProvider>
   </React.StrictMode>
   // <App />
 );
