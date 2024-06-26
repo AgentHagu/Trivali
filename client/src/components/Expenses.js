@@ -10,7 +10,7 @@ import AddExpenseModal from "../context/AddExpense"
 import { useState } from 'react'
 import { UNCATEGORIZED_BUDGET_ID, useBudgets } from "../context/BudgetsContext";
 
-export default function ProjectAbout() {
+export default function Expenses() {
     const [showAddBudgetModal, setShowAddBudgetModal] = useState(false)
     const [showAddExpenseModal, setShowAddExpenseModal] = useState(false)
     const [viewExpensesModalBudgetId, setViewExpensesModalBudgetId] = useState()
@@ -61,6 +61,7 @@ export default function ProjectAbout() {
             <TotalBudgetCard />
         </div>
     </Container>
+    
     <AddBudgetModal 
         show = {showAddBudgetModal} 
         handleClose={() => setShowAddBudgetModal(false)} 

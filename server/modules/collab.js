@@ -88,9 +88,9 @@ module.exports = (server) => {
         socket.on("get-project", async projectId => {
             //const project = await findOrCreateProject(projectId, userId)
             const project = await Project.findById(projectId)
-
+            let simpleProject
             if (project !== null) {
-                const simpleProject = {
+                simpleProject = {
                     _id: project._id,
                     name: project.name
                 }
@@ -141,11 +141,45 @@ module.exports = (server) => {
             socket.on("send-time-changes", timeChange => {
                 socket.broadcast.to(projectId).emit("receive-time-changes", timeChange)
             })
+
         })
 
         socket.on("get-itinerary", async projectId => {
             const project = await Project.findById(projectId)
             socket.emit("load-itinerary", project.itinerary)
+        })
+
+        socket.on("get-budgets", async projectId => {
+            const project = await Project.findById(projectId)
+            socket.join(projectId)
+            socket.emit("load-budgets", project.expenses.budgets)
+
+            socket.on("add-new-budget", async newBudget => {
+                const updatedProject = await Project.findByIdAndUpdate(
+                    projectId,
+                    { $push: { 'expenses.budgets': newBudget } },
+                    { new: true }
+                )
+
+                socket.broadcast.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
+            })
+
+            socket.on("add-new-expense", async ({ budgetId, newExpense }) => {
+                const updatedProject = await Project.findOneAndUpdate(
+                    {
+                        _id: projectId,
+                        'expenses.budgets.id': budgetId
+                    },
+                    {
+                        $push: { 'expenses.budgets.$.history': newExpense }
+                    },
+                    {
+                        new: true
+                    }
+                )
+
+                socket.broadcast.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
+            })
         })
     })
 }
@@ -214,14 +248,15 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
                     }]
                 }]
             },
-            
+
             expenses: {
-                budgets:[]
+                budgets: []
             }
         })
 
         return project
     } catch (err) {
+        console.log("Create Project failed because: ", err)
         return await Project.findById(projectId)
     }
 }
