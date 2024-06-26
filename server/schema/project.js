@@ -42,13 +42,14 @@ const Expenses = new Schema({
 
     // Each budget is a budget entry in the Expenses page
     budgets: [{
-        _id: false, // Maybe not false
+        _id: String, // Maybe not false
         name: String,
         maxCap: Number,
-        currAmount: Number,
+        currAmount: Number, // TODO: Lucas doesn't have this
 
         // History represents the history of the budget, with every expenses entry
         history: [{
+            _id: String,
             description: String, // The "name" of the expenses
             creator: SimpleUser, // Creator of the expense (TODO: assumed that everyone else owes him??)
             logs: [{ // Logs is an array of Objects, containing the person that owes money and the amount they owe

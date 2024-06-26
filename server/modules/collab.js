@@ -213,6 +213,10 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
                         // TODO: Adjust the page and number provided here
                     }]
                 }]
+            },
+            
+            expenses: {
+                budgets:[]
             }
         })
 
