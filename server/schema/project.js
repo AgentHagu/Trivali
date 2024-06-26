@@ -49,13 +49,13 @@ const Expenses = new Schema({
         currAmount: Number, // TODO: Lucas doesn't have this
 
         // History represents the history of the budget, with every expenses entry
-        history: [{
+        expenses: [{
             description: String, // The "name" of the expenses
             // creator: SimpleUser, // Creator of the expense (TODO: assumed that everyone else owes him??)
             // logs: [{ // Logs is an array of Objects, containing the person that owes money and the amount they owe
             //     debtor: SimpleUser,
             //     oweAmount: Number
-            // }]
+            // }],
             amount: Number
         }]
     }]

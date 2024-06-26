@@ -161,7 +161,7 @@ module.exports = (server) => {
                     { new: true }
                 )
 
-                socket.broadcast.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
+                io.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
             })
 
             socket.on("add-new-expense", async ({ budgetId, newExpense }) => {
@@ -170,15 +170,49 @@ module.exports = (server) => {
                         _id: projectId,
                         'expenses.budgets.id': budgetId
                     },
-                    {
-                        $push: { 'expenses.budgets.$.history': newExpense }
-                    },
-                    {
-                        new: true
-                    }
+                    { $push: { 'expenses.budgets.$.expenses': newExpense } },
+                    { new: true }
                 )
 
-                socket.broadcast.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
+                io.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
+            })
+
+            socket.on("delete-budget", async budgetId => {
+                const project = await Project.findById(projectId)
+
+                const budget = project.expenses.budgets.find(budget => budget.id === budgetId)
+                await Promise.all(
+                    budget.expenses.map(async expense =>
+                        await Project.findOneAndUpdate(
+                            {
+                                _id: projectId,
+                                'expenses.budgets.id': 'uncategorized'
+                            },
+                            { $push: { 'expenses.budgets.$.expenses': expense } }
+                        )
+                    )
+                )
+
+                const updatedProject = await Project.findByIdAndUpdate(
+                    projectId,
+                    { $pull: { 'expenses.budgets': { id: budgetId } } },
+                    { new: true }
+                )
+
+                io.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
+            })
+
+            socket.on("delete-expense", async ({ budgetId, expenseId }) => {
+                const updatedProject = await Project.findOneAndUpdate(
+                    {
+                        _id: projectId,
+                        'expenses.budgets.id': budgetId,
+                    },
+                    { $pull: { 'expenses.budgets.$.expenses': { _id: expenseId } } },
+                    { new: true }
+                )
+
+                io.to(projectId).emit("update-budget", updatedProject.expenses.budgets)
             })
         })
     })
@@ -250,7 +284,13 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
             },
 
             expenses: {
-                budgets: []
+                budgets: [
+                    {
+                        id: 'uncategorized',
+                        name: "Uncategorized",
+                        expenses: []
+                    }
+                ]
             }
         })
 
