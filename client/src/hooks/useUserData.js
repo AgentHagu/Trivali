@@ -16,11 +16,9 @@ function useUserData() {
                     },
                     credentials: 'include'
                 });
-                //console.log(response)
                 setUser(await response.json())
             } catch (error) {
                 // TODO: Handle error if needed
-                //console.error("Error fetching user data:", error)
             } finally {
                 setLoading(false)
             }

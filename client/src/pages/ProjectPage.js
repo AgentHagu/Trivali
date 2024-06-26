@@ -55,7 +55,6 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
             )
 
             if (!isUserInArray) {
-                console.log("USER HASNT BEEN ADDED")
                 const newList = [...addedUsersList, user]
                 setAddedUsersList(newList)
                 socket.emit("add-user", userToSimpleUser(user))
@@ -173,6 +172,11 @@ export default function ProjectPage() {
         }
     }, [socket, loading, user, navigate])
 
+    function changeNameHandler(event) {
+        console.log(event.target.value)
+        socket.emit("change-project-name", event.target.value)
+    }
+
     // useEffect(() => {
     //     if (socket == null) return
 
@@ -244,7 +248,7 @@ export default function ProjectPage() {
                             project.owner._id === user._id
                                 ? <div className="col d-flex">
                                     <button type="button" className="btn btn-primary ms-auto fs-4" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
-                                        Manage Users
+                                        Manage Project
                                     </button>
                                 </div>
                                 : <></>
@@ -289,6 +293,13 @@ export default function ProjectPage() {
                             </div>
 
                             <div className="modal-body">
+                                <form id="createProjectForm">
+                                    <div className="mb-3">
+                                        <label htmlFor="projectName" className="form-label">Project Name</label>
+                                        <input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" value={project.name} onChange={(e) => setProject({ ...project, name: e.target.value })} onBlur={changeNameHandler} />
+                                    </div>
+                                </form>
+
                                 <SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
                             </div>
                         </div>

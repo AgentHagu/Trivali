@@ -98,6 +98,13 @@ module.exports = (server) => {
             }
             socket.emit("load-project", project)
 
+            socket.on("change-project-name", async newName => {
+                await Project.findByIdAndUpdate(
+                    projectId,
+                    { $set: { name: newName } }
+                )
+            })
+
             socket.on("add-user", async simpleUser => {
                 await Project.findByIdAndUpdate(
                     projectId,
