@@ -24,7 +24,6 @@ module.exports = (app) => {
         passport,
         async email => await User.findOne({ email: email }),
         async id => await User.findById(id)
-        //users.find(user => user.id === id)
     )
     app.use(express.urlencoded({ extended: false }))
     app.use(flash())
@@ -33,7 +32,7 @@ module.exports = (app) => {
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        
+
         // Need to move to https and change to secure: true, sameSite: 'None'
         cookie: { secure: false, sameSite: 'lax' }
     }))
@@ -133,7 +132,8 @@ module.exports = (app) => {
                 _id: Date.now().toString(),
                 username: req.body.username,
                 email: req.body.email,
-                password: hashedPassword
+                password: hashedPassword,
+                projectList: []
             })
 
             res.send('Registered!')

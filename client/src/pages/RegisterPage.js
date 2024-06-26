@@ -1,6 +1,9 @@
+// React and React Router imports
 import { useEffect, useState } from "react";
-import HeaderNavbar from "../components/HeaderNavbar";
 import { useNavigate } from "react-router-dom";
+
+// Components
+import HeaderNavbar from "../components/HeaderNavbar";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 

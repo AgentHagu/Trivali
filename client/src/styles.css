@@ -12,6 +12,7 @@ body {
 .container .ql-editor {
     width: 100%;
     background-color: white;
+    font-size: 16px;
 }
 
 .container .ql-container.ql-snow {

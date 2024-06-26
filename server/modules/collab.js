@@ -1,10 +1,9 @@
 // TextEditor Packages
-// TODO: Switch to TipTap
 const mongoose = require("mongoose")
 const socketIo = require('socket.io');
 const Document = require("../schema/document")
 const Project = require("../schema/project")
-const { parse } = require('flatted');
+const User = require("../schema/user")
 /**
  * Initializes the WebSocket server with the provided HTTP server.
  * This server communicates and allows for real-time collaborative text-editting
@@ -57,10 +56,73 @@ module.exports = (server) => {
             })
         })
 
+        socket.on("create-project", async ({ projectId, projectName, userId, userList }) => {
+            const project = await findOrCreateProject(projectId, projectName, userId, userList)
+            const simpleProject = {
+                _id: project._id,
+                name: project.name
+            }
+
+            userList.forEach(async user => {
+                await User.findByIdAndUpdate(
+                    user._id,
+                    { $push: { projectList: simpleProject } }
+                )
+            })
+
+            socket.emit("new-project-created")
+        })
+
+        socket.on("search-user", async userInfo => {
+            if (userInfo == null) return
+
+            let user = await User.findById(userInfo)
+
+            if (user == null) {
+                user = await User.findOne({ email: userInfo })
+            }
+
+            socket.emit("found-user", user)
+        })
+
         socket.on("get-project", async projectId => {
-            const project = await findOrCreateProject(projectId)
-            socket.join(projectId)
+            //const project = await findOrCreateProject(projectId, userId)
+            const project = await Project.findById(projectId)
+
+            if (project !== null) {
+                const simpleProject = {
+                    _id: project._id,
+                    name: project.name
+                }
+                socket.join(projectId)
+            }
             socket.emit("load-project", project)
+
+            socket.on("add-user", async simpleUser => {
+                await Project.findByIdAndUpdate(
+                    projectId,
+                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) } }
+                )
+
+                await User.findByIdAndUpdate(
+                    simpleUser._id,
+                    { $push: { projectList: simpleProject } }
+                )
+            })
+
+            socket.on("remove-user", async simpleUser => {
+                await Project.findByIdAndUpdate(
+                    projectId,
+                    { $pull: { userList: { _id: simpleUser._id } } }
+                )
+
+                await User.findByIdAndUpdate(
+                    simpleUser._id,
+                    { $pull: { projectList: simpleProject } }
+                )
+
+                // socket.emit("kick-user", simpleUser)
+            })
 
             socket.on("send-itinerary-changes", newRows => {
                 socket.broadcast.to(projectId).emit("receive-itinerary-changes", newRows)
@@ -82,10 +144,20 @@ module.exports = (server) => {
         })
 
         socket.on("get-itinerary", async projectId => {
-            const project = await findOrCreateProject(projectId)
+            const project = await Project.findById(projectId)
             socket.emit("load-itinerary", project.itinerary)
         })
     })
+}
+
+function userToSimpleUser(user) {
+    const simpleUser = {
+        _id: user._id,
+        username: user.username,
+        email: user.email
+    }
+
+    return simpleUser
 }
 
 /**
@@ -109,32 +181,44 @@ async function findOrCreateDocument(id) {
     // If document doesn't exist, create a new one with the provided ID and default value
     try {
         return await Document.create({ _id: id, data: defaultValue })
-    } catch(err) {
-        console.log("ASYNCHRONOUS SHENANIGANS")
+    } catch (err) {
         return await Document.findById(id)
     }
-    
+
 }
 
-async function findOrCreateProject(id) {
-    if (id == null) return
+async function findOrCreateProject(projectId, projectName, userId, userList) {
+    if (projectId == null) return
 
-    const project = await Project.findById(id)
+    const project = await Project.findById(projectId)
     if (project) return project
 
-    return await Project.create({
-        _id: id,
-        name: "DefaultName",
-        itinerary: {
-            rows: [{
-                id: Date.now(),
-                activities: [{
+    const owner = userToSimpleUser(await User.findById(userId))
+    userList = userList.map(user => userToSimpleUser(user))
+
+    try {
+        const project = await Project.create({
+            _id: projectId,
+            name: projectName,
+            owner: owner,
+            adminList: [owner],
+            userList: userList,
+            itinerary: {
+                rows: [{
                     id: Date.now(),
-                    time: { start: "00:00", end: "00:00" },
-                    details: { page: "itinerary", number: Date.now() }
-                    // TODO: Adjust the page and number provided here
+                    activities: [{
+                        id: Date.now(),
+                        time: { start: "00:00", end: "00:00" },
+                        details: { page: "itinerary", number: Date.now() }
+                        // TODO: Adjust the page and number provided here
+                    }]
                 }]
-            }]
-        }
-    })
+            }
+        })
+
+        return project
+    } catch (err) {
+        return await Project.findById(projectId)
+    }
 }
+
