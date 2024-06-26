@@ -24,7 +24,6 @@ module.exports = (app) => {
         passport,
         async email => await User.findOne({ email: email }),
         async id => await User.findById(id)
-        //users.find(user => user.id === id)
     )
     app.use(express.urlencoded({ extended: false }))
     app.use(flash())

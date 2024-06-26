@@ -13,12 +13,15 @@ const About = new Schema({
     _id: false
 })
 
-// TODO: time shouldnt be a String, but an editable
 const Itinerary = new Schema({
     _id: false,
+
+    // Each row represents a day of the itinerary table
     rows: [{
         _id: false,
         id: Number,
+
+        // Activities represents the list of activities for the day
         activities: [{
             _id: false,
             id: Number,
@@ -35,7 +38,25 @@ const Itinerary = new Schema({
 })
 
 const Expenses = new Schema({
-    _id: false
+    _id: false,
+
+    // Each budget is a budget entry in the Expenses page
+    budgets: [{
+        _id: false, // Maybe not false
+        name: String,
+        maxCap: Number,
+        currAmount: Number,
+
+        // History represents the history of the budget, with every expenses entry
+        history: [{
+            description: String, // The "name" of the expenses
+            creator: SimpleUser, // Creator of the expense (TODO: assumed that everyone else owes him??)
+            logs: [{ // Logs is an array of Objects, containing the person that owes money and the amount they owe
+                debtor: SimpleUser,
+                oweAmount: Number
+            }]
+        }]
+    }]
 })
 
 const Project = new Schema({
@@ -48,9 +69,9 @@ const Project = new Schema({
     adminList: [SimpleUser],
     userList: [SimpleUser],
     // TODO: Replace with About and Expenses schema
-    about: {},
+    about: About,
     itinerary: Itinerary,
-    expenses: {}
+    expenses: Expenses
 })
 
 module.exports = model("Project", Project)
