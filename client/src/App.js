@@ -24,6 +24,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+
 // Create router configuration
 const router = createBrowserRouter([
   {
