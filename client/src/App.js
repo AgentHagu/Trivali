@@ -1,16 +1,26 @@
-import TextEditor from "./components/TextEditor"
-import WelcomePage from "./pages/WelcomePage"
+// React and React Router imports
+import React, { useEffect, useState } from "react";
 import {
   Navigate,
   createBrowserRouter,
   RouterProvider,
-} from "react-router-dom"
-import { v4 as uuidV4 } from "uuid"
-import LoginPage from "./pages/LoginPage"
-import RegisterPage from "./pages/RegisterPage"
-import Test from "./components/Test"
-import HomePage from "./pages/HomePage"
-import { useEffect, useState } from "react"
+  useNavigate,
+} from "react-router-dom";
+
+// Page components
+import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import HomePage from "./pages/HomePage";
+import ProjectPage from "./pages/ProjectPage";
+import Test from "./pages/Test";
+
+// Other components
+import HeaderNavbar from "./components/HeaderNavbar";
+
+// Third-party libraries
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -18,6 +28,7 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 const router = createBrowserRouter([
   {
     path: "/test",
+    // element: <PrivateRoute element = {<Test />}/>
     element: <Test />
   },
   {
@@ -41,17 +52,13 @@ const router = createBrowserRouter([
     element: <PrivateRoute element={<HomePage />} />
   },
   {
-    path: "/documents",
-    element: <Navigate to={`/documents/${uuidV4()}`} />
+    path: "/projects",
+    element: <Navigate to={"/home"} />
   },
   {
-    path: "/documents/:id",
-    element: <Navigate to={`./details`} />
+    path: "/projects/:id",
+    element: <PrivateRoute element={<ProjectPage />} />
   },
-  {
-    path: "/documents/:id/:page",
-    element: <TextEditor />
-  }
 ])
 
 /**
@@ -60,7 +67,10 @@ const router = createBrowserRouter([
  * @returns {JSX.Element} The rendered component.
  */
 function App() {
-  return <RouterProvider router={router} />
+  return <>
+    <ToastContainer />
+    <RouterProvider router={router} />
+  </>
 }
 
 /**
@@ -72,30 +82,59 @@ function App() {
  */
 function PrivateRoute({ element }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate()
 
   // Validate user session on component mount
   useEffect(() => {
-    async function fetchUser() {
-      const response = await fetch(`${SERVER_URL}`, {
-        method: 'GET',
-        credentials: 'include'
-      })
+    let isMounted = true; // Track if component is still mounted
 
-      if (response.ok) {
-        setIsAuthenticated(true)
-      } else {
-        setIsAuthenticated(false)
+    async function fetchUser() {
+      try {
+        const response = await fetch(`${SERVER_URL}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          if (isMounted) setIsAuthenticated(true);
+        } else {
+          if (isMounted) setIsAuthenticated(false);
+        }
+      } catch (error) {
+        if (isMounted) setIsAuthenticated(false);
       }
     }
 
-    fetchUser()
+    fetchUser();
+
+    return () => {
+      isMounted = false; // Cleanup on unmount
+    };
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      toast.error("You haven't logged in! Redirecting to login page...", {
+        autoClose: 3000
+      })
+      navigate('/login')
+    }
+  }, [isAuthenticated, navigate])
+
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return <>
+      <HeaderNavbar />
+      <div className="container">
+        <h1>Authenticating user...</h1>
+      </div>
+    </>
   }
 
-  return isAuthenticated ? element : <Navigate to="/welcome" />;
+  if (isAuthenticated) {
+    return element
+  }
+
+  return null
 }
 
 export default App;

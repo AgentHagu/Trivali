@@ -12,17 +12,26 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@hocuspocus/provider": "^2.13.1",
+    "@hocuspocus/server": "^2.13.1",
+    "@tiptap/extension-collaboration": "^2.4.0",
     "bcrypt": "^5.1.1",
+    "cookie-session": "^2.1.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-flash": "^0.0.2",
     "express-session": "^1.18.0",
+    "express-ws": "^5.0.2",
+    "flatted": "^3.3.1",
     "method-override": "^3.0.0",
     "mongoose": "^8.4.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "y-memory": "^8.0.9",
+    "y-prosemirror": "^1.2.6",
+    "yjs": "^13.6.15"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
