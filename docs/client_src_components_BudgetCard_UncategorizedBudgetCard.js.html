@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: server/schema/user.js</title>
+    <title>JSDoc: Source: client/src/components/BudgetCard/UncategorizedBudgetCard.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: server/schema/user.js</h1>
+    <h1 class="page-title">Source: client/src/components/BudgetCard/UncategorizedBudgetCard.js</h1>
 
     
 
@@ -26,43 +26,31 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const { Schema, model } = require("mongoose")
+            <pre class="prettyprint source linenums"><code>import { UNCATEGORIZED_BUDGET_ID, useBudgets } from '../../context/BudgetsContext'
+import BudgetCard from "./BudgetCard"
 
 /**
- * Mongoose schema for a simple project.
- * Simple project only stores the id and name.
- *
- * @typedef {Object} SimpleProjectSchema
- * @property {string} _id - The unique identifier for the project.
- * @property {string} name - The name of the project.
+ * Component to display the budget information for uncategorized expenses.
+ * Calculates the total amount spent under the uncategorized budget.
+ * 
+ * @param {Object} props - Additional props to pass to the BudgetCard component.
+ * @returns {JSX.Element|null} UncategorizedBudgetCard component displaying uncategorized budget details,
+ * or null if there are no expenses under the uncategorized budget.
  */
-const SimpleProject = new Schema({
-    _id: String,
-    name: String
-})
+export default function UncategorizedBudgetCard(props) {
+  const { getBudgetExpenses } = useBudgets()
 
-/**
- * Mongoose schema for a user.
- *
- * @typedef {Object} UserSchema
- * @property {string} _id - The unique identifier for the user.
- * @property {string} username - The username of the user.
- * @property {string} email - The email address of the user. Must be unique.
- * @property {string} password - The hashed password of the user.
- * @property {SimpleProjectSchema[]} projectList - List of projects associated with the user.
- */
-const User = new Schema({
-    _id: String,
-    username: String,
-    email: {
-        type: String,
-        unique: true
-    },
-    password: String,
-    projectList: [SimpleProject]
-})
+  // Calculate total amount spent under the uncategorized budget
+  const amount = getBudgetExpenses(UNCATEGORIZED_BUDGET_ID).reduce((total, expense) => total + expense.amount, 0)
 
-module.exports = model("User", User)</code></pre>
+  // If no expenses under uncategorized, do not render the component
+  if (amount === 0) return null
+
+  return (
+    &lt;BudgetCard amount={amount} name="Uncategorized" gray {...props} />
+  )
+}
+</code></pre>
         </article>
     </section>
 

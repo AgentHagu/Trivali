@@ -26,10 +26,14 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import HeaderNavbar from "../components/HeaderNavbar"
+            <pre class="prettyprint source linenums"><code>// Page components
+import HeaderNavbar from "../components/HeaderNavbar"
 
-// TODO: Credit Bootstrap for the Album page example
-// TODO: Credit Bootstrap and other packages (i think)
+// Images
+import TravelPlannerImage from '../Images/0002.jpg'; 
+import CollaborativeImage from '../Images/0001.jpg'; 
+import FinanceImage from '../Images/0000.jpg'; 
+import Logo from "../Images/0003.png"
 
 /**
  * WelcomePage component to display the welcome page content.
@@ -45,8 +49,8 @@ export default function WelcomePage() {
                 &lt;div className="container">
                     &lt;h1 className="jumbotron-heading">Welcome to &lt;br /> Trivali&lt;/h1>
                     &lt;p className="lead text-muted">The one-stop solution to your &lt;br /> travel planning problems&lt;/p>
-                    &lt;img className="img-fluid" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
-                        alt="Trivali Logo" />
+                    &lt;img className="img-fluid mx-auto d-block" src={Logo}
+                        alt="Trivali Logo" style={{ height: "300px", width: "300px", display: "block" }} />
                 &lt;/div>
             &lt;/section>
             
@@ -57,7 +61,7 @@ export default function WelcomePage() {
                         &lt;div className="col-md-4">
                             &lt;div className="card h-100 mb-4 shadow-sm">
                                 &lt;div className="card-header">Trip Organizer and Planner&lt;/div>
-                                &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                &lt;img className="card-img-top" src={TravelPlannerImage}
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 &lt;div className="card-body">
                                     &lt;p className="card-text">
@@ -73,7 +77,7 @@ export default function WelcomePage() {
                         &lt;div className="col-md-4">
                             &lt;div className="card h-100 mb-4 shadow-sm">
                                 &lt;div className="card-header">Manage Travel Finances&lt;/div>
-                                &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                &lt;img className="card-img-top" src={FinanceImage}
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 &lt;div className="card-body">
                                     &lt;p className="card-text">
@@ -89,7 +93,7 @@ export default function WelcomePage() {
                         &lt;div className="col-md-4">
                             &lt;div className="card h-100 mb-4 shadow-sm">
                                 &lt;div className="card-header">Collaboration Support&lt;/div>
-                                &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                &lt;img className="card-img-top" src={CollaborativeImage}
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 &lt;div className="card-body">
                                     &lt;p className="card-text">
@@ -113,13 +117,13 @@ export default function WelcomePage() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Document">Document</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#initialize">initialize</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sat Jun 01 2024 17:00:23 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jun 27 2024 22:03:07 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

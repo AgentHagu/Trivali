@@ -8,6 +8,11 @@ const BudgetsContext = React.createContext()
 
 export const UNCATEGORIZED_BUDGET_ID = "uncategorized"
 
+/**
+ * Custom hook to consume the BudgetsContext.
+ * 
+ * @returns {object} Budgets context object with budgets and budget management functions.
+ */
 export function useBudgets() {
     return useContext(BudgetsContext)
 }
@@ -25,6 +30,14 @@ export function useBudgets() {
 // }
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+
+/**
+ * Provider component for managing budgets and expenses within a socket.io connection.
+ * 
+ * @param {object} props - Component props.
+ * @param {ReactNode} props.children - Child components to be wrapped by the provider.
+ * @returns {JSX.Element} Provider component for budgets and expenses management.
+ */
 export const BudgetsProvider = ({ children }) => {
     const { id } = useParams()
     const [socket, setSocket] = useState()
@@ -41,6 +54,7 @@ export const BudgetsProvider = ({ children }) => {
         }
     }, [])
 
+    // Load budgets from server on component mount
     useEffect(() => {
         if (socket == null) return
 
@@ -51,6 +65,7 @@ export const BudgetsProvider = ({ children }) => {
         socket.emit("get-budgets", id)
     }, [id, socket])
 
+    // Handle updates to budgets received from server
     useEffect(() => {
         if (socket == null) return
 
@@ -65,6 +80,12 @@ export const BudgetsProvider = ({ children }) => {
         }
     }, [socket])
 
+    /**
+     * Retrieves expenses for a specific budget.
+     * 
+     * @param {string} budgetId - ID of the budget to retrieve expenses for.
+     * @returns {Array} Array of expenses for the specified budget.
+     */
     function getBudgetExpenses(budgetId) {
         const budget = budgets.find(budget => budget.id === budgetId)
 
@@ -75,6 +96,11 @@ export const BudgetsProvider = ({ children }) => {
         return []
     }
 
+    /**
+     * Adds a new expense to the specified budget via socket.io.
+     * 
+     * @param {object} expenseData - Data object containing description, amount, and budgetId of the new expense.
+     */
     function addExpense({ description, amount, budgetId }) {
         const newExpense = {
             description: description,
@@ -82,13 +108,13 @@ export const BudgetsProvider = ({ children }) => {
         }
 
         socket.emit("add-new-expense", { budgetId, newExpense })
-
-        // const budget = budgets.find(budget => budget.id === budgetId)
-        // budget.expenses.push(newExpense)
-
-        // // setBudgets([...budgets])
     }
 
+    /**
+     * Adds a new budget to the application via socket.io.
+     * 
+     * @param {object} budgetData - Data object containing name and max spending of the new budget.
+     */
     function addBudget({ name, max }) {
         //TODO: add toast to say "Budget with the same name already exists!"
         if (budgets.find(budget => budget.name === name)) {
@@ -104,34 +130,26 @@ export const BudgetsProvider = ({ children }) => {
         }
 
         socket.emit("add-new-budget", newBudget)
-        // setBudgets([...budgets, newBudget])
     }
 
+    /**
+     * Deletes a budget from the application via socket.io.
+     * 
+     * @param {object} budgetData - Data object containing the ID of the budget to delete.
+     */
     function deleteBudget({ id }) {
-        // const budget = budgets.find(budget => budget.id === id)
-
-        // budget.expenses.map(expense => {
-        //     addExpense({
-        //         description: expense.description,
-        //         amount: expense.amount,
-        //         budgetId: UNCATEGORIZED_BUDGET_ID
-        //     })
-
-        //     deleteExpense(expense)
-        // })
-
         socket.emit("delete-budget", id)
-        // setBudgets(prevBudgets => {
-        //     return prevBudgets.filter(budget => budget.id !== id)
-        // })
     }
 
+    /**
+     * Deletes an expense from the specified budget via socket.io.
+     * 
+     * @param {string} expenseId - ID of the expense to delete.
+     */
     function deleteExpense({ _id }) {
         const budget = budgets.find(budget => budget.expenses.some(expense => expense._id === _id))
 
         socket.emit("delete-expense", { budgetId: budget.id, expenseId: _id })
-        // budget.expenses = budget.expenses.filter(expense => expense._id !== _id)
-        // setBudgets([...budgets])
     }
 
     return (

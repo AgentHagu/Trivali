@@ -26,8 +26,130 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import HeaderNavbar from "../components/HeaderNavbar";
+            <pre class="prettyprint source linenums"><code>// React and Hooks
+import { useCallback, useEffect, useState } from "react";
+
+// Components
+import HeaderNavbar from "../components/HeaderNavbar";
+
+// Custom Hooks
 import useUserData from "../hooks/useUserData";
+
+// External Libraries
+import { v4 as uuidV4 } from "uuid";
+import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
+
+const SERVER_URL = process.env.REACT_APP_API_URL;
+
+/**
+ * SearchBar component for adding users to a project.
+ * Handles user search, validation, and addition/removal.
+ *
+ * @param {Object} props - Component props.
+ * @param {SocketIO.Socket} props.socket - Socket instance for real-time communication.
+ * @param {Object} props.currUser - Current user object.
+ * @param {Array} props.addedUsersList - List of users already added to the project.
+ * @param {Function} props.setAddedUsersList - Function to update the addedUsersList state.
+ * @returns {JSX.Element} - SearchBar component JSX.
+ */
+function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    const [userValidity, setUserValidity] = useState(true)
+    const [invalidMessage, setInvalidMessage] = useState("")
+
+    function searchHandler(e) {
+        e.preventDefault()
+        const userSearch = e.target[0].value
+
+        socket.emit("search-user", userSearch)
+    }
+
+    useEffect(() => {
+        const handleUserFound = user => {
+            if (user == null) {
+                setUserValidity(false)
+                setInvalidMessage("No such user found")
+                return
+            }
+
+            if (user._id === currUser._id) {
+                setUserValidity(false)
+                setInvalidMessage("You have already been added")
+                return
+            }
+
+            const isUserInArray = addedUsersList.some(addedUser =>
+                addedUser._id === user._id
+            )
+
+            if (!isUserInArray) {
+                setUserValidity(true)
+                setInvalidMessage("")
+                const newList = [...addedUsersList, user]
+                setAddedUsersList(newList)
+            } else {
+                setUserValidity(false)
+                setInvalidMessage("User has already been added")
+            }
+        }
+
+        socket.on("found-user", handleUserFound)
+
+        return () => {
+            socket.off("found-user", handleUserFound)
+        }
+    }, [socket, addedUsersList, currUser, setAddedUsersList])
+
+    function removeUserHandler(user) {
+        const newList = addedUsersList.filter(addedUser => addedUser._id !== user._id)
+        setAddedUsersList(newList)
+    }
+
+    return &lt;>
+
+
+        &lt;form className="mb-3" onSubmit={searchHandler}>
+            &lt;label htmlFor="addUsers" className="form-label">Add Users to Project&lt;/label>
+            &lt;div className="input-group has-validation">
+                &lt;input type="search" className={`form-control me-2 ${userValidity ? '' : 'is-invalid'}`} id="addUsers" placeholder="Search with ID or Email" />
+                &lt;button className="btn btn-outline-primary" type="submit">&lt;i className="bi bi-search" />&lt;/button>
+                &lt;div className="invalid-feedback">
+                    {invalidMessage}
+                &lt;/div>
+            &lt;/div>
+
+        &lt;/form>
+
+
+        {
+            addedUsersList.length > 0
+                ? &lt;>
+                    &lt;label className="form-label">Added Users&lt;/label>
+                    &lt;ul className="list-group">
+                        {addedUsersList.map(user => (
+                            //TODO: Add unique key for list item
+                            &lt;li className="list-group-item d-flex justify-content-between align-items-center" key={user._id}>
+                                &lt;span>
+                                    {user.username} (Email: {user.email})
+                                &lt;/span>
+                                {
+                                    user._id !== currUser._id
+                                        ? &lt;button className="btn ms-auto p-0" onClick={() => removeUserHandler(user)}>&lt;i className="bi bi-person-fill-dash" />&lt;/button>
+                                        : &lt;>Owner&lt;/>
+                                }
+
+                            &lt;/li>
+                        ))}
+                    &lt;/ul>
+
+                &lt;/>
+                : &lt;>
+                    &lt;label className="form-label">No added Users&lt;/label>
+                &lt;/>
+        }
+
+    &lt;/>
+}
 
 /**
  * HomePage component to display the home page content.
@@ -36,12 +158,144 @@ import useUserData from "../hooks/useUserData";
  * @returns {JSX.Element} The rendered component.
  */
 export default function HomePage() {
-    const user = useUserData();
-    
+    const { user, loading } = useUserData()
+    const [addedUsersList, setAddedUsersList] = useState([])
+    const [content, setContent] = useState(
+        &lt;div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+            &lt;div className="text-center">
+                &lt;div className="spinner-border" role="status">
+                    &lt;span className="visually-hidden">Loading...&lt;/span>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    )
+
+    const navigate = useNavigate()
+    const [socket, setSocket] = useState()
+
+    // Establish socket connection with server
+    useEffect(() => {
+        const s = io(`${SERVER_URL}`)
+        setSocket(s)
+
+        return () => {
+            s.disconnect()
+        }
+    }, [])
+
+    // Handle form submission to create a new project
+    const submitHandler = useCallback((e) => {
+        e.preventDefault()
+        const projectName = e.target[0].value
+        const projectId = uuidV4()
+        socket.emit("create-project", {
+            projectId: projectId,
+            projectName: projectName,
+            userId: user._id,
+            userList: addedUsersList
+        })
+
+        socket.on("new-project-created", () => {
+            navigate(`/projects/${projectId}`)
+        })
+    }, [addedUsersList, navigate, socket, user])
+
+    useEffect(() => {
+        if (!loading) {
+            setAddedUsersList([user])
+        }
+    }, [loading, user])
+
+    useEffect(() => {
+        if (!loading) {
+            const loadedContent = &lt;>
+                &lt;div className="row">
+                    &lt;div className="col">
+                        &lt;h1>Welcome, {user.username}&lt;/h1>
+                        &lt;h2>User ID: {user._id}&lt;/h2>
+                        &lt;h2>Email: {user.email}&lt;/h2>
+                    &lt;/div>
+
+                    &lt;div className="col d-flex flex-column justify-content-end align-items-end">
+                        &lt;button type="button" className="btn btn-primary fs-1" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+                            Create Project
+                        &lt;/button>
+                    &lt;/div>
+                &lt;/div>
+
+                &lt;hr />
+                &lt;h1 className="pb-2">Your Projects:&lt;/h1>
+                &lt;ul className="list-group">
+                    &lt;div className="row">
+                        {
+                            user.projectList.length > 0
+                                ? user.projectList.map(simpleProject => (
+                                    &lt;li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
+                                        &lt;a href={`../projects/${simpleProject._id}`} className="fs-4">
+                                            &lt;span>
+                                                {
+                                                    simpleProject.name
+                                                        ? &lt;>{simpleProject.name}&lt;/>
+                                                        : &lt;>Untitled Project&lt;/>
+                                                }
+                                            &lt;/span>
+                                        &lt;/a>
+                                    &lt;/li>
+                                    // &lt;a href={`../projects/${simpleProject._id}`} className="fs-4 col-md-4 d-block text-decoration-none">
+                                    //     &lt;div className="card h-100 mb-4 shadow-sm">
+                                    //         &lt;div className="card-header">{simpleProject.name}&lt;/div>
+                                    //         &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                    //             alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
+                                    //         &lt;div className="card-body">
+                                    //             &lt;p className="card-text fs-6">
+                                    //                 lorem
+                                    //             &lt;/p>
+                                    //         &lt;/div>
+                                    //     &lt;/div>
+                                    // &lt;/a>
+                                ))
+                                : &lt;h3>You currently have no projects.&lt;/h3>
+                        }
+                    &lt;/div>
+                &lt;/ul>
+
+                {/* Create Project Modal Form */}
+                &lt;div className="modal fade" id="createProjectModal" data-bs-keyboard="false" tabIndex="-1">
+                    &lt;div className="modal-dialog modal-dialog-centered">
+                        &lt;div className="modal-content">
+                            &lt;div className="modal-header">
+                                &lt;h5 className="modal-title" id="exampleModalLabel">Create a new Project&lt;/h5>
+                                &lt;button type="button" className="btn-close" data-bs-dismiss="modal">&lt;/button>
+                            &lt;/div>
+
+                            &lt;div className="modal-body">
+                                &lt;form id="createProjectForm" onSubmit={submitHandler}>
+                                    &lt;div className="mb-3">
+                                        &lt;label htmlFor="projectName" className="form-label">Project Name&lt;/label>
+                                        &lt;input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" />
+                                    &lt;/div>
+                                &lt;/form>
+
+                                &lt;SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
+                            &lt;/div>
+
+                            &lt;div className="modal-footer">
+                                &lt;button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel&lt;/button>
+                                &lt;button type="submit" form="createProjectForm" className="btn btn-primary" data-bs-dismiss="modal">Confirm&lt;/button>
+                            &lt;/div>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/>
+            setContent(loadedContent)
+        }
+    }, [loading, user, submitHandler, socket, addedUsersList])
+
+
     return &lt;>
         &lt;HeaderNavbar />
         &lt;div className="container">
-            {user ? &lt;h1>Hi {user.username}&lt;/h1> : &lt;h1>Loading...&lt;/h1>}
+            {content}
         &lt;/div>
     &lt;/>
 }</code></pre>
@@ -54,13 +308,13 @@ export default function HomePage() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Document">Document</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#initialize">initialize</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sat Jun 01 2024 17:00:23 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jun 27 2024 22:03:07 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

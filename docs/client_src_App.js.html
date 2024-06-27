@@ -26,28 +26,39 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import TextEditor from "./components/TextEditor"
-import WelcomePage from "./pages/WelcomePage"
+            <pre class="prettyprint source linenums"><code>// React and React Router imports
+import React, { useEffect, useState } from "react";
 import {
   Navigate,
   createBrowserRouter,
   RouterProvider,
-} from "react-router-dom"
-import { v4 as uuidV4 } from "uuid"
-import LoginPage from "./pages/LoginPage"
-import RegisterPage from "./pages/RegisterPage"
-import Test from "./components/Test"
-import HomePage from "./pages/HomePage"
-import { useEffect, useState } from "react"
+  useNavigate,
+} from "react-router-dom";
+
+// Page components
+import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import HomePage from "./pages/HomePage";
+import ProjectPage from "./pages/ProjectPage";
+import Test from "./pages/Test";
+
+// Other components
+import HeaderNavbar from "./components/HeaderNavbar";
+
+// Third-party libraries
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
 // Create router configuration
 const router = createBrowserRouter([
-  {
-    path: "/test",
-    element: &lt;Test />
-  },
+  // {
+  //   path: "/test",
+  //   // element: &lt;PrivateRoute element = {&lt;Test />}/>
+  //   element: &lt;Test />
+  // },
   {
     path: "/",
     element: &lt;Navigate to={"/welcome"} />
@@ -69,17 +80,13 @@ const router = createBrowserRouter([
     element: &lt;PrivateRoute element={&lt;HomePage />} />
   },
   {
-    path: "/documents",
-    element: &lt;Navigate to={`/documents/${uuidV4()}`} />
+    path: "/projects",
+    element: &lt;Navigate to={"/home"} />
   },
   {
-    path: "/documents/:id",
-    element: &lt;Navigate to={`./details`} />
+    path: "/projects/:id",
+    element: &lt;PrivateRoute element={&lt;ProjectPage />} />
   },
-  {
-    path: "/documents/:id/:page",
-    element: &lt;TextEditor />
-  }
 ])
 
 /**
@@ -88,7 +95,10 @@ const router = createBrowserRouter([
  * @returns {JSX.Element} The rendered component.
  */
 function App() {
-  return &lt;RouterProvider router={router} />
+  return &lt;>
+    &lt;ToastContainer />
+    &lt;RouterProvider router={router} />
+  &lt;/>
 }
 
 /**
@@ -100,30 +110,67 @@ function App() {
  */
 function PrivateRoute({ element }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate()
 
   // Validate user session on component mount
   useEffect(() => {
-    async function fetchUser() {
-      const response = await fetch(`${SERVER_URL}`, {
-        method: 'GET',
-        credentials: 'include'
-      })
+    let isMounted = true; // Track if component is still mounted
 
-      if (response.ok) {
-        setIsAuthenticated(true)
-      } else {
-        setIsAuthenticated(false)
+    async function fetchUser() {
+      try {
+        const response = await fetch(`${SERVER_URL}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          if (isMounted) setIsAuthenticated(true);
+        } else {
+          if (isMounted) setIsAuthenticated(false);
+        }
+      } catch (error) {
+        if (isMounted) setIsAuthenticated(false);
       }
     }
 
-    fetchUser()
+    fetchUser();
+
+    return () => {
+      isMounted = false; // Cleanup on unmount
+    };
   }, []);
 
+  // Redirect to login page if not authenticated
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      toast.error("You haven't logged in! Redirecting to login page...", {
+        position: "top-center",
+        autoClose: 3000
+      })
+      navigate('/login')
+    }
+  }, [isAuthenticated, navigate])
+
+  // Render loading spinner while checking authentication status
   if (isAuthenticated === null) {
-    return &lt;div>Loading...&lt;/div>;
+    return &lt;>
+      &lt;HeaderNavbar />
+      &lt;div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+        &lt;div className="text-center">
+          &lt;div className="spinner-border" role="status">
+            &lt;span className="visually-hidden">Loading...&lt;/span>
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;/>
   }
 
-  return isAuthenticated ? element : &lt;Navigate to="/welcome" />;
+  // Render the protected route if authenticated
+  if (isAuthenticated) {
+    return element
+  }
+
+  return null
 }
 
 export default App;</code></pre>
@@ -136,13 +183,13 @@ export default App;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#Document">Document</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#initialize">initialize</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sat Jun 01 2024 17:00:23 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jun 27 2024 22:03:07 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

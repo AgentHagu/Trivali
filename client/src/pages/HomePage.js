@@ -14,6 +14,17 @@ import { io } from "socket.io-client";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
+/**
+ * SearchBar component for adding users to a project.
+ * Handles user search, validation, and addition/removal.
+ *
+ * @param {Object} props - Component props.
+ * @param {SocketIO.Socket} props.socket - Socket instance for real-time communication.
+ * @param {Object} props.currUser - Current user object.
+ * @param {Array} props.addedUsersList - List of users already added to the project.
+ * @param {Function} props.setAddedUsersList - Function to update the addedUsersList state.
+ * @returns {JSX.Element} - SearchBar component JSX.
+ */
 function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
     const [userValidity, setUserValidity] = useState(true)
     const [invalidMessage, setInvalidMessage] = useState("")
@@ -144,11 +155,17 @@ export default function HomePage() {
         }
     }, [])
 
+    // Handle form submission to create a new project
     const submitHandler = useCallback((e) => {
         e.preventDefault()
         const projectName = e.target[0].value
         const projectId = uuidV4()
-        socket.emit("create-project", { projectId: projectId, projectName: projectName, userId: user._id, userList: addedUsersList })
+        socket.emit("create-project", {
+            projectId: projectId,
+            projectName: projectName,
+            userId: user._id,
+            userList: addedUsersList
+        })
 
         socket.on("new-project-created", () => {
             navigate(`/projects/${projectId}`)
@@ -163,7 +180,6 @@ export default function HomePage() {
 
     useEffect(() => {
         if (!loading) {
-            // Move to outside function
             const loadedContent = <>
                 <div className="row">
                     <div className="col">

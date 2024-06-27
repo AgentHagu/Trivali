@@ -2,12 +2,26 @@ import { Form, Modal, Button } from 'react-bootstrap';
 import { useRef } from 'react';
 import { UNCATEGORIZED_BUDGET_ID, useBudgets } from './BudgetsContext';
 
+/**
+ * Modal component for adding a new expense.
+ * 
+ * @param {object} props - Component props.
+ * @param {boolean} props.show - Controls whether the modal is displayed.
+ * @param {Function} props.handleClose - Callback function to close the modal.
+ * @param {string} props.defaultBudgetId - Default budget ID for the expense.
+ * @returns {JSX.Element} Modal component for adding a new expense.
+ */
 export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
     const descriptionRef = useRef();
     const amountRef = useRef();
     const budgetIdRef = useRef();
     const { addExpense, budgets } = useBudgets();
 
+    /**
+     * Handles form submission to add a new expense.
+     * 
+     * @param {Event} e - Form submission event.
+     */
     function handleSubmit(e) {
         e.preventDefault();
 

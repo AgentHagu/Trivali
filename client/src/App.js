@@ -24,7 +24,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
-
 // Create router configuration
 const router = createBrowserRouter([
   // {
@@ -113,6 +112,7 @@ function PrivateRoute({ element }) {
     };
   }, []);
 
+  // Redirect to login page if not authenticated
   useEffect(() => {
     if (isAuthenticated === false) {
       toast.error("You haven't logged in! Redirecting to login page...", {
@@ -123,6 +123,7 @@ function PrivateRoute({ element }) {
     }
   }, [isAuthenticated, navigate])
 
+  // Render loading spinner while checking authentication status
   if (isAuthenticated === null) {
     return <>
       <HeaderNavbar />
@@ -136,6 +137,7 @@ function PrivateRoute({ element }) {
     </>
   }
 
+  // Render the protected route if authenticated
   if (isAuthenticated) {
     return element
   }

@@ -1,4 +1,32 @@
-import React, { useCallback, useEffect, useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/components/Itinerary.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/components/Itinerary.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useCallback, useEffect, useState } from "react";
 
 // Components
 import TextEditor from "./TextEditor";
@@ -115,7 +143,7 @@ function Table({ projectId, data, socket }) {
 
                 // Relative row index to the Day rather than to the Table
                 let relativeRowIndex = currRowIndex
-                for (let i = 0; i < currDayIndex; i++) {
+                for (let i = 0; i &lt; currDayIndex; i++) {
                     relativeRowIndex -= rows[i].activities.length
                 }
 
@@ -145,7 +173,7 @@ function Table({ projectId, data, socket }) {
 
                 // Relative row index to the Day rather than to the Table
                 let relativeRowIndex = currRowIndex;
-                for (let i = 0; i < currDayIndex; i++) {
+                for (let i = 0; i &lt; currDayIndex; i++) {
                     relativeRowIndex -= rows[i].activities.length
                 }
 
@@ -247,7 +275,7 @@ function Table({ projectId, data, socket }) {
         const currDayIndex = parseInt(element.closest('tr').getAttribute('day'), 10)
 
         let relativeRowIndex = currRowIndex
-        for (let i = 0; i < currDayIndex; i++) {
+        for (let i = 0; i &lt; currDayIndex; i++) {
             relativeRowIndex -= rows[i].activities.length
         }
 
@@ -295,46 +323,68 @@ function Table({ projectId, data, socket }) {
         }
     }, [socket, rows])
 
-    return <>
-        <table className="table table-bordered m-0 table-fit">
-            <thead className="table-dark">
-                <tr>
-                    <th scope="col" className="col-1">Day</th>
-                    <th scope="col" className="col">Time</th>
-                    <th scope="col" className="col">Activity</th>
-                </tr>
-            </thead>
-            <tbody onContextMenu={handleContextMenu}>
+    return &lt;>
+        &lt;table className="table table-bordered m-0 table-fit">
+            &lt;thead className="table-dark">
+                &lt;tr>
+                    &lt;th scope="col" className="col-1">Day&lt;/th>
+                    &lt;th scope="col" className="col">Time&lt;/th>
+                    &lt;th scope="col" className="col">Activity&lt;/th>
+                &lt;/tr>
+            &lt;/thead>
+            &lt;tbody onContextMenu={handleContextMenu}>
                 {/* Create the itinerary table */}
                 {rows.map((row, dayIndex) => (
                     row.activities.map((activity, index) => (
-                        <tr key={activity.id} day={dayIndex}>
+                        &lt;tr key={activity.id} day={dayIndex}>
                             {/* Only render the Day for the first activity, have it span the other activities */}
-                            {index === 0 && (<th className="text-center align-middle fs-5" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
+                            {index === 0 &amp;&amp; (&lt;th className="text-center align-middle fs-5" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}&lt;/th>)}
 
-                            <td className="fit align-middle">
-                                <input className="border" type="time" id="start" value={activity.time.start} onChange={timeHandler} /> - <input className="border" type="time" id="end" value={activity.time.end} onChange={timeHandler} />
-                            </td>
+                            &lt;td className="fit align-middle">
+                                &lt;input className="border" type="time" id="start" value={activity.time.start} onChange={timeHandler} /> - &lt;input className="border" type="time" id="end" value={activity.time.end} onChange={timeHandler} />
+                            &lt;/td>
 
-                            <td className="p-0">
-                                <TextEditor page={activity.details.page} number={activity.details.number} />
-                            </td>
-                        </tr>)
+                            &lt;td className="p-0">
+                                &lt;TextEditor page={activity.details.page} number={activity.details.number} />
+                            &lt;/td>
+                        &lt;/tr>)
                     )))}
-            </tbody>
-        </table>
+            &lt;/tbody>
+        &lt;/table>
 
         {/* Context Menu */}
-        <Menu id={MENU_ID}>
-            <Item id="addActivity" onClick={handleItemClick}>Add Activity</Item>
-            <Item id="delActivity" onClick={handleItemClick}>Delete Activity</Item>
-            <Separator />
-            <Item id="addDay" onClick={handleItemClick}>Add Day</Item>
-            <Item id="delDay" onClick={handleItemClick}>Delete Day</Item>
-        </Menu>
-    </>
+        &lt;Menu id={MENU_ID}>
+            &lt;Item id="addActivity" onClick={handleItemClick}>Add Activity&lt;/Item>
+            &lt;Item id="delActivity" onClick={handleItemClick}>Delete Activity&lt;/Item>
+            &lt;Separator />
+            &lt;Item id="addDay" onClick={handleItemClick}>Add Day&lt;/Item>
+            &lt;Item id="delDay" onClick={handleItemClick}>Delete Day&lt;/Item>
+        &lt;/Menu>
+    &lt;/>
 }
 
 export default function Itinerary({ projectId, data, socket }) {
-    return <Table projectId={projectId} data={data.rows} socket={socket} />
-}
+    return &lt;Table projectId={projectId} data={data.rows} socket={socket} />
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jun 27 2024 22:03:07 GMT+0800 (Singapore Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
