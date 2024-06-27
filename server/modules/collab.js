@@ -103,6 +103,19 @@ module.exports = (server) => {
                     projectId,
                     { $set: { name: newName } }
                 )
+
+                project.userList.forEach(
+                    async user => {
+                        await User.findOneAndUpdate(
+                            {
+                                _id: user._id,
+                                'projectList._id': projectId
+                            },
+                            {
+                                $set: { 'projectList.$.name': newName }
+                            }
+                        )
+                    })
             })
 
             socket.on("add-user", async simpleUser => {
@@ -129,6 +142,18 @@ module.exports = (server) => {
                 )
 
                 // socket.emit("kick-user", simpleUser)
+            })
+
+            socket.on("delete-project", async () => {
+                await Project.findByIdAndDelete(projectId)
+
+                project.userList.forEach(
+                    async user => {
+                        await User.findByIdAndUpdate(
+                            user._id,
+                            { $pull: { projectList: simpleProject } }
+                        )
+                    })
             })
 
             socket.on("send-itinerary-changes", newRows => {

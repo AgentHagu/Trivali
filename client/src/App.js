@@ -116,6 +116,7 @@ function PrivateRoute({ element }) {
   useEffect(() => {
     if (isAuthenticated === false) {
       toast.error("You haven't logged in! Redirecting to login page...", {
+        position: "top-center",
         autoClose: 3000
       })
       navigate('/login')
@@ -125,8 +126,12 @@ function PrivateRoute({ element }) {
   if (isAuthenticated === null) {
     return <>
       <HeaderNavbar />
-      <div className="container">
-        <h1>Authenticating user...</h1>
+      <div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
       </div>
     </>
   }

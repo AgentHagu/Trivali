@@ -121,7 +121,16 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
 export default function HomePage() {
     const { user, loading } = useUserData()
     const [addedUsersList, setAddedUsersList] = useState([])
-    const [content, setContent] = useState(<h1>Loading Home Page content...</h1>)
+    const [content, setContent] = useState(
+        <div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    )
+
     const navigate = useNavigate()
     const [socket, setSocket] = useState()
 

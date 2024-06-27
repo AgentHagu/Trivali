@@ -157,7 +157,7 @@ export default function ProjectPage() {
             // Otherwise, it exists and we can refer to its properties
             if (project == null) {
                 toast.error("No such project exists! Redirecting to home page...", {
-                    //position: toast.POSITION.TOP_CENTER,
+                    position: "top-center",
                     autoClose: 3000
                 })
                 navigate('/home')
@@ -167,7 +167,7 @@ export default function ProjectPage() {
             if (!loading && !project.userList.some(addedUser =>
                 addedUser._id === user._id)) {
                 toast.error("You don't have access to this project. Redirecting to home page...", {
-                    //position: toast.POSITION.TOP_CENTER,
+                    position: "top-center",
                     autoClose: 3000
                 })
                 navigate('/home')
@@ -184,6 +184,13 @@ export default function ProjectPage() {
 
     function changeNameHandler(event) {
         socket.emit("change-project-name", event.target.value)
+    }
+
+    function deleteProjectHandler(event) {
+        if (window.confirm("Are you sure you want to delete your project? All progress will be lost")) {
+            socket.emit("delete-project")
+            navigate('/home')
+        }
     }
 
     // useEffect(() => {
@@ -218,18 +225,25 @@ export default function ProjectPage() {
         if (loading) {
             return <>
                 <HeaderNavbar />
-                <div className="container mt-3">
-                    <h1>Loading User...</h1>
+                <div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
-
             </>
         }
 
         if (projectLoading) {
             return <>
                 <HeaderNavbar />
-                <div className="container mt-3">
-                    <h1>Loading Project...</h1>
+                <div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </>
         }
@@ -310,6 +324,10 @@ export default function ProjectPage() {
                                 </form>
 
                                 <SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
+                            </div>
+
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={deleteProjectHandler}>Delete Project</button>
                             </div>
                         </div>
                     </div>
