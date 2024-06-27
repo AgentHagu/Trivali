@@ -15,6 +15,9 @@ import { io } from "socket.io-client";
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
 function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    const [userValidity, setUserValidity] = useState(true)
+    const [invalidMessage, setInvalidMessage] = useState("")
+
     function searchHandler(e) {
         e.preventDefault()
         const userSearch = e.target[0].value
@@ -25,14 +28,14 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
     useEffect(() => {
         const handleUserFound = user => {
             if (user == null) {
-                //TODO: Add toast or something for this message
-                console.log("NO USER FOUND")
+                setUserValidity(false)
+                setInvalidMessage("No such user found")
                 return
             }
 
             if (user._id === currUser._id) {
-                //TODO: Add toast or something for this message
-                console.log("ITS YOU")
+                setUserValidity(false)
+                setInvalidMessage("You have already been added")
                 return
             }
 
@@ -41,11 +44,13 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
             )
 
             if (!isUserInArray) {
-                console.log("USER HASNT BEEN ADDED")
+                setUserValidity(true)
+                setInvalidMessage("")
                 const newList = [...addedUsersList, user]
                 setAddedUsersList(newList)
             } else {
-                console.log("User is already added")
+                setUserValidity(false)
+                setInvalidMessage("User has already been added")
             }
         }
 
@@ -62,12 +67,20 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
     }
 
     return <>
-        <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
 
-        <form className="mb-3 d-flex" onSubmit={searchHandler}>
-            <input type="search" className="form-control me-2" id="addUsers" placeholder="Search with ID or Email" />
-            <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+
+        <form className="mb-3" onSubmit={searchHandler}>
+            <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
+            <div className="input-group has-validation">
+                <input type="search" className={`form-control me-2 ${userValidity ? '' : 'is-invalid'}`} id="addUsers" placeholder="Search with ID or Email" />
+                <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+                <div className="invalid-feedback">
+                    {invalidMessage}
+                </div>
+            </div>
+
         </form>
+
 
         {
             addedUsersList.length > 0
@@ -169,8 +182,8 @@ export default function HomePage() {
                                             <span>
                                                 {
                                                     simpleProject.name
-                                                    ? <>{simpleProject.name}</>
-                                                    : <>Untitled Project</>
+                                                        ? <>{simpleProject.name}</>
+                                                        : <>Untitled Project</>
                                                 }
                                             </span>
                                         </a>
@@ -194,7 +207,7 @@ export default function HomePage() {
                 </ul>
 
                 {/* Create Project Modal Form */}
-                <div className="modal fade" id="createProjectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="modal fade" id="createProjectModal" data-bs-keyboard="false" tabIndex="-1">
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
                             <div className="modal-header">

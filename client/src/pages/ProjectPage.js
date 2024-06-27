@@ -19,6 +19,9 @@ import { BudgetsProvider } from "../context/BudgetsContext";
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
 function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    const [userValidity, setUserValidity] = useState(true)
+    const [invalidMessage, setInvalidMessage] = useState("")
+
     function userToSimpleUser(user) {
         const simpleUser = {
             _id: user._id,
@@ -39,14 +42,14 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
     useEffect(() => {
         const handleUserFound = user => {
             if (user == null) {
-                //TODO: Add toast or something for this message
-                console.log("NO USER FOUND")
+                setUserValidity(false)
+                setInvalidMessage("No such user found")
                 return
             }
 
             if (user._id === currUser._id) {
-                //TODO: Add toast or something for this message
-                console.log("ITS YOU")
+                setUserValidity(false)
+                setInvalidMessage("You have already been added")
                 return
             }
 
@@ -55,11 +58,14 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
             )
 
             if (!isUserInArray) {
+                setUserValidity(true)
+                setInvalidMessage("")
                 const newList = [...addedUsersList, user]
                 setAddedUsersList(newList)
                 socket.emit("add-user", userToSimpleUser(user))
             } else {
-                console.log("User is already added")
+                setUserValidity(false)
+                setInvalidMessage("User has already been added")
             }
         }
 
@@ -77,11 +83,15 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
     }
 
     return <>
-        <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
-
-        <form className="mb-3 d-flex" onSubmit={searchHandler}>
-            <input type="search" className="form-control me-2" id="addUsers" placeholder="Search with ID or Email" />
-            <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+        <form className="mb-3" onSubmit={searchHandler}>
+            <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
+            <div className="input-group has-validation">
+                <input type="search" className={`form-control me-2 ${userValidity ? '' : 'is-invalid'}`} id="addUsers" placeholder="Search with ID or Email" />
+                <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+                <div className="invalid-feedback">
+                    {invalidMessage}
+                </div>
+            </div>
         </form>
 
         {
@@ -173,7 +183,6 @@ export default function ProjectPage() {
     }, [socket, loading, user, navigate])
 
     function changeNameHandler(event) {
-        console.log(event.target.value)
         socket.emit("change-project-name", event.target.value)
     }
 

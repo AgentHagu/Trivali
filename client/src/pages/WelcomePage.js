@@ -4,8 +4,6 @@ import CollaborativeImage from '../Images/0001.jpg';
 import FinanceImage from '../Images/0000.jpg'; 
 import Logo from "../Images/0003.png"
 
-
-
 /**
  * WelcomePage component to display the welcome page content.
  * 
@@ -20,7 +18,7 @@ export default function WelcomePage() {
                 <div className="container">
                     <h1 className="jumbotron-heading">Welcome to <br /> Trivali</h1>
                     <p className="lead text-muted">The one-stop solution to your <br /> travel planning problems</p>
-                    <img className="img-fluid" src={Logo}
+                    <img className="img-fluid mx-auto d-block" src={Logo}
                         alt="Trivali Logo" style={{ height: "300px", width: "300px", display: "block" }} />
                 </div>
             </section>
