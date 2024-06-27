@@ -102,7 +102,7 @@ export default function RegisterPage() {
                             {error}
                         </div>
 
-                        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>
+                        <button className="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>
                     </form>
 
                     <div className="text-center">

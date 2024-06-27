@@ -106,7 +106,7 @@ export default function LoginPage() {
                             {error}
                         </div>
 
-                        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+                        <button className="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
                     </form>
 
                     <div className="text-center">

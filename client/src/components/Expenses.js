@@ -1,4 +1,4 @@
-import Container from "react-bootstrap/container"
+import Container from "react-bootstrap/Container"
 import { Button, Stack } from "react-bootstrap"
 import React from 'react';
 import BudgetCard from "./BudgetCard/BudgetCard";
