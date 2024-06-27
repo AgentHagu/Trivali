@@ -14,10 +14,14 @@ import useUserData from "../hooks/useUserData";
 // Libraries
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
+import { BudgetsProvider } from "../context/BudgetsContext";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
 function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    const [userValidity, setUserValidity] = useState(true)
+    const [invalidMessage, setInvalidMessage] = useState("")
+
     function userToSimpleUser(user) {
         const simpleUser = {
             _id: user._id,
@@ -38,14 +42,14 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
     useEffect(() => {
         const handleUserFound = user => {
             if (user == null) {
-                //TODO: Add toast or something for this message
-                console.log("NO USER FOUND")
+                setUserValidity(false)
+                setInvalidMessage("No such user found")
                 return
             }
 
             if (user._id === currUser._id) {
-                //TODO: Add toast or something for this message
-                console.log("ITS YOU")
+                setUserValidity(false)
+                setInvalidMessage("You have already been added")
                 return
             }
 
@@ -54,12 +58,14 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
             )
 
             if (!isUserInArray) {
-                console.log("USER HASNT BEEN ADDED")
+                setUserValidity(true)
+                setInvalidMessage("")
                 const newList = [...addedUsersList, user]
                 setAddedUsersList(newList)
                 socket.emit("add-user", userToSimpleUser(user))
             } else {
-                console.log("User is already added")
+                setUserValidity(false)
+                setInvalidMessage("User has already been added")
             }
         }
 
@@ -77,11 +83,15 @@ function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
     }
 
     return <>
-        <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
-
-        <form className="mb-3 d-flex" onSubmit={searchHandler}>
-            <input type="search" className="form-control me-2" id="addUsers" placeholder="Search with ID or Email" />
-            <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+        <form className="mb-3" onSubmit={searchHandler}>
+            <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
+            <div className="input-group has-validation">
+                <input type="search" className={`form-control me-2 ${userValidity ? '' : 'is-invalid'}`} id="addUsers" placeholder="Search with ID or Email" />
+                <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
+                <div className="invalid-feedback">
+                    {invalidMessage}
+                </div>
+            </div>
         </form>
 
         {
@@ -147,7 +157,7 @@ export default function ProjectPage() {
             // Otherwise, it exists and we can refer to its properties
             if (project == null) {
                 toast.error("No such project exists! Redirecting to home page...", {
-                    //position: toast.POSITION.TOP_CENTER,
+                    position: "top-center",
                     autoClose: 3000
                 })
                 navigate('/home')
@@ -157,7 +167,7 @@ export default function ProjectPage() {
             if (!loading && !project.userList.some(addedUser =>
                 addedUser._id === user._id)) {
                 toast.error("You don't have access to this project. Redirecting to home page...", {
-                    //position: toast.POSITION.TOP_CENTER,
+                    position: "top-center",
                     autoClose: 3000
                 })
                 navigate('/home')
@@ -171,6 +181,17 @@ export default function ProjectPage() {
             socket.emit("get-project", projectIdRef.current)
         }
     }, [socket, loading, user, navigate])
+
+    function changeNameHandler(event) {
+        socket.emit("change-project-name", event.target.value)
+    }
+
+    function deleteProjectHandler(event) {
+        if (window.confirm("Are you sure you want to delete your project? All progress will be lost")) {
+            socket.emit("delete-project")
+            navigate('/home')
+        }
+    }
 
     // useEffect(() => {
     //     if (socket == null) return
@@ -204,18 +225,25 @@ export default function ProjectPage() {
         if (loading) {
             return <>
                 <HeaderNavbar />
-                <div className="container mt-3">
-                    <h1>Loading User...</h1>
+                <div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
-
             </>
         }
 
         if (projectLoading) {
             return <>
                 <HeaderNavbar />
-                <div className="container mt-3">
-                    <h1>Loading Project...</h1>
+                <div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </>
         }
@@ -225,73 +253,86 @@ export default function ProjectPage() {
 
     return (
         <>
-            <HeaderNavbar />
-            <div className="container mt-3">
-                <div className="row">
-                    <div className="col">
+            <BudgetsProvider>
+                <HeaderNavbar />
+                <div className="container mt-3">
+                    <div className="row">
+                        <div className="col">
+                            {
+                                !project.name
+                                    ? <h1>Untitled Project</h1>
+                                    : <h1>{project.name}</h1>
+                            }
+                        </div>
+
+                        {/* Only render the manage user button for the owner */}
+                        {/* TODO: Have it exist for the admins as well */}
                         {
-                            !project.name
-                                ? <h1>Untitled Project</h1>
-                                : <h1>{project.name}</h1>
+                            project.owner._id === user._id
+                                ? <div className="col d-flex">
+                                    <button type="button" className="btn btn-primary ms-auto fs-4" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
+                                        Manage Project
+                                    </button>
+                                </div>
+                                : <></>
                         }
+
                     </div>
 
-                    {/* Only render the manage user button for the owner */}
-                    {/* TODO: Have it exist for the admins as well */}
-                    {
-                        project.owner._id === user._id
-                            ? <div className="col d-flex">
-                                <button type="button" className="btn btn-primary ms-auto fs-4" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
-                                    Manage Users
-                                </button>
+                    <div className="row row-cols-2 mt-3">
+                        <div className="btn-group btn-group-lg" role="group">
+                            <button
+                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
+                                About
+                            </button>
+
+                            <button
+                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} />)} >
+                                Itinerary
+                            </button>
+
+                            <button
+                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                onClick={switchContent(<Expenses projectId={projectIdRef.current} data={project.expenses} socket={socket} />)} >
+                                Expenses
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="border border-2 border-dark bg-white">
+                        {content}
+                    </div>
+                </div>
+
+                {/* Create Project Modal Form */}
+                <div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="exampleModalLabel">Manage Users</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
                             </div>
-                            : <></>
-                    }
 
-                </div>
+                            <div className="modal-body">
+                                <form id="createProjectForm">
+                                    <div className="mb-3">
+                                        <label htmlFor="projectName" className="form-label">Project Name</label>
+                                        <input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" value={project.name} onChange={(e) => setProject({ ...project, name: e.target.value })} onBlur={changeNameHandler} />
+                                    </div>
+                                </form>
 
-                <div className="row row-cols-2 mt-3">
-                    <div className="btn-group btn-group-lg" role="group">
-                        <button
-                            className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                            onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
-                            About
-                        </button>
+                                <SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
+                            </div>
 
-                        <button
-                            className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                            onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} />)} >
-                            Itinerary
-                        </button>
-
-                        <button
-                            className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                            onClick={switchContent(<Expenses projectId={projectIdRef.current} data={project.expenses} socket={socket} />)} >
-                            Expenses
-                        </button>
-                    </div>
-                </div>
-
-                <div className="border border-2 border-dark bg-white">
-                    {content}
-                </div>
-            </div>
-
-            {/* Create Project Modal Form */}
-            <div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-dialog-centered">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">Manage Users</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <div className="modal-body">
-                            <SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={deleteProjectHandler}>Delete Project</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </BudgetsProvider>
         </>
     )
 }

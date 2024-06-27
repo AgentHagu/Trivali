@@ -1,4 +1,8 @@
 import HeaderNavbar from "../components/HeaderNavbar"
+import TravelPlannerImage from '../Images/0002.jpg'; 
+import CollaborativeImage from '../Images/0001.jpg'; 
+import FinanceImage from '../Images/0000.jpg'; 
+import Logo from "../Images/0003.png"
 
 /**
  * WelcomePage component to display the welcome page content.
@@ -14,8 +18,8 @@ export default function WelcomePage() {
                 <div className="container">
                     <h1 className="jumbotron-heading">Welcome to <br /> Trivali</h1>
                     <p className="lead text-muted">The one-stop solution to your <br /> travel planning problems</p>
-                    <img className="img-fluid" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
-                        alt="Trivali Logo" />
+                    <img className="img-fluid mx-auto d-block" src={Logo}
+                        alt="Trivali Logo" style={{ height: "300px", width: "300px", display: "block" }} />
                 </div>
             </section>
             
@@ -26,7 +30,7 @@ export default function WelcomePage() {
                         <div className="col-md-4">
                             <div className="card h-100 mb-4 shadow-sm">
                                 <div className="card-header">Trip Organizer and Planner</div>
-                                <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                <img className="card-img-top" src={TravelPlannerImage}
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 <div className="card-body">
                                     <p className="card-text">
@@ -42,7 +46,7 @@ export default function WelcomePage() {
                         <div className="col-md-4">
                             <div className="card h-100 mb-4 shadow-sm">
                                 <div className="card-header">Manage Travel Finances</div>
-                                <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                <img className="card-img-top" src={FinanceImage}
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 <div className="card-body">
                                     <p className="card-text">
@@ -58,7 +62,7 @@ export default function WelcomePage() {
                         <div className="col-md-4">
                             <div className="card h-100 mb-4 shadow-sm">
                                 <div className="card-header">Collaboration Support</div>
-                                <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                <img className="card-img-top" src={CollaborativeImage}
                                     alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
                                 <div className="card-body">
                                     <p className="card-text">

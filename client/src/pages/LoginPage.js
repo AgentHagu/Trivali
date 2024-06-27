@@ -17,6 +17,9 @@ export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
+    const [isEmailValid, setIsEmailValid] = useState(true)
+    const [isPasswordValid, setIsPasswordValid] = useState(true)
+
     const navigate = useNavigate()
 
     // Validate user session on component mount
@@ -53,6 +56,8 @@ export default function LoginPage() {
     // Handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setIsEmailValid(true)
+        setIsPasswordValid(true)
 
         const response = await fetch(`${SERVER_URL}/login`, {
             method: 'POST',
@@ -68,6 +73,13 @@ export default function LoginPage() {
         } else {
             response.text().then(errorMessage => {
                 setError(errorMessage)
+
+                if (errorMessage === "Password incorrect") {
+                    setIsPasswordValid(false)
+                } else {
+                    setIsEmailValid(false)
+                    setIsPasswordValid(false)
+                }
             });
         }
     };
@@ -75,12 +87,33 @@ export default function LoginPage() {
     return (
         <>
             <HeaderNavbar />
-            <form onSubmit={handleSubmit}>
-                <input type="email" name="email" value={email} placeholder="Email" required onChange={handleChange} /> <br />
-                <input type="password" name="password" value={password} placeholder="Password" required onChange={handleChange} />
-                <button type="submit">Login</button>
-            </form>
-            <p>{error}</p>
+            <body className="text-center">
+                <div style={{ width: "100%", maxWidth: "330px", padding: "15px", margin: "auto" }}>
+                    <form onSubmit={handleSubmit} className="mb-4" noValidate>
+                        <h1 className="h3 mb-3 fw-normal">Sign in here</h1>
+
+                        <div className="form-floating mb-2">
+                            <input id="floatingEmail" className={`form-control ${isEmailValid ? "" : "is-invalid"}`} type="email" name="email" value={email} placeholder="Email" required onChange={handleChange} />
+                            <label htmlFor="floatingEmail">Email address</label>
+                        </div>
+
+                        <div className="form-floating mb-2">
+                            <input id="floatingPassword" className={`form-control ${isPasswordValid ? "" : "is-invalid"}`} type="password" name="password" value={password} placeholder="Password" required onChange={handleChange} />
+                            <label htmlFor="floatingPassword">Password</label>
+                        </div>
+
+                        <div className="mb-3 text-danger">
+                            {error}
+                        </div>
+
+                        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+                    </form>
+
+                    <div className="text-center">
+                        <p>Not a member? <a href="/register" className="text-decoration-none">Register</a></p>
+                    </div>
+                </div>
+            </body>
         </>
     );
 }

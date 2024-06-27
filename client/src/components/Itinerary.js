@@ -157,6 +157,7 @@ function Table({ projectId, data, socket }) {
                 // TODO: Make warning prettier with snackbar
                 if (newRows.length === 0) {
                     toast.error("Must have at least 1 day!", {
+                        position: "top-center",
                         autoClose: 3000
                     })
                     newRows = rows

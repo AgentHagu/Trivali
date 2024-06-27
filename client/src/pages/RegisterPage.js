@@ -78,13 +78,38 @@ export default function RegisterPage() {
     return (
         <>
             <HeaderNavbar />
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="username" placeholder="Username" required value={username} onChange={handleChange} /> <br />
-                <input type="email" name="email" placeholder="Email" required value={email} onChange={handleChange} /> <br />
-                <input type="password" name="password" placeholder="Password" required value={password} onChange={handleChange} />
-                <button type="submit">Register</button>
-            </form>
-            <p>{error}</p>
+            <body className="text-center">
+                <div style={{ width: "100%", maxWidth: "330px", padding: "15px", margin: "auto" }}>
+                    <form onSubmit={handleSubmit} className="mb-4">
+                        <h1 className="h3 mb-3 fw-normal">Register</h1>
+
+                        <div className="form-floating mb-2">
+                            <input id="floatingUsername" className="form-control" type="text" name="username" placeholder="Username" required value={username} onChange={handleChange} />
+                            <label htmlFor="floatingUsername">Username</label>
+                        </div>
+
+                        <div className="form-floating mb-2">
+                        <input id="floatingEmail" className="form-control" type="email" name="email" placeholder="Email" required value={email} onChange={handleChange} />
+                            <label htmlFor="floatingEmail">Email address</label>
+                        </div>
+
+                        <div className="form-floating mb-2">
+                        <input id="floatingPassword" className="form-control" type="password" name="password" placeholder="Password" required value={password} onChange={handleChange} />
+                            <label htmlFor="floatingPassword">Password</label>
+                        </div>
+
+                        <div className="mb-3 text-danger">
+                            {error}
+                        </div>
+
+                        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>
+                    </form>
+
+                    <div className="text-center">
+                        <p>Have an account? <a href="/login" className="text-decoration-none">Login</a></p>
+                    </div>
+                </div>
+            </body>
         </>
     );
 }

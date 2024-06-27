@@ -5,7 +5,7 @@ const SimpleUser = new Schema({
     username: String,
     email: {
         type: String,
-        unique: true
+        // unique: true
     }
 })
 
@@ -42,26 +42,27 @@ const Expenses = new Schema({
 
     // Each budget is a budget entry in the Expenses page
     budgets: [{
-        _id: String, // Maybe not false
+        _id: false,
+        id: String,
         name: String,
-        maxCap: Number,
+        max: Number,
         currAmount: Number, // TODO: Lucas doesn't have this
 
         // History represents the history of the budget, with every expenses entry
-        history: [{
-            _id: String,
+        expenses: [{
             description: String, // The "name" of the expenses
-            creator: SimpleUser, // Creator of the expense (TODO: assumed that everyone else owes him??)
-            logs: [{ // Logs is an array of Objects, containing the person that owes money and the amount they owe
-                debtor: SimpleUser,
-                oweAmount: Number
-            }]
+            // creator: SimpleUser, // Creator of the expense (TODO: assumed that everyone else owes him??)
+            // logs: [{ // Logs is an array of Objects, containing the person that owes money and the amount they owe
+            //     debtor: SimpleUser,
+            //     oweAmount: Number
+            // }],
+            amount: Number
         }]
     }]
 })
 
 const Project = new Schema({
-    _id: String,
+    _id: String, //TODO: add uniqueness?
     name: String,
     // owner: { type: Schema.Types.ObjectId, ref: 'User' },
     // adminList: [{ type: Schema.Types.ObjectId, ref: 'User' }],
