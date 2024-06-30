@@ -138,6 +138,7 @@ module.exports = (app) => {
 
             res.send('Registered!')
         } catch (error) {
+            //console.log("ERROR DURING REGISTRATION: ", error)
             if (error.code == 11000) {
                 res.status(400).send("Email is already registered")
             } else {
