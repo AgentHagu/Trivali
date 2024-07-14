@@ -1,5 +1,5 @@
 # Trivali
-Visit the website [here](http://13.212.6.226:3000/welcome)
+Visit the website [here](http://13.229.199.134:3000/welcome)
 
 # Project Overview
 **Orbital Project 2024** - Trivali 
@@ -66,3 +66,13 @@ Our documentation can be found on our [GitHub Pages](https://agenthagu.github.io
 
 # Acknowledgements
 - **Bootstrap Album Template** - This project uses the [Bootstrap Album Template](https://getbootstrap.com/docs/4.0/examples/album/).
+- **Bootstrap Sign In Page Template** - This project uses the [Bootstrap Sign In Page Template](https://getbootstrap.com/docs/5.0/examples/sign-in/)
+- **Collaborative Text Editor** - This project references the text editor from this [video](https://www.youtube.com/watch?v=iRaelG7v0OU)
+- **Passport.js Authentication** - This project references the authentication tutorial from this [video](https://www.youtube.com/watch?v=-RCnNyD0L-s)
+- ChatGPT for
+    - Debugging
+    - Documentation
+    - Testing
+    - Welcome Page photos
+    - Trivali Logo
+    - Poster icons

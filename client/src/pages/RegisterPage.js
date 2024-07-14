@@ -89,12 +89,12 @@ export default function RegisterPage() {
                         </div>
 
                         <div className="form-floating mb-2">
-                        <input id="floatingEmail" className="form-control" type="email" name="email" placeholder="Email" required value={email} onChange={handleChange} />
+                            <input id="floatingEmail" className="form-control" type="email" name="email" placeholder="Email" required value={email} onChange={handleChange} />
                             <label htmlFor="floatingEmail">Email address</label>
                         </div>
 
                         <div className="form-floating mb-2">
-                        <input id="floatingPassword" className="form-control" type="password" name="password" placeholder="Password" required value={password} onChange={handleChange} />
+                            <input id="floatingPassword" className="form-control" type="password" name="password" placeholder="Password" required value={password} onChange={handleChange} />
                             <label htmlFor="floatingPassword">Password</label>
                         </div>
 
