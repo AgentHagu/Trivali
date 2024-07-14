@@ -8,6 +8,8 @@ import SearchBar from "../components/SearchBar";
 import About from "../components/About";
 import Expenses from "../components/Expenses";
 import Itinerary from "../components/Itinerary";
+import Map from "../components/Map";
+import Weather from "../components/Weather";
 
 // Custom Hooks
 import useUserData from "../hooks/useUserData";
@@ -18,7 +20,6 @@ import { toast } from "react-toastify";
 import { BudgetsProvider } from "../context/BudgetsContext";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
-
 
 /**
  * Main component for managing a project, including its details and related functionalities.
@@ -197,7 +198,7 @@ export default function ProjectPage() {
 
                     </div>
 
-                    <div className="row row-cols-2 mt-3">
+                    <div className="row row-cols-1 mt-3">
                         <div className="btn-group btn-group-lg" role="group">
                             <button
                                 className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
@@ -215,6 +216,18 @@ export default function ProjectPage() {
                                 className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
                                 onClick={switchContent(<Expenses projectId={projectIdRef.current} data={project.expenses} socket={socket} />)} >
                                 Expenses
+                            </button>
+
+                            <button
+                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                onClick={switchContent(<Map projectId={projectIdRef.current} data={project} socket={socket} />)} >
+                                Map
+                            </button>
+
+                            <button
+                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                onClick={switchContent(<Weather projectId={projectIdRef.current} data={project} socket={socket} />)} >
+                                Weather
                             </button>
                         </div>
                     </div>
