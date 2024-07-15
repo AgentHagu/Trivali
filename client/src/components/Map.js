@@ -39,7 +39,7 @@ export default function Map({ projectId, data, socket }) {
                 </GoogleMap>
             </div>
 
-            <div className="col" style={{ height: '500px', overflowY: 'auto' }}>
+            <div className="col overflow-auto" style={{ height: '500px'}}>
                 {rows.map((row, index) => (
                     <table className="table table-bordered table-fit" key={row.id}>
                         <thead className="table-dark">
@@ -56,7 +56,7 @@ export default function Map({ projectId, data, socket }) {
                                     </td>
 
                                     <td>
-                                        Location
+                                        {(activity.location.name) ? activity.location.name : "No location specified"}
                                     </td>
                                 </tr>
                             ))}

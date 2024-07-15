@@ -2,41 +2,38 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Autocomplete } from '@react-google-maps/api';
 import { useLoadScriptContext } from '../context/LoadScriptProvider';
 
-const AutocompleteSearch = ({ onPlaceSelected }) => {
-    const [autocomplete, setAutocomplete] = useState(null);
-    const inputRef = useRef(null);
+export default function GoogleMapSearchBar({ onPlaceSelected, locationValue }) {
+    const autocompleteRef = useRef(null);
     const { isLoaded } = useLoadScriptContext();
 
-    const onLoad = (autocompleteInstance) => {
-        setAutocomplete(autocompleteInstance);
-    };
-
-    const onPlaceChanged = () => {
-        if (autocomplete !== null) {
-            const place = autocomplete.getPlace();
-            onPlaceSelected(place);
-        } else {
-            console.log('Autocomplete is not loaded yet!');
+    useEffect(() => {
+        if (autocompleteRef.current) {
+            autocompleteRef.current.value = locationValue || '';
         }
+    }, [locationValue]);
+
+    const handlePlaceChanged = () => {
+        const place = autocompleteRef.current.getPlace();
+        onPlaceSelected(place);
     };
 
     if (!isLoaded) {
         return null;
     }
 
-    return (
-        <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+    return <div className="h-100 w-100">
+        <Autocomplete
+            onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
+            onPlaceChanged={handlePlaceChanged}>
             <input
                 type="text"
                 placeholder="Search for a place"
-                ref={inputRef}
+                ref={autocompleteRef}
                 className="border-0 h-100 p-2"
                 style={{
                     width: '300px',
                 }}
             />
         </Autocomplete>
-    );
+    </div>;
 };
-
-export default AutocompleteSearch;

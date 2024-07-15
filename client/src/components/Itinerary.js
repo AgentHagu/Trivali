@@ -42,7 +42,7 @@ function Table({ projectId, data, socket }) {
      */
     const createActivity = useCallback(() => {
         const id = Date.now()
-        return { id: id, time: { start: "00:00", end: "00:00" }, details: { page: "itinerary", number: id } }
+        return { id: id, time: { start: "00:00", end: "00:00" }, location: { name: "" }, details: { page: "itinerary", number: id } }
     }, [])
 
     /**
@@ -266,6 +266,21 @@ function Table({ projectId, data, socket }) {
         })
     }
 
+    const locationHandler = (place, dayIndex, activityIndex) => {
+        // const newLocation = place.formatted_address;
+        const newRows = [...rows];
+        newRows[dayIndex].activities[activityIndex].location = place;
+
+        setRows(newRows);
+        socket.emit('send-location-changes', {
+            place: place,
+            day: dayIndex,
+            activity: activityIndex
+        });
+
+        socket.emit('save-itinerary', newRows);
+    };
+
     useEffect(() => {
         if (socket == null) return
 
@@ -296,9 +311,20 @@ function Table({ projectId, data, socket }) {
         }
     }, [socket, rows])
 
-    const handlePlaceSelected = (place) => {
-        console.log('Selected place:', place);
-    };
+    // TODO: Not working
+    useEffect(() => {
+        const handler = (placeChange) => {
+            const newRows = [...rows];
+            newRows[placeChange.day].activities[placeChange.activity].location = placeChange.place;
+            setRows(newRows);
+        };
+
+        socket.on('receive-location-changes', handler);
+
+        return () => {
+            socket.off('receive-location-changes', handler);
+        };
+    }, [socket, rows]);
 
     return <>
         <table className="table table-bordered m-0 table-fit">
@@ -318,12 +344,25 @@ function Table({ projectId, data, socket }) {
                             {/* Only render the Day for the first activity, have it span the other activities */}
                             {index === 0 && (<th className="text-center align-middle fs-5" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
 
-                            <td className="fit align-middle">
-                                <input className="border" type="time" id="start" value={activity.time.start} onChange={timeHandler} /> - <input className="border" type="time" id="end" value={activity.time.end} onChange={timeHandler} />
+                            <td className="fit align-middle px-2">
+                                <input
+                                    className="border"
+                                    type="time"
+                                    id="start"
+                                    value={activity.time.start}
+                                    onChange={timeHandler} /> -
+                                <input
+                                    className="border"
+                                    type="time"
+                                    id="end"
+                                    value={activity.time.end}
+                                    onChange={timeHandler} />
                             </td>
 
                             <td className="col-2 align-middle p-0">
-                                <GoogleMapSearchBar onPlaceSelected={handlePlaceSelected}/>
+                                <GoogleMapSearchBar
+                                    onPlaceSelected={(place) => locationHandler(place, dayIndex, index)}
+                                    locationValue={activity.location.name} />
                             </td>
 
                             <td className="p-0">

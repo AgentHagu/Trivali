@@ -220,9 +220,12 @@ module.exports = (server) => {
              * @param {Array} newRows - The new rows of the itinerary to save.
              */
             socket.on("save-itinerary", async newRows => {
-                await Project.findByIdAndUpdate(
+                const updatedProject = await Project.findByIdAndUpdate(
                     projectId,
-                    { 'itinerary.rows': newRows })
+                    { 'itinerary.rows': newRows },
+                    { new: true })
+
+                socket.emit("load-itinerary", updatedProject.itinerary)
             })
 
             /**
@@ -243,6 +246,10 @@ module.exports = (server) => {
              */
             socket.on("send-time-changes", timeChange => {
                 socket.broadcast.to(projectId).emit("receive-time-changes", timeChange)
+            })
+
+            socket.on("send-location-changes", placeChange => {
+                socket.broadcast.to(projectId).emit("receive-location-changes", placeChange)
             })
         })
 
@@ -430,6 +437,7 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
                     activities: [{
                         id: Date.now(),
                         time: { start: "00:00", end: "00:00" },
+                        location: { name: "" },
                         details: { page: "itinerary", number: Date.now() }
                         // TODO: Adjust the page and number provided here
                     }]
