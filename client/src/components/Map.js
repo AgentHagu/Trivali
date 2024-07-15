@@ -1,4 +1,5 @@
-import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, Marker } from '@react-google-maps/api';
+import { useLoadScriptContext } from '../context/LoadScriptProvider';
 
 const containerStyle = {
     width: '100%',
@@ -10,19 +11,10 @@ const center = {
     lng: 103.77367
 };
 
-const libraries = ['places'] // Add any libraries you need here
-
 export default function Map({ projectId, data, socket }) {
-    const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-        libraries
-    })
+    const { isLoaded } = useLoadScriptContext();
 
     const rows = data.itinerary.rows;
-
-    if (loadError) {
-        return <div>Error loading maps</div>;
-    }
 
     if (!isLoaded) {
         return <div>Loading Maps...</div>;
@@ -42,16 +34,16 @@ export default function Map({ projectId, data, socket }) {
                     center={center}
                     zoom={13}
                 >
-                    <Marker position={center} />
-                    <Marker position={{ lat: -3, lng: -38 }} />
+                    {/* <Marker position={center} />
+                    <Marker position={{ lat: -3, lng: -38 }} /> */}
                 </GoogleMap>
             </div>
 
             <div className="col" style={{ height: '500px', overflowY: 'auto' }}>
                 {rows.map((row, index) => (
-                    <table className="table table-bordered table-fit">
+                    <table className="table table-bordered table-fit" key={row.id}>
                         <thead className="table-dark">
-                            <tr key={row.id}>
+                            <tr>
                                 <th scope="col" colSpan={2} className="col-1">Day {index + 1}</th>
                             </tr>
                         </thead>
@@ -59,7 +51,7 @@ export default function Map({ projectId, data, socket }) {
                             {row.activities.map((activity, dayIndex) => (
                                 <tr key={activity.id} day={dayIndex}>
                                     <td className="fit align-middle">
-                                        {/* <input className="border" type="time" id="start" value={activity.time.start} onChange={timeHandler} /> - <input className="border" type="time" id="end" value={activity.time.end} onChange={timeHandler} /> */}
+                                        {/* TODO: Time start? Or range? */}
                                         {activity.time.start}
                                     </td>
 
