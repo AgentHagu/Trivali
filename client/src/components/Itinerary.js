@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 // Components
 import TextEditor from "./TextEditor";
+import GoogleMapSearchBar from "../components/GoogleMapSearchBar"
 
 // Context Menu
 import { Menu, Item, Separator, Submenu, useContextMenu } from 'react-contexify';
@@ -295,12 +296,17 @@ function Table({ projectId, data, socket }) {
         }
     }, [socket, rows])
 
+    const handlePlaceSelected = (place) => {
+        console.log('Selected place:', place);
+    };
+
     return <>
         <table className="table table-bordered m-0 table-fit">
             <thead className="table-dark">
                 <tr>
                     <th scope="col" className="col-1">Day</th>
                     <th scope="col" className="col">Time</th>
+                    <th scope="col" className="col">Location</th>
                     <th scope="col" className="col">Activity</th>
                 </tr>
             </thead>
@@ -314,6 +320,10 @@ function Table({ projectId, data, socket }) {
 
                             <td className="fit align-middle">
                                 <input className="border" type="time" id="start" value={activity.time.start} onChange={timeHandler} /> - <input className="border" type="time" id="end" value={activity.time.end} onChange={timeHandler} />
+                            </td>
+
+                            <td className="col-2 align-middle p-0">
+                                <GoogleMapSearchBar onPlaceSelected={handlePlaceSelected}/>
                             </td>
 
                             <td className="p-0">

@@ -70,6 +70,7 @@ const Itinerary = new Schema({
                 start: String,
                 end: String
             },
+            location: Object,
             details: {
                 page: String,
                 number: Number

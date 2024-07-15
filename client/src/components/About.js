@@ -16,7 +16,7 @@ export default function About({ projectId, data, socket }) {
             <div className="col-8 pt-2 d-flex flex-column">
                 <h3 className="fw-bold">About:</h3>
                 <div className="border border-2 flex-grow-1">
-                    <TextEditor page="about" number="0" placeholder="Provide a brief description about your trip" />
+                    <TextEditor page="about" number="0" placeholder="Provide a brief description about your trip &#10;line2" />
                 </div>
             </div>
 
