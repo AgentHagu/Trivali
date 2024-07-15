@@ -1,5 +1,5 @@
 import { Form, Modal, Button } from 'react-bootstrap';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { UNCATEGORIZED_BUDGET_ID, useBudgets } from './BudgetsContext';
 
 /**
@@ -15,7 +15,11 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
     const descriptionRef = useRef();
     const amountRef = useRef();
     const budgetIdRef = useRef();
+    const splitDescriptionRef = useRef();
+    const splitAmountRef = useRef();
+    const splitUserRef = useRef();
     const { addExpense, budgets } = useBudgets();
+    const [splitExpenses, setSplitExpenses] = useState([]);
 
     /**
      * Handles form submission to add a new expense.
@@ -28,9 +32,18 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
         addExpense({
             description: descriptionRef.current.value,
             amount: parseFloat(amountRef.current.value),
-            budgetId: budgetIdRef.current.value
+            budgetId: budgetIdRef.current.value,
+            splitExpenses: splitExpenses
         });
         handleClose();
+    }
+
+    function handleAddSplitExpense() {
+        setSplitExpenses([...splitExpenses, {
+            description: splitDescriptionRef.current.value,
+            amount: parseFloat(splitAmountRef.current.value),
+            user: splitUserRef.current.value
+        }]);
     }
 
     return (
@@ -59,14 +72,47 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
                     <Form.Group className="mb-3" controlId="budgetId">
                         <Form.Label>Budget</Form.Label>
                         <Form.Select defaultValue={defaultBudgetId} ref={budgetIdRef}>
-                            {/* <option id={UNCATEGORIZED_BUDGET_ID}>Uncategorized</option> */}
-                            {budgets.map(budget=> (
-                                <option key = {budget.id} value = {budget.id}> {budget.name} </option>
+                            <option id={UNCATEGORIZED_BUDGET_ID}>Uncategorized</option>
+                            {budgets.map(budget => (
+                                <option key={budget.id} value={budget.id}>{budget.name}</option>
                             ))}
                         </Form.Select>
                     </Form.Group>
 
-                    <div className="d-flex justify-content-end">
+                    <hr />
+
+                    <h5>Split Expenses</h5>
+                    {splitExpenses.map((split, index) => (
+                        <div key={index} className="mb-3">
+                            <p>{split.description}: {split.amount} with {split.user}</p>
+                        </div>
+                    ))}
+
+                    <Form.Group className="mb-3" controlId="splitDescription">
+                        <Form.Label>Split Description</Form.Label>
+                        <Form.Control ref={splitDescriptionRef} type="text" />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="splitAmount">
+                        <Form.Label>Split Amount</Form.Label>
+                        <Form.Control 
+                            ref={splitAmountRef} 
+                            type="number" 
+                            min={0} 
+                            step={0.01} 
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="splitUser">
+                        <Form.Label>Split With</Form.Label>
+                        <Form.Control ref={splitUserRef} type="text" />
+                    </Form.Group>
+
+                    <Button variant="secondary" onClick={handleAddSplitExpense}>
+                        Add Split
+                    </Button>
+
+                    <div className="d-flex justify-content-end mt-3">
                         <Button variant="primary" type="submit">
                             Add
                         </Button>
