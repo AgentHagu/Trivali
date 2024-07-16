@@ -1,13 +1,15 @@
 import { createContext, useContext } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
+import { useApiKeys } from './ApiKeysContext';
 
 const libraries = ['places'];
 
 const LoadScriptContext = createContext();
 
 export default function LoadScriptProvider({ children }) {
+  const { googleMapsApiKey } = useApiKeys()
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: googleMapsApiKey,
     libraries,
   });
 

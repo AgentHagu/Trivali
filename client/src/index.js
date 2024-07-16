@@ -12,13 +12,11 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Custom styles
 import "./styles.css";
+import ApiKeysProvider from './context/ApiKeysContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  // <React.StrictMode>
-
-  //     <App />
-
-  // </React.StrictMode>
-  <App />
+  <ApiKeysProvider>
+    <App />
+  </ApiKeysProvider>
 );

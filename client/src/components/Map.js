@@ -75,7 +75,6 @@ export default function Map({ projectId, data, socket }) {
                         row.activities.map((activity, index) => {
                             if (activity.location.geometry) {
                                 const location = activity.location.geometry.location
-                                // console.log(`Adding marker for activity at index ${index} in row ${dayIndex}`)
                                 return <Marker key={`marker-${dayIndex}-${index}`} position={{ lat: location.lat, lng: location.lng }} />;
                             } else {
                                 return null;
