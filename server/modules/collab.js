@@ -210,7 +210,7 @@ module.exports = (server) => {
              * @param {Array} newRows - The new rows of the itinerary.
              */
             socket.on("send-itinerary-changes", newRows => {
-                socket.broadcast.to(projectId).emit("receive-itinerary-changes", newRows)
+                io.to(projectId).emit("receive-itinerary-changes", newRows)
             })
 
             /**
@@ -225,7 +225,7 @@ module.exports = (server) => {
                     { 'itinerary.rows': newRows },
                     { new: true })
 
-                socket.emit("load-itinerary", updatedProject.itinerary)
+                io.to(projectId).emit("load-itinerary", updatedProject.itinerary)
             })
 
             /**
@@ -245,11 +245,11 @@ module.exports = (server) => {
              * @param {Object} timeChange - The time change details.
              */
             socket.on("send-time-changes", timeChange => {
-                socket.broadcast.to(projectId).emit("receive-time-changes", timeChange)
+                io.to(projectId).emit("receive-time-changes", timeChange)
             })
 
             socket.on("send-location-changes", placeChange => {
-                socket.broadcast.to(projectId).emit("receive-location-changes", placeChange)
+                io.to(projectId).emit("receive-location-changes", placeChange)
             })
         })
 

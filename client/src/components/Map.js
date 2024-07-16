@@ -1,5 +1,6 @@
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { useLoadScriptContext } from '../context/LoadScriptProvider';
+import { useEffect, useState } from 'react';
 
 const containerStyle = {
     width: '100%',
@@ -13,8 +14,40 @@ const center = {
 
 export default function Map({ projectId, data, socket }) {
     const { isLoaded } = useLoadScriptContext();
+    const [rows, setRows] = useState(data.itinerary.rows)
 
-    const rows = data.itinerary.rows;
+    useEffect(() => {
+        if (socket == null) return;
+
+        const loadItinerary = itinerary => {
+            setRows(itinerary.rows);
+        };
+
+        // Listen for the load-itinerary event
+        socket.on('load-itinerary', loadItinerary);
+
+        // Emit the get-itinerary event to fetch the latest data
+        socket.emit('get-itinerary', projectId);
+
+        // Clean up the event listener on component unmount
+        return () => {
+            socket.off('load-itinerary', loadItinerary);
+        };
+    }, [socket, projectId]);
+
+    useEffect(() => {
+        const handler = (placeChange) => {
+            const newRows = [...rows];
+            newRows[placeChange.day].activities[placeChange.activity].location = placeChange.place;
+            setRows(newRows);
+        };
+
+        socket.on('receive-location-changes', handler);
+
+        return () => {
+            socket.off('receive-location-changes', handler);
+        };
+    }, [socket, rows]);
 
     if (!isLoaded) {
         return <div>Loading Maps...</div>;
@@ -39,7 +72,7 @@ export default function Map({ projectId, data, socket }) {
                 </GoogleMap>
             </div>
 
-            <div className="col overflow-auto" style={{ height: '500px'}}>
+            <div className="col overflow-auto" style={{ height: '500px' }}>
                 {rows.map((row, index) => (
                     <table className="table table-bordered table-fit" key={row.id}>
                         <thead className="table-dark">
