@@ -23,13 +23,10 @@ export default function Map({ projectId, data, socket }) {
             setRows(itinerary.rows);
         };
 
-        // Listen for the load-itinerary event
         socket.on('load-itinerary', loadItinerary);
 
-        // Emit the get-itinerary event to fetch the latest data
         socket.emit('get-itinerary', projectId);
 
-        // Clean up the event listener on component unmount
         return () => {
             socket.off('load-itinerary', loadItinerary);
         };
@@ -54,9 +51,16 @@ export default function Map({ projectId, data, socket }) {
     }
 
     return <div className="container py-3 px-3">
-        <div className="row mb-3">
+        <div className="row mb-3 px-3">
+            <div className="col-2 p-0">
+                <div className="form-check form-switch">
+                    View Routes
+                    <input className="form-check-input" type="checkbox" role="switch" />
+                </div>
+            </div>
+
             <div className="col">
-                <button>View Routes</button>
+                Filters:
             </div>
         </div>
 
@@ -67,21 +71,30 @@ export default function Map({ projectId, data, socket }) {
                     center={center}
                     zoom={13}
                 >
-                    {/* <Marker position={center} />
-                    <Marker position={{ lat: -3, lng: -38 }} /> */}
+                    {rows.map((row, dayIndex) => (
+                        row.activities.map((activity, index) => {
+                            if (activity.location.geometry) {
+                                const location = activity.location.geometry.location
+                                // console.log(`Adding marker for activity at index ${index} in row ${dayIndex}`)
+                                return <Marker key={`marker-${dayIndex}-${index}`} position={{ lat: location.lat, lng: location.lng }} />;
+                            } else {
+                                return null;
+                            }
+                        })
+                    ))}
                 </GoogleMap>
             </div>
 
             <div className="col overflow-auto" style={{ height: '500px' }}>
-                {rows.map((row, index) => (
+                {rows.map((row, dayIndex) => (
                     <table className="table table-bordered table-fit" key={row.id}>
                         <thead className="table-dark">
                             <tr>
-                                <th scope="col" colSpan={2} className="col-1">Day {index + 1}</th>
+                                <th scope="col" colSpan={2} className="col-1">Day {dayIndex + 1}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {row.activities.map((activity, dayIndex) => (
+                            {row.activities.map((activity, index) => (
                                 <tr key={activity.id} day={dayIndex}>
                                     <td className="fit align-middle">
                                         {/* TODO: Time start? Or range? */}

@@ -24,31 +24,17 @@ function Table({ projectId, data, socket }) {
     const MENU_ID = 'Itinerary Menu';
     const [rows, setRows] = useState(data)
 
-    // useEffect(() => {
-    //     if (socket == null) return
-
-    //     // Load itinerary data from the server
-    //     socket.once("load-itinerary", itinerary => {
-    //         setRows(itinerary.rows)
-    //     })
-
-    //     socket.emit("get-itinerary", projectId)
-    // }, [socket, projectId])
-
     useEffect(() => {
         if (socket == null) return;
       
         const loadItinerary = itinerary => {
           setRows(itinerary.rows);
         };
-      
-        // Listen for the load-itinerary event
+
         socket.on('load-itinerary', loadItinerary);
       
-        // Emit the get-itinerary event to fetch the latest data
         socket.emit('get-itinerary', projectId);
-      
-        // Clean up the event listener on component unmount
+
         return () => {
           socket.off('load-itinerary', loadItinerary);
         };
@@ -232,7 +218,7 @@ function Table({ projectId, data, socket }) {
         }
 
         return newRows
-    }, [rows, createActivity, createDay])
+    }, [rows, createActivity, deleteActivity, createDay, deleteDay])
 
     /**
      * Handles menu item click event.
