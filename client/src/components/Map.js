@@ -109,22 +109,35 @@ export default function Map({ projectId, data, socket }) {
     };
 
     return <div className="container py-3 px-3">
-        <div className="row mb-3 px-3">
-            <div className="col-3 p-0">
+        <div className="row mb-2 px-3">
+            <div className="col-2 ps-0  d-flex align-items-center">
                 <div className="form-check form-switch d-flex align-items-center ps-1">
-                    <h4 className="mb-0" style={{userSelect: "none"}}>
-                        View Routes
-                    </h4>
-                    <h4 className="mb-0 ps-2">
+                    <h5 className="mb-0" style={{ userSelect: "none" }}>
+                        View routes
+                    </h5>
+                    <h5 className="mb-0 ps-2">
                         <input className="form-check-input ms-2" type="checkbox" role="switch" />
-                    </h4>
-
+                    </h5>
                 </div>
             </div>
 
-            {/* <div className="col">
-                Filters:
-            </div> */}
+            {/* TODO: its off center/aligned */}
+            <div className="col">
+                <div className=" d-flex align-items-center">
+                    <h5 className="mb-0 pe-3">
+                        Travel modes:
+                    </h5>
+
+                    <input type="checkbox" className="btn-check" id="travel-mode-driving" autoComplete="off" />
+                    <label className="btn btn-outline-primary me-2" htmlFor="travel-mode-driving"><i className="bi bi-car-front-fill" /></label>
+                    
+                    <input type="checkbox" className="btn-check" id="travel-mode-transit" autoComplete="off" />
+                    <label className="btn btn-outline-primary me-2" htmlFor="travel-mode-transit"><i className="bi bi-train-front-fill" /></label>
+
+                    <input type="checkbox" className="btn-check" id="travel-mode-walking" autoComplete="off" />
+                    <label className="btn btn-outline-primary me-2" htmlFor="travel-mode-walking"><i className="bi bi-person-walking" /></label>
+                </div>
+            </div>
         </div>
 
         <div className="row px-3">

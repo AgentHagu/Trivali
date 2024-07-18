@@ -85,10 +85,12 @@ export default function GoogleMapSearchBar({ onPlaceSelected, locationValue }) {
                 {isValid
                     ? null
                     : <OverlayTrigger placement="top" overlay={tooltip}>
-                        <i
-                            className="bi bi-info-circle-fill position-absolute text-warning p-1"
-                            style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', backgroundColor: "white" }}
-                        />
+                        <h5 className='position-absolute' style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', backgroundColor: "white" }}>
+                            <i
+                                className="bi bi-info-circle-fill text-warning p-1"
+                            />
+                        </h5>
+
                     </OverlayTrigger>}
             </div>
         </Autocomplete>
