@@ -97,7 +97,8 @@ export default function Map({ projectId, data, socket }) {
             setSelected(updatedSelected)
         }
     }
-    
+
+    // TODO: Add custom markers with custom symbols and stuff
     const customMarker = {
         // path: window.google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
         // fillColor: "#FF0000",
@@ -109,16 +110,21 @@ export default function Map({ projectId, data, socket }) {
 
     return <div className="container py-3 px-3">
         <div className="row mb-3 px-3">
-            <div className="col-2 p-0">
-                <div className="form-check form-switch">
-                    View Routes
-                    <input className="form-check-input" type="checkbox" role="switch" />
+            <div className="col-3 p-0">
+                <div className="form-check form-switch d-flex align-items-center ps-1">
+                    <h4 className="mb-0" style={{userSelect: "none"}}>
+                        View Routes
+                    </h4>
+                    <h4 className="mb-0 ps-2">
+                        <input className="form-check-input ms-2" type="checkbox" role="switch" />
+                    </h4>
+
                 </div>
             </div>
 
-            <div className="col">
+            {/* <div className="col">
                 Filters:
-            </div>
+            </div> */}
         </div>
 
         <div className="row px-3">
