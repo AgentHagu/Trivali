@@ -67,8 +67,8 @@ export default function Map({ projectId, data, socket }) {
             // Adjust zoom if it's too close
             const listener = window.google.maps.event.addListenerOnce(mapRef.current, 'bounds_changed', () => {
                 const currentZoom = mapRef.current.getZoom();
-                if (currentZoom > 13) {
-                    mapRef.current.setZoom(13);
+                if (currentZoom > 15) {
+                    mapRef.current.setZoom(15);
                 }
                 window.google.maps.event.removeListener(listener);
             })
@@ -97,6 +97,15 @@ export default function Map({ projectId, data, socket }) {
             setSelected(updatedSelected)
         }
     }
+    
+    const customMarker = {
+        // path: window.google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+        // fillColor: "#FF0000",
+        // fillOpacity: 1,
+        // scale: 7,
+        // strokeWeight: 2,
+        // strokeColor: "#FFFFFF",
+    };
 
     return <div className="container py-3 px-3">
         <div className="row mb-3 px-3">
@@ -128,6 +137,7 @@ export default function Map({ projectId, data, socket }) {
                             if (location) {
                                 return (
                                     <Marker
+                                        icon={customMarker}
                                         key={`marker-${rowIndex}-${index}`}
                                         position={{ lat: location.lat, lng: location.lng }}
                                     />
@@ -147,7 +157,7 @@ export default function Map({ projectId, data, socket }) {
                             ${selected.includes(dayIndex)
                                 ? 'border-success'
                                 : 'border-secondary'}`}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", userSelect: "none" }}
                         key={row.id}
                         day={dayIndex}
                         onClick={viewHandler}
@@ -176,7 +186,7 @@ export default function Map({ projectId, data, socket }) {
                                         {activity.time.start}
                                     </td>
 
-                                    <td>
+                                    <td style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                         {(activity.location.name) ? activity.location.name : "No location specified"}
                                     </td>
                                 </tr>

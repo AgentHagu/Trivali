@@ -11,6 +11,10 @@ import 'react-contexify/ReactContexify.css';
 // Toast Notifications
 import { toast } from "react-toastify";
 
+function supportsFirefox() {
+    return window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+}
+
 /**
  * Table component to display and manage itinerary data.
  * 
@@ -26,19 +30,19 @@ function Table({ projectId, data, socket }) {
 
     useEffect(() => {
         if (socket == null) return;
-      
+
         const loadItinerary = itinerary => {
-          setRows(itinerary.rows);
+            setRows(itinerary.rows);
         };
 
         socket.on('load-itinerary', loadItinerary);
-      
+
         socket.emit('get-itinerary', projectId);
 
         return () => {
-          socket.off('load-itinerary', loadItinerary);
+            socket.off('load-itinerary', loadItinerary);
         };
-      }, [socket, projectId]);
+    }, [socket, projectId]);
 
     /**
      * Creates a new activity object.
@@ -64,20 +68,22 @@ function Table({ projectId, data, socket }) {
      * 
      * @param {object} activity - Activity object to delete.
      */
-    function deleteActivity(activity) {
-        socket.emit("delete-itinerary-activity", activity.details.page + "/" + activity.details.number)
-    }
+    const deleteActivity = useCallback(activity => {
+        if (activity) {
+            socket.emit("delete-itinerary-activity", activity.details.page + "/" + activity.details.number)
+        }
+    }, [socket])
 
     /**
      * Deletes a day from the itinerary.
      * 
      * @param {object} day - Day object to delete.
      */
-    function deleteDay(day) {
+    const deleteDay = useCallback(day => {
         day.activities.forEach(activity => {
             deleteActivity(activity)
         });
-    }
+    }, [deleteActivity])
 
     const { show } = useContextMenu({
         id: MENU_ID,
@@ -345,17 +351,18 @@ function Table({ projectId, data, socket }) {
                 {/* Create the itinerary table */}
                 {rows.map((row, dayIndex) => (
                     row.activities.map((activity, index) => (
-                        <tr key={activity.id} day={dayIndex}>
+                        <tr key={activity.id} day={dayIndex} style={{ height: "1px" }}>
                             {/* Only render the Day for the first activity, have it span the other activities */}
                             {index === 0 && (<th className="text-center align-middle fs-5" scope="row" rowSpan={row.activities.length}>{dayIndex + 1}</th>)}
 
-                            <td className="fit align-middle px-2">
+                            <td className="fit align-middle px-2" style={supportsFirefox() ? { height: "100%" } : { height: "inherit" }}>
                                 <input
                                     className="border"
                                     type="time"
                                     id="start"
                                     value={activity.time.start}
-                                    onChange={timeHandler} /> -
+                                    onChange={timeHandler} />
+                                &nbsp; - &nbsp;
                                 <input
                                     className="border"
                                     type="time"
@@ -364,13 +371,14 @@ function Table({ projectId, data, socket }) {
                                     onChange={timeHandler} />
                             </td>
 
-                            <td className="col-2 align-middle p-0">
+                            <td className="col-2 align-middle p-0" style={supportsFirefox() ? { height: "100%" } : { height: "inherit" }}>
                                 <GoogleMapSearchBar
                                     onPlaceSelected={(place) => locationHandler(place, dayIndex, index)}
-                                    locationValue={activity.location.name} />
+                                    locationValue={activity.location}
+                                />
                             </td>
 
-                            <td className="p-0">
+                            <td className="p-0" style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                 <TextEditor page={activity.details.page} number={activity.details.number} />
                             </td>
                         </tr>)
