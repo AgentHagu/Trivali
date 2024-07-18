@@ -142,16 +142,29 @@ export default function Map({ projectId, data, socket }) {
 
             <div className="col overflow-auto" style={{ height: '500px' }}>
                 {rows.map((row, dayIndex) => (
-                    <table className="table table-bordered table-fit" key={row.id} day={dayIndex} onClick={viewHandler}>
+                    <table
+                        className="table table-bordered border-dark table-fit"
+                        style={{ cursor: "pointer" }}
+                        key={row.id}
+                        day={dayIndex}
+                        onClick={viewHandler}
+                    >
                         <thead className="table-dark">
                             <tr>
-                                <th scope="col" colSpan={2} className="col-1">Click to toggle Day {dayIndex + 1} markers</th>
+                                <th
+                                    scope="col"
+                                    colSpan={2}
+                                    className="col-1"
+                                >
+                                    Click to toggle Day {dayIndex + 1} markers
+                                </th>
                             </tr>
                         </thead>
+                        
                         <tbody>
                             {row.activities.map((activity, index) => (
                                 <tr key={activity.id} day={dayIndex}>
-                                    <td className="fit align-middle">
+                                    <td className="fit text-center align-middle">
                                         {/* TODO: Time start? Or range? */}
                                         {activity.time.start}
                                     </td>

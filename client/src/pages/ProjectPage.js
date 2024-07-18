@@ -53,7 +53,7 @@ export default function ProjectPage() {
     useEffect(() => {
         if (socket == null || loading) return
 
-        socket.once("load-project", project => {
+        socket.on("load-project", project => {
             // Regardless of outcome, setProject and setProjectLoading
             setProject(project)
             setProjectLoading(false)
@@ -88,6 +88,14 @@ export default function ProjectPage() {
             socket.emit("get-project", projectIdRef.current)
         }
     }, [socket, loading, user, navigate])
+
+    useEffect(() => {
+        if (socket == null || loading) return
+
+        socket.on("update-project", updatedProject => {
+            setProject(updatedProject)
+        })
+    }, [socket, loading])
 
     /**
      * Handles changes to the project name and emits the change to the server.

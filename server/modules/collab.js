@@ -226,6 +226,7 @@ module.exports = (server) => {
                     { new: true })
 
                 io.to(projectId).emit("load-itinerary", updatedProject.itinerary)
+                io.to(projectId).emit("update-project", updatedProject)
             })
 
             /**
