@@ -85,9 +85,9 @@ export default function Map({ projectId, data, socket }) {
     }
 
     function viewHandler(event) {
-        const dayIndex = event.target.closest("table").getAttribute("day")
+        const dayIndex = parseInt(event.target.closest("table").getAttribute("day"))
 
-        if (selected[dayIndex]) {
+        if (selected[dayIndex] !== null) {
             const updatedSelected = [...selected]
             updatedSelected[dayIndex] = null
             setSelected(updatedSelected)
@@ -143,13 +143,20 @@ export default function Map({ projectId, data, socket }) {
             <div className="col overflow-auto" style={{ height: '500px' }}>
                 {rows.map((row, dayIndex) => (
                     <table
-                        className="table table-bordered border-dark table-fit"
+                        className={`table table-bordered table-fit
+                            ${selected.includes(dayIndex)
+                                ? 'border-success'
+                                : 'border-secondary'}`}
                         style={{ cursor: "pointer" }}
                         key={row.id}
                         day={dayIndex}
                         onClick={viewHandler}
                     >
-                        <thead className="table-dark">
+                        <thead
+                            className={`border-2 ${selected.includes(dayIndex)
+                                ? 'table-success border-success'
+                                : 'table-secondary border-secondary'}`}
+                        >
                             <tr>
                                 <th
                                     scope="col"
@@ -160,8 +167,8 @@ export default function Map({ projectId, data, socket }) {
                                 </th>
                             </tr>
                         </thead>
-                        
-                        <tbody>
+
+                        <tbody className='border-2'>
                             {row.activities.map((activity, index) => (
                                 <tr key={activity.id} day={dayIndex}>
                                     <td className="fit text-center align-middle">
