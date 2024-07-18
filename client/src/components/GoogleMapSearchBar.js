@@ -44,7 +44,10 @@ export default function GoogleMapSearchBar({ onPlaceSelected, locationValue }) {
 
     return <div className="h-100 w-100">
         <Autocomplete
-            onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
+            onLoad={(autocomplete) => {
+                autocompleteRef.current = autocomplete
+                autocomplete.setFields(['name', 'geometry.location'])
+            }}
             onPlaceChanged={handlePlaceChanged}>
             <input
                 type="text"
