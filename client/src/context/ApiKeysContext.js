@@ -15,7 +15,6 @@ export default function ApiKeysProvider({ children }) {
                 })
 
                 const allApiKeys = await response.json()
-                // console.log(await response.json());
                 setApiKeys(allApiKeys)
             } catch (error) {
                 console.error("Error fetching API key: ", error)

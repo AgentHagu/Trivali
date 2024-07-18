@@ -1,20 +1,17 @@
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { useLoadScriptContext } from '../context/LoadScriptProvider';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const containerStyle = {
     width: '100%',
     height: '500px'
 };
 
-const center = {
-    lat: 1.29485,
-    lng: 103.77367
-};
-
 export default function Map({ projectId, data, socket }) {
     const { isLoaded } = useLoadScriptContext();
     const [rows, setRows] = useState(data.itinerary.rows)
+    const [selected, setSelected] = useState(Array(rows.length).fill(null));
+    const mapRef = useRef(null);
 
     useEffect(() => {
         if (socket == null) return;
@@ -46,8 +43,59 @@ export default function Map({ projectId, data, socket }) {
         };
     }, [socket, rows]);
 
+    useEffect(() => {
+        if (!isLoaded || !mapRef.current) return;
+
+        const bounds = new window.google.maps.LatLngBounds();
+
+        selected.forEach(rowIndex => {
+            if (rowIndex === null) {
+                return;
+            }
+
+            rows[rowIndex].activities.forEach(activity => {
+                const location = activity.location.geometry?.location;
+                if (location) {
+                    bounds.extend(new window.google.maps.LatLng(location.lat, location.lng));
+                }
+            });
+        });
+
+        if (!bounds.isEmpty()) {
+            mapRef.current.fitBounds(bounds, { padding: 50 });
+
+            // Adjust zoom if it's too close
+            const listener = window.google.maps.event.addListenerOnce(mapRef.current, 'bounds_changed', () => {
+                const currentZoom = mapRef.current.getZoom();
+                if (currentZoom > 13) {
+                    mapRef.current.setZoom(13);
+                }
+                window.google.maps.event.removeListener(listener);
+            })
+        } else {
+            // No location markers selected, show the whole world
+            mapRef.current.setCenter({ lat: 0, lng: 0 });
+            mapRef.current.setZoom(1);
+        }
+
+    }, [isLoaded, rows, selected]);
+
     if (!isLoaded) {
         return <div>Loading Maps...</div>;
+    }
+
+    function viewHandler(event) {
+        const dayIndex = event.target.closest("table").getAttribute("day")
+
+        if (selected[dayIndex]) {
+            const updatedSelected = [...selected]
+            updatedSelected[dayIndex] = null
+            setSelected(updatedSelected)
+        } else {
+            const updatedSelected = [...selected]
+            updatedSelected[dayIndex] = dayIndex
+            setSelected(updatedSelected)
+        }
     }
 
     return <div className="container py-3 px-3">
@@ -68,28 +116,36 @@ export default function Map({ projectId, data, socket }) {
             <div className="col-9 p-0 border border-2 border-black h-100">
                 <GoogleMap
                     mapContainerStyle={containerStyle}
-                    center={center}
-                    zoom={13}
+                    onLoad={map => (mapRef.current = map)}
                 >
-                    {rows.map((row, dayIndex) => (
-                        row.activities.map((activity, index) => {
-                            if (activity.location.geometry) {
-                                const location = activity.location.geometry.location
-                                return <Marker key={`marker-${dayIndex}-${index}`} position={{ lat: location.lat, lng: location.lng }} />;
-                            } else {
-                                return null;
+                    {selected.map(rowIndex => {
+                        if (rowIndex === null) {
+                            return null
+                        }
+
+                        return rows[rowIndex].activities.map((activity, index) => {
+                            const location = activity.location.geometry?.location
+                            if (location) {
+                                return (
+                                    <Marker
+                                        key={`marker-${rowIndex}-${index}`}
+                                        position={{ lat: location.lat, lng: location.lng }}
+                                    />
+                                )
                             }
+
+                            return null
                         })
-                    ))}
+                    })}
                 </GoogleMap>
             </div>
 
             <div className="col overflow-auto" style={{ height: '500px' }}>
                 {rows.map((row, dayIndex) => (
-                    <table className="table table-bordered table-fit" key={row.id}>
+                    <table className="table table-bordered table-fit" key={row.id} day={dayIndex} onClick={viewHandler}>
                         <thead className="table-dark">
                             <tr>
-                                <th scope="col" colSpan={2} className="col-1">Day {dayIndex + 1}</th>
+                                <th scope="col" colSpan={2} className="col-1">Click to toggle Day {dayIndex + 1} markers</th>
                             </tr>
                         </thead>
                         <tbody>
