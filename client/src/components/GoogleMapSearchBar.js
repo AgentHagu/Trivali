@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Autocomplete } from '@react-google-maps/api';
 import { useLoadScriptContext } from '../context/LoadScriptProvider';
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 export default function GoogleMapSearchBar({ onPlaceSelected, locationValue }) {
     const autocompleteRef = useRef(null);
@@ -85,12 +85,12 @@ export default function GoogleMapSearchBar({ onPlaceSelected, locationValue }) {
                 {isValid
                     ? null
                     : <OverlayTrigger placement="top" overlay={tooltip}>
-                        <h5 className='position-absolute' style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', backgroundColor: "white" }}>
-                            <i
-                                className="bi bi-info-circle-fill text-warning p-1"
-                            />
+                        <h5
+                            className='position-absolute'
+                            style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', backgroundColor: "white" }}
+                        >
+                            <i className="bi bi-info-circle-fill text-warning p-1" />
                         </h5>
-
                     </OverlayTrigger>}
             </div>
         </Autocomplete>

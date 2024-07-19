@@ -1,6 +1,7 @@
-import { GoogleMap, Marker } from '@react-google-maps/api';
+import { DirectionsRenderer, GoogleMap, Marker } from '@react-google-maps/api';
 import { useLoadScriptContext } from '../context/LoadScriptProvider';
 import { useEffect, useRef, useState } from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const containerStyle = {
     width: '100%',
@@ -11,7 +12,62 @@ export default function Map({ projectId, data, socket }) {
     const { isLoaded } = useLoadScriptContext();
     const [rows, setRows] = useState(data.itinerary.rows)
     const [selected, setSelected] = useState(Array(rows.length).fill(null));
+    const [routes, setRoutes] = useState([])
+    const [showRoutes, setShowRoutes] = useState(false)
+    const [travelMode, setTravelMode] = useState("TRANSIT")
     const mapRef = useRef(null);
+
+    const drivingPolylineOptions = {
+        strokeColor: '#ffa000',
+        strokeOpacity: 1,
+        strokeWeight: 10,
+        // icons: [
+        //     {
+        //         icon: {
+        //             path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+        //             strokeColor: '#0f53ff',
+        //             strokeOpacity: 1,
+        //             scale: 4
+        //         },
+        //         offset: '100%',
+        //         repeat: '40px'
+        //     }
+        // ]
+    }
+
+    const transitPolylineOptions = {
+        strokeColor: '#55dd33', 
+        strokeOpacity: 1,
+        strokeWeight: 10,
+
+    };
+
+    const walkingPolylineOptions = {
+        strokeColor: '#00FF00',
+        strokeOpacity: 0,
+        strokeWeight: 0,
+        icons: [
+            {
+                icon: {
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#0f53ff',
+                    fillOpacity: 1,
+                    scale: 4,
+                    strokeWeight: 1,
+                    strokeColor: '#0f53ff'
+                },
+                offset: '100%',
+                repeat: '12px'
+            }
+        ]
+    }
+
+    const tooltip = (
+        <Tooltip id="tooltip" className="text-info">
+            <strong>No routes available!</strong> Possible disconnections in itinerary
+        </Tooltip>
+    );
+
 
     useEffect(() => {
         if (socket == null) return;
@@ -48,10 +104,9 @@ export default function Map({ projectId, data, socket }) {
 
         const bounds = new window.google.maps.LatLngBounds();
 
+        // Include selected pins
         selected.forEach(rowIndex => {
-            if (rowIndex === null) {
-                return;
-            }
+            if (rowIndex === null) return;
 
             rows[rowIndex].activities.forEach(activity => {
                 const location = activity.location.geometry?.location;
@@ -61,24 +116,89 @@ export default function Map({ projectId, data, socket }) {
             });
         });
 
+        // Include start and end points of each route
+        routes.forEach(route => {
+            route.routes[0].legs.forEach(leg => {
+                bounds.extend(leg.start_location);
+                bounds.extend(leg.end_location);
+                // Optionally extend bounds for intermediate steps if needed
+                leg.steps.forEach(step => {
+                    bounds.extend(step.start_location);
+                    bounds.extend(step.end_location);
+                });
+            });
+        });
+
         if (!bounds.isEmpty()) {
             mapRef.current.fitBounds(bounds, { padding: 50 });
 
-            // Adjust zoom if it's too close
             const listener = window.google.maps.event.addListenerOnce(mapRef.current, 'bounds_changed', () => {
                 const currentZoom = mapRef.current.getZoom();
                 if (currentZoom > 15) {
                     mapRef.current.setZoom(15);
                 }
                 window.google.maps.event.removeListener(listener);
-            })
+            });
         } else {
-            // No location markers selected, show the whole world
             mapRef.current.setCenter({ lat: 0, lng: 0 });
             mapRef.current.setZoom(1);
         }
+    }, [isLoaded, rows, selected, routes]);
 
-    }, [isLoaded, rows, selected]);
+
+    useEffect(() => {
+        const directionService = new window.google.maps.DirectionsService()
+
+        async function calculateRoutes() {
+            const newRoutes = [];
+
+            const routePromises = selected.map(async rowIndex => {
+                if (rowIndex === null) return;
+
+                const row = rows[rowIndex];
+                const rowRoutes = [];
+
+                const activityPromises = row.activities.map(async (activity, i) => {
+                    if (i >= row.activities.length - 1) return;
+
+                    const location1 = activity.location.geometry?.location;
+                    const location2 = row.activities[i + 1].location.geometry?.location;
+
+                    if (location1 && location2) {
+                        const request = {
+                            origin: { lat: location1.lat, lng: location1.lng },
+                            destination: { lat: location2.lat, lng: location2.lng },
+                            travelMode: travelMode // Adjust if needed
+                        };
+
+                        try {
+                            const result = await new Promise((resolve, reject) => {
+                                directionService.route(request, (result, status) => {
+                                    if (status === window.google.maps.DirectionsStatus.OK) {
+                                        resolve(result);
+                                    } else {
+                                        reject(`Error fetching directions ${status}`);
+                                    }
+                                });
+                            });
+                            rowRoutes.push(result);
+                        } catch (error) {
+                            console.log("Error fetching directions: ", error);
+                        }
+                    }
+                });
+
+                await Promise.all(activityPromises);
+                newRoutes.push(...rowRoutes);
+            });
+
+            await Promise.all(routePromises);
+
+            setRoutes(newRoutes);
+        }
+
+        calculateRoutes();
+    }, [rows, selected, travelMode])
 
     if (!isLoaded) {
         return <div>Loading Maps...</div>;
@@ -98,6 +218,16 @@ export default function Map({ projectId, data, socket }) {
         }
     }
 
+    function viewRoutesHandler() {
+        setShowRoutes(!showRoutes);
+    }
+
+    function travelModeHandler(event) {
+        const element = event.target
+        console.log(travelMode)
+        setTravelMode(element.getAttribute("id"))
+    }
+
     // TODO: Add custom markers with custom symbols and stuff
     const customMarker = {
         // path: window.google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
@@ -110,32 +240,43 @@ export default function Map({ projectId, data, socket }) {
 
     return <div className="container py-3 px-3">
         <div className="row mb-2 px-3">
-            <div className="col-2 ps-0  d-flex align-items-center">
+            <div className="col-3 ps-0  d-flex align-items-center">
                 <div className="form-check form-switch d-flex align-items-center ps-1">
                     <h5 className="mb-0" style={{ userSelect: "none" }}>
                         View routes
                     </h5>
-                    <h5 className="mb-0 ps-2">
-                        <input className="form-check-input ms-2" type="checkbox" role="switch" />
+                    <h5 className="mb-0 ps-2 pe-3">
+                        <input className="form-check-input ms-2" type="checkbox" role="switch" onChange={viewRoutesHandler} />
                     </h5>
+                    {showRoutes && routes.length === 0
+                        ? <OverlayTrigger placement="top" overlay={tooltip}>
+                            <h5 className="mb-0" style={{ backgroundColor: "white" }}>
+                                <i
+                                    className="bi bi-info-circle-fill text-warning p-1"
+                                />
+                            </h5>
+                        </OverlayTrigger>
+                        : null
+                    }
+
                 </div>
             </div>
 
             {/* TODO: its off center/aligned */}
             <div className="col">
                 <div className=" d-flex align-items-center">
-                    <h5 className="mb-0 pe-3">
+                    <h5 className="mb-0 pe-3" style={{ userSelect: "none" }}>
                         Travel modes:
                     </h5>
 
-                    <input type="checkbox" className="btn-check" id="travel-mode-driving" autoComplete="off" />
-                    <label className="btn btn-outline-primary me-2" htmlFor="travel-mode-driving"><i className="bi bi-car-front-fill" /></label>
-                    
-                    <input type="checkbox" className="btn-check" id="travel-mode-transit" autoComplete="off" />
-                    <label className="btn btn-outline-primary me-2" htmlFor="travel-mode-transit"><i className="bi bi-train-front-fill" /></label>
+                    <input type="radio" className="btn-check" name="travelMode" id="DRIVING" autoComplete="off" onClick={travelModeHandler} />
+                    <label className="btn btn-outline-primary me-2" htmlFor="DRIVING"><i className="bi bi-car-front-fill" /></label>
 
-                    <input type="checkbox" className="btn-check" id="travel-mode-walking" autoComplete="off" />
-                    <label className="btn btn-outline-primary me-2" htmlFor="travel-mode-walking"><i className="bi bi-person-walking" /></label>
+                    <input type="radio" className="btn-check" name="travelMode" id="TRANSIT" autoComplete="off" onClick={travelModeHandler} defaultChecked />
+                    <label className="btn btn-outline-primary me-2" htmlFor="TRANSIT"><i className="bi bi-train-front-fill" /></label>
+
+                    <input type="radio" className="btn-check" name="travelMode" id="WALKING" autoComplete="off" onClick={travelModeHandler} />
+                    <label className="btn btn-outline-primary me-2" htmlFor="WALKING"><i className="bi bi-person-walking" /></label>
                 </div>
             </div>
         </div>
@@ -146,30 +287,51 @@ export default function Map({ projectId, data, socket }) {
                     mapContainerStyle={containerStyle}
                     onLoad={map => (mapRef.current = map)}
                 >
-                    {selected.map(rowIndex => {
-                        if (rowIndex === null) {
-                            return null
-                        }
+                    {
+                        showRoutes
+                            ? routes.map((route, index) => {
+                                return <DirectionsRenderer
+                                    key={index}
+                                    directions={route}
+                                    options={{
+                                        preserveViewport: true,
+                                        polylineOptions: travelMode === 'DRIVING' ? drivingPolylineOptions :
+                                            travelMode === 'WALKING' ? walkingPolylineOptions :
+                                                transitPolylineOptions
+                                    }}
+                                />
+                            })
+                            : null
+                    }
 
-                        return rows[rowIndex].activities.map((activity, index) => {
-                            const location = activity.location.geometry?.location
-                            if (location) {
-                                return (
-                                    <Marker
-                                        icon={customMarker}
-                                        key={`marker-${rowIndex}-${index}`}
-                                        position={{ lat: location.lat, lng: location.lng }}
-                                    />
-                                )
+
+                    {
+                        selected.map(rowIndex => {
+                            if (rowIndex === null) {
+                                return null
                             }
 
-                            return null
+                            return rows[rowIndex].activities.map((activity, index) => {
+                                const location = activity.location.geometry?.location
+                                if (location) {
+                                    return (
+                                        <Marker
+                                            // icon={customMarker}
+                                            key={`marker-${rowIndex}-${index}`}
+                                            position={{ lat: location.lat, lng: location.lng }}
+                                        />
+                                    )
+                                }
+
+                                return null
+                            })
                         })
-                    })}
+                    }
+
                 </GoogleMap>
             </div>
 
-            <div className="col overflow-auto" style={{ height: '500px' }}>
+            <div className="col pe-0 overflow-auto" style={{ height: '500px' }}>
                 {rows.map((row, dayIndex) => (
                     <table
                         className={`table table-bordered table-fit
@@ -190,7 +352,7 @@ export default function Map({ projectId, data, socket }) {
                                 <th
                                     scope="col"
                                     colSpan={2}
-                                    className="col-1"
+                                    className="col-1 text-center"
                                 >
                                     Click to toggle Day {dayIndex + 1} markers
                                 </th>
@@ -205,7 +367,7 @@ export default function Map({ projectId, data, socket }) {
                                         {activity.time.start}
                                     </td>
 
-                                    <td style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    <td style={{ maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                         {(activity.location.name) ? activity.location.name : "No location specified"}
                                     </td>
                                 </tr>
