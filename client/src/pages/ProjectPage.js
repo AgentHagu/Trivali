@@ -94,8 +94,18 @@ export default function ProjectPage() {
 
         socket.on("update-project", updatedProject => {
             setProject(updatedProject)
+
+            // Check user's permission to access the project
+            if (!loading && !updatedProject.userList.some(addedUser =>
+                addedUser._id === user._id)) {
+                toast.error("You were kicked and no longer have access to this project. Redirecting to home page...", {
+                    position: "top-center",
+                    autoClose: 5000
+                })
+                navigate('/home')
+            }
         })
-    }, [socket, loading])
+    }, [socket, loading, user, navigate])
 
     /**
      * Handles changes to the project name and emits the change to the server.
@@ -252,7 +262,7 @@ export default function ProjectPage() {
                         <div className="modal-dialog modal-dialog-centered">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Manage Users</h5>
+                                    <h5 className="modal-title">Manage Users</h5>
                                     <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
 

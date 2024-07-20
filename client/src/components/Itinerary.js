@@ -340,7 +340,7 @@ function Table({ projectId, data, socket }) {
     return <>
         <table className="table table-bordered m-0 table-fit">
             <thead className="table-dark">
-                <tr>
+                <tr className="fs-5">
                     <th scope="col" className="col-1">Day</th>
                     <th scope="col" className="col">Time</th>
                     <th scope="col" className="col">Location</th>
@@ -398,5 +398,46 @@ function Table({ projectId, data, socket }) {
 }
 
 export default function Itinerary({ projectId, data, socket }) {
-    return <Table projectId={projectId} data={data.rows} socket={socket} />
+    function openAIHandler(event) {
+        event.preventDefault()
+        console.log(event.target[0].value)
+    }
+
+
+    return <>
+        <div className="container py-2">
+            <button type="button" className="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#openAI">
+                OpenAI Help
+            </button>
+        </div>
+        <Table projectId={projectId} data={data.rows} socket={socket} />
+
+        <div className="modal fade" id="openAI" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">OpenAI Help</h5>
+                        
+                        <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div className="modal-body">
+                        Struggling to create an itinerary? Ask OpenAI for some help!
+                        <hr/>
+                        <form onSubmit={openAIHandler}>
+                            <div className="mb-3">
+                                <label htmlFor="itineraryRequirements" className="form-label">Itinerary Requirements</label>
+                                <input className="form-control" id="itineraryRequirements" placeholder="Describe your wanted itinerary"/>
+                            </div>
+                            <button type="submit" className="btn btn-primary">Generate</button>
+                        </form>
+                    </div>
+
+                    {/* <div className="modal-footer">
+                        RESPONSE
+                    </div> */}
+                </div>
+            </div>
+        </div>
+    </>
 }

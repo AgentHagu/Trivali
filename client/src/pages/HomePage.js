@@ -95,7 +95,7 @@ export default function HomePage() {
                             user.projectList.length > 0
                                 ? user.projectList.map(simpleProject => (
                                     <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
-                                        <a href={`../projects/${simpleProject._id}`} className="fs-4">
+                                        <a href={`../projects/${simpleProject._id}`} className="col fs-4">
                                             <span>
                                                 {
                                                     simpleProject.name

@@ -36,7 +36,7 @@ export default function Map({ projectId, data, socket }) {
     }
 
     const transitPolylineOptions = {
-        strokeColor: '#55dd33', 
+        strokeColor: '#55dd33',
         strokeOpacity: 1,
         strokeWeight: 10,
 
@@ -361,7 +361,15 @@ export default function Map({ projectId, data, socket }) {
 
                         <tbody className='border-2'>
                             {row.activities.map((activity, index) => (
-                                <tr key={activity.id} day={dayIndex}>
+                                <tr
+                                    className={`${(activity.location.name)
+                                        ? activity.location.geometry
+                                            ? ""
+                                            : "table-warning"
+                                        : "table-danger"} border border-dark`}
+                                    key={activity.id}
+                                    day={dayIndex}
+                                >
                                     <td className="fit text-center align-middle">
                                         {/* TODO: Time start? Or range? */}
                                         {activity.time.start}

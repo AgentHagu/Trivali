@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
-import QuillBetterTable from 'quill-better-table'
 import "quill/dist/quill.snow.css"
+import QuillCursors from "quill-cursors"
 import { io } from "socket.io-client"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
-Quill.register({
-    'modules/better-table': QuillBetterTable
-}, true)
+Quill.register('modules/cursors', QuillCursors)
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -117,12 +115,13 @@ export default function TextEditor(props) {
                     history: { userOnly: true },
                 },
                 placeholder: props.placeholder
-            })
+            }
+        )
 
         q.disable()
-        q.setText("Loading...")
+        // q.setText("")
         setQuill(q);
-    }, [])
+    }, [props])
     return <>
         <div className="w-100 h-100" ref={wrapperRef}></div>
     </>

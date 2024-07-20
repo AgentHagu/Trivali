@@ -172,9 +172,10 @@ module.exports = (server) => {
              * @param {Object} simpleUser - The user to remove from the project.
              */
             socket.on("remove-user", async simpleUser => {
-                await Project.findByIdAndUpdate(
+                const updatedProject = await Project.findByIdAndUpdate(
                     projectId,
-                    { $pull: { userList: { _id: simpleUser._id } } }
+                    { $pull: { userList: { _id: simpleUser._id } } },
+                    { new: true }
                 )
 
                 await User.findByIdAndUpdate(
@@ -182,7 +183,7 @@ module.exports = (server) => {
                     { $pull: { projectList: simpleProject } }
                 )
 
-                // socket.emit("kick-user", simpleUser)
+                io.to(projectId).emit("update-project", updatedProject)
             })
 
             /**
