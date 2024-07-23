@@ -125,30 +125,6 @@ export default function ProjectPage() {
         }
     }
 
-    // useEffect(() => {
-    //     if (socket == null) return
-
-    //     socket.on("kick-user", simpleUser => {
-    //         // console.log("TRYING TO KICK USER -----")
-    //         // console.log("USER TO KICK: ", simpleUser._id)
-    //         // console.log("CURRENT USER: ", user._id)
-    //         // if (simpleUser._id === user._id) {
-    //         //     console.log("HEY")
-    //         //     toast.error("You don't have access to this project. Redirecting to home page...", {
-    //         //         //position: toast.POSITION.TOP_CENTER,
-    //         //         autoClose: 3000
-    //         //     })
-    //         //     navigate('/home')
-    //         // }
-
-    //         toast.error("You don't have access to this project. Redirecting to home page...", {
-    //             //position: toast.POSITION.TOP_CENTER,
-    //             autoClose: 3000
-    //         })
-    //         navigate('/home')
-    //     })
-    // }, [loading, navigate, project, socket, user])
-
     /**
      * Switches the displayed content based on user selection.
      * @param {JSX.Element} newContent - New content to display.
@@ -258,7 +234,7 @@ export default function ProjectPage() {
                     </div>
 
                     {/* Create Project Modal Form */}
-                    <div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-hidden="true">
                         <div className="modal-dialog modal-dialog-centered">
                             <div className="modal-content">
                                 <div className="modal-header">

@@ -37,7 +37,13 @@ export default function TextEditor(props) {
 
     // Establish socket connection with server
     useEffect(() => {
-        const s = io(`${SERVER_URL}`)
+        const s = io(`${SERVER_URL}`, {
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000
+        })
         setSocket(s)
 
         return () => {

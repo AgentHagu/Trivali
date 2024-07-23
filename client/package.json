@@ -4,9 +4,11 @@
   "private": true,
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
+    "@uiw/react-markdown-preview": "^5.1.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "jquery": "^3.7.1",
+    "openai": "^4.53.0",
     "quill": "^2.0.2",
     "quill-better-table": "^1.2.10",
     "quill-cursors": "^4.0.3",

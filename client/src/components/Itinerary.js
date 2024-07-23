@@ -10,6 +10,9 @@ import 'react-contexify/ReactContexify.css';
 
 // Toast Notifications
 import { toast } from "react-toastify";
+import MarkdownPreview from '@uiw/react-markdown-preview';
+
+const SERVER_URL = process.env.REACT_APP_API_URL;
 
 function supportsFirefox() {
     return window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -398,9 +401,29 @@ function Table({ projectId, data, socket }) {
 }
 
 export default function Itinerary({ projectId, data, socket }) {
-    function openAIHandler(event) {
+    const [openAiStatus, setOpenAiStatus] = useState(null)
+    const [openAiResponse, setOpenAiResponse] = useState()
+
+    async function openAIHandler(event) {
         event.preventDefault()
-        console.log(event.target[0].value)
+        const prompt = event.target[0].value
+
+        setOpenAiStatus("LOADING")
+
+        try {
+            const response = await fetch(`${SERVER_URL}/openAi-generate-itinerary`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ prompt: prompt })
+            })
+
+            const data = await response.json()
+            setOpenAiStatus("DONE")
+            setOpenAiResponse(data.itinerary)
+        } catch (error) {
+            console.log("Error fetching itinerary: ", error)
+        }
     }
 
 
@@ -412,25 +435,49 @@ export default function Itinerary({ projectId, data, socket }) {
         </div>
         <Table projectId={projectId} data={data.rows} socket={socket} />
 
-        <div className="modal fade" id="openAI" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal fade" id="openAI" data-bs-keyboard="false" tabIndex="-1" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">OpenAI Help</h5>
-                        
+
                         <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
                     <div className="modal-body">
                         Struggling to create an itinerary? Ask OpenAI for some help!
-                        <hr/>
+                        <hr />
                         <form onSubmit={openAIHandler}>
                             <div className="mb-3">
                                 <label htmlFor="itineraryRequirements" className="form-label">Itinerary Requirements</label>
-                                <input className="form-control" id="itineraryRequirements" placeholder="Describe your wanted itinerary"/>
+                                <textarea className="form-control" id="itineraryRequirements" rows="3" placeholder="Describe your desired itinerary" />
                             </div>
-                            <button type="submit" className="btn btn-primary">Generate</button>
+                            <div className="d-flex justify-content-end">
+                                <button type="submit" className="btn btn-primary">Generate Itinerary</button>
+                            </div>
                         </form>
+
+                        <hr />
+                        OpenAI response: <br />
+                        {
+                            openAiStatus === null
+                                ? "No prompt given yet"
+                                : openAiStatus === "LOADING"
+                                    ? <div className="text-center">
+                                        <div className="spinner-border" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                    : <>
+                                        <MarkdownPreview
+                                            source={openAiResponse}
+                                            className="p-2 mt-2 text-dark bg-light border border-secondary rounded"
+                                            style={{
+                                                maxHeight: '300px',
+                                                overflowY: 'auto'
+                                            }} />
+                                    </>
+                        }
                     </div>
 
                     {/* <div className="modal-footer">
