@@ -1,4 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
+// index.js or App.js
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 
 // Components
 import TextEditor from "./TextEditor";
@@ -11,6 +15,7 @@ import 'react-contexify/ReactContexify.css';
 // Toast Notifications
 import { toast } from "react-toastify";
 import MarkdownPreview from '@uiw/react-markdown-preview';
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -46,6 +51,10 @@ function Table({ projectId, data, socket }) {
             socket.off('load-itinerary', loadItinerary);
         };
     }, [socket, projectId]);
+
+    useEffect(() => {
+        setRows(data);
+    }, [data]);
 
     /**
      * Creates a new activity object.
@@ -401,14 +410,17 @@ function Table({ projectId, data, socket }) {
 }
 
 export default function Itinerary({ projectId, data, socket }) {
-    const [openAiStatus, setOpenAiStatus] = useState(null)
-    const [openAiResponse, setOpenAiResponse] = useState()
+    const [itineraryData, setItineraryData] = useState(data)
+    const [generateItineraryStatus, setGenerateItineraryStatus] = useState(null)
+    const [generateItineraryResponse, setGenerateItineraryResponse] = useState()
+    const [replaceItineraryStatus, setReplaceItineraryStatus] = useState(null)
+    const [showCopiedTooltip, setShowCopiedTooltip] = useState(false)
 
-    async function openAIHandler(event) {
+    async function generateItineraryHandler(event) {
         event.preventDefault()
         const prompt = event.target[0].value
 
-        setOpenAiStatus("LOADING")
+        setGenerateItineraryStatus("LOADING")
 
         try {
             const response = await fetch(`${SERVER_URL}/openAi-generate-itinerary`, {
@@ -419,13 +431,57 @@ export default function Itinerary({ projectId, data, socket }) {
             })
 
             const data = await response.json()
-            setOpenAiStatus("DONE")
-            setOpenAiResponse(data.itinerary)
+            setGenerateItineraryStatus("DONE")
+            setGenerateItineraryResponse(data.itinerary)
         } catch (error) {
             console.log("Error fetching itinerary: ", error)
         }
     }
 
+    async function replaceItineraryHandler(event) {
+        event.preventDefault()
+
+        setReplaceItineraryStatus("LOADING")
+
+        try {
+            const response = await fetch(`${SERVER_URL}/openAi-generate-itinerary-json`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ prompt: generateItineraryResponse })
+            })
+
+            const data = await response.json()
+            const newItinerary = JSON.parse(data.itinerary)
+            setReplaceItineraryStatus(null)
+
+            if (newItinerary !== null && newItinerary.rows !== null) {
+                setItineraryData(newItinerary)
+                socket.emit("save-itinerary", newItinerary.rows)
+            }
+
+        } catch (error) {
+            console.log("Error fetching itinerary: ", error)
+        }
+    }
+
+    async function copyToClipboard() {
+        try {
+            await navigator.clipboard.writeText(generateItineraryResponse)
+            setShowCopiedTooltip(true)
+            setTimeout(() => setShowCopiedTooltip(false), 1000)
+        } catch (err) {
+            console.log(err)
+            setShowCopiedTooltip(false)
+        }
+
+    }
+
+    const renderTooltip = (props) => (
+        <Tooltip id="button-tooltip" {...props}>
+            Copied!
+        </Tooltip>
+    )
 
     return <>
         <div className="container py-2">
@@ -433,7 +489,16 @@ export default function Itinerary({ projectId, data, socket }) {
                 OpenAI Help
             </button>
         </div>
-        <Table projectId={projectId} data={data.rows} socket={socket} />
+
+        {
+            !replaceItineraryStatus
+                ? <Table projectId={projectId} data={itineraryData.rows} socket={socket} />
+                : <div className="py-5 text-center border-top border-black border-2">
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+        }
 
         <div className="modal fade" id="openAI" data-bs-keyboard="false" tabIndex="-1" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered">
@@ -447,7 +512,7 @@ export default function Itinerary({ projectId, data, socket }) {
                     <div className="modal-body">
                         Struggling to create an itinerary? Ask OpenAI for some help!
                         <hr />
-                        <form onSubmit={openAIHandler}>
+                        <form onSubmit={generateItineraryHandler}>
                             <div className="mb-3">
                                 <label htmlFor="itineraryRequirements" className="form-label">Itinerary Requirements</label>
                                 <textarea className="form-control" id="itineraryRequirements" rows="3" placeholder="Describe your desired itinerary" />
@@ -460,9 +525,9 @@ export default function Itinerary({ projectId, data, socket }) {
                         <hr />
                         OpenAI response: <br />
                         {
-                            openAiStatus === null
+                            generateItineraryStatus === null
                                 ? "No prompt given yet"
-                                : openAiStatus === "LOADING"
+                                : generateItineraryStatus === "LOADING"
                                     ? <div className="text-center">
                                         <div className="spinner-border" role="status">
                                             <span className="visually-hidden">Loading...</span>
@@ -470,12 +535,42 @@ export default function Itinerary({ projectId, data, socket }) {
                                     </div>
                                     : <>
                                         <MarkdownPreview
-                                            source={openAiResponse}
-                                            className="p-2 mt-2 text-dark bg-light border border-secondary rounded"
+                                            source={generateItineraryResponse}
+                                            className="p-2 my-2 text-dark bg-light border border-secondary rounded"
                                             style={{
-                                                maxHeight: '300px',
+                                                maxHeight: '350px',
                                                 overflowY: 'auto'
-                                            }} />
+                                            }}
+                                        />
+
+                                        {
+                                            generateItineraryResponse.includes("Invalid or improper prompt for itinerary creation:")
+                                                ? null
+                                                : <>
+                                                    <div className="d-flex justify-content-end">
+                                                        <OverlayTrigger
+                                                            placement="top"
+                                                            show={showCopiedTooltip}
+                                                            overlay={renderTooltip}
+                                                        >
+                                                            <button
+                                                                onClick={copyToClipboard}
+                                                                className="btn btn-secondary border border-secondary"
+                                                                title="Copy to clipboard"
+                                                            >
+                                                                <i className="bi bi-clipboard" />
+                                                            </button>
+                                                        </OverlayTrigger>
+                                                        <button
+                                                            onClick={replaceItineraryHandler}
+                                                            className="btn btn-primary ms-1"
+                                                            data-bs-dismiss="modal"
+                                                        >
+                                                            Replace Itinerary
+                                                        </button>
+                                                    </div>
+                                                </>
+                                        }
                                     </>
                         }
                     </div>

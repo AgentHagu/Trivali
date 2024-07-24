@@ -27,7 +27,7 @@ module.exports = (server) => {
     })
 
     io.on("connection", socket => {
-
+        socket.setMaxListeners(20)
         /**
          * Event listener for when a client requests a document by ID.
          *

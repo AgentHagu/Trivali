@@ -228,7 +228,7 @@ export default function ProjectPage() {
                             </div>
                         </div>
 
-                        <div className="border border-2 border-dark bg-white">
+                        <div className="border border-2 border-dark bg-white mb-5">
                             {content}
                         </div>
                     </div>
