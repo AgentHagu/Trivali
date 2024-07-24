@@ -441,27 +441,29 @@ export default function Itinerary({ projectId, data, socket }) {
     async function replaceItineraryHandler(event) {
         event.preventDefault()
 
-        setReplaceItineraryStatus("LOADING")
+        if (window.confirm("WARNING: Replacing itinerary will replace ALL existing itinerary data! Are you really sure?")) {
+            setReplaceItineraryStatus("LOADING")
 
-        try {
-            const response = await fetch(`${SERVER_URL}/openAi-generate-itinerary-json`, {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ prompt: generateItineraryResponse })
-            })
+            try {
+                const response = await fetch(`${SERVER_URL}/openAi-generate-itinerary-json`, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ prompt: generateItineraryResponse })
+                })
 
-            const data = await response.json()
-            const newItinerary = JSON.parse(data.itinerary)
-            setReplaceItineraryStatus(null)
+                const data = await response.json()
+                const newItinerary = JSON.parse(data.itinerary)
+                setReplaceItineraryStatus(null)
 
-            if (newItinerary !== null && newItinerary.rows !== null) {
-                setItineraryData(newItinerary)
-                socket.emit("save-itinerary", newItinerary.rows)
+                if (newItinerary !== null && newItinerary.rows !== null) {
+                    setItineraryData(newItinerary)
+                    socket.emit("save-itinerary", newItinerary.rows)
+                }
+
+            } catch (error) {
+                console.log("Error fetching itinerary: ", error)
             }
-
-        } catch (error) {
-            console.log("Error fetching itinerary: ", error)
         }
     }
 
