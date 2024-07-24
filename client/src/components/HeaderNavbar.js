@@ -33,7 +33,6 @@ export default function HeaderNavbar() {
         if (response.ok) {
             navigate('/')
         } else {
-            // Not sure if this shld be procedure
             navigate('/')
         }
     };

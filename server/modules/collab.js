@@ -68,10 +68,7 @@ module.exports = (server) => {
          */
         socket.on("create-project", async ({ projectId, projectName, userId, userList }) => {
             const project = await findOrCreateProject(projectId, projectName, userId, userList)
-            const simpleProject = {
-                _id: project._id,
-                name: project.name
-            }
+            const simpleProject = projectToSimpleProject(project)
 
             // Update each user's projectList with the new project
             userList.forEach(async user => {
@@ -112,10 +109,7 @@ module.exports = (server) => {
             const project = await Project.findById(projectId)
             let simpleProject
             if (project !== null) {
-                simpleProject = {
-                    _id: project._id,
-                    name: project.name
-                }
+                simpleProject = projectToSimpleProject(project)
                 socket.join(projectId)
             }
             socket.emit("load-project", project)
@@ -154,15 +148,29 @@ module.exports = (server) => {
              * @param {Object} simpleUser - The user to add to the project.
              */
             socket.on("add-user", async simpleUser => {
-                await Project.findByIdAndUpdate(
+                const updatedProject = await Project.findByIdAndUpdate(
                     projectId,
-                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) } }
+                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) } },
+                    { new: true }
                 )
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
                     { $push: { projectList: simpleProject } }
                 )
+
+                updatedProject.userList.forEach(
+                    async user => {
+                        await User.findOneAndUpdate(
+                            {
+                                _id: user._id,
+                                'projectList._id': projectId
+                            },
+                            {
+                                $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                            }
+                        )
+                    })
             })
 
             /**
@@ -183,6 +191,19 @@ module.exports = (server) => {
                     { $pull: { projectList: simpleProject } }
                 )
 
+                updatedProject.userList.forEach(
+                    async user => {
+                        await User.findOneAndUpdate(
+                            {
+                                _id: user._id,
+                                'projectList._id': projectId
+                            },
+                            {
+                                $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                            }
+                        )
+                    })
+
                 io.to(projectId).emit("update-project", updatedProject)
             })
 
@@ -192,16 +213,19 @@ module.exports = (server) => {
              * @listens connection#delete-project
              */
             socket.on("delete-project", async () => {
+                const oldProject = await Project.findById(projectId)
                 await Project.findByIdAndDelete(projectId)
 
                 // Delete project from every user's projectList
-                project.userList.forEach(
+                oldProject.userList.forEach(
                     async user => {
                         await User.findByIdAndUpdate(
                             user._id,
-                            { $pull: { projectList: simpleProject } }
+                            { $pull: { projectList: { _id: projectId } } }
                         )
                     })
+
+                socket.broadcast.to(projectId).emit("project-deleted")
             })
 
             /**
@@ -380,6 +404,17 @@ function userToSimpleUser(user) {
     }
 
     return simpleUser
+}
+
+function projectToSimpleProject(project) {
+    const simpleProject = {
+        _id: project._id,
+        name: project.name,
+        owner: project.owner.username,
+        isShared: project.userList.length > 1
+    }
+
+    return simpleProject
 }
 
 /**

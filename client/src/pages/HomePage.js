@@ -88,39 +88,58 @@ export default function HomePage() {
                 </div>
 
                 <hr />
-                <h1 className="pb-2">Your Projects:</h1>
-                <ul className="list-group">
-                    <div className="row">
-                        {
-                            user.projectList.length > 0
-                                ? user.projectList.map(simpleProject => (
-                                    <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
-                                        <a href={`../projects/${simpleProject._id}`} className="col fs-4">
-                                            <span>
-                                                {
-                                                    simpleProject.name
-                                                        ? <>{simpleProject.name}</>
-                                                        : <>Untitled Project</>
-                                                }
-                                            </span>
-                                        </a>
-                                    </li>
-                                    // <a href={`../projects/${simpleProject._id}`} className="fs-4 col-md-4 d-block text-decoration-none">
-                                    //     <div className="card h-100 mb-4 shadow-sm">
-                                    //         <div className="card-header">{simpleProject.name}</div>
-                                    //         <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
-                                    //             alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
-                                    //         <div className="card-body">
-                                    //             <p className="card-text fs-6">
-                                    //                 lorem
-                                    //             </p>
-                                    //         </div>
-                                    //     </div>
-                                    // </a>
-                                ))
-                                : <h3>You currently have no projects.</h3>
-                        }
+                <div className="row fs-4 my-2">
+                    <div className="col">
+                        <div className="ps-3">
+                            Project Name
+                        </div>
                     </div>
+
+                    <div className="col">
+                        Owned by
+                    </div>
+                </div>
+                <ul className="list-group fs-5">
+                    {
+                        user.projectList.length > 0
+                            ? user.projectList.map(simpleProject => (
+                                // <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
+                                <a href={`../projects/${simpleProject._id}`} className="list-group-item list-group-item-action" key={simpleProject._id}>
+                                    <div className="row">
+                                        <div className="col text-truncate">
+                                            {
+                                                simpleProject.name
+                                                    ? <>{simpleProject.name}</>
+                                                    : <>Untitled Project</>
+                                            }
+                                            {
+                                                simpleProject.isShared
+                                                    ? <i className="bi bi-people-fill ms-3" title="Shared Project"></i>
+                                                    : null
+                                            }
+                                        </div>
+                                        <div className="col">
+                                            {simpleProject.owner === user.username
+                                                ? "me"
+                                                : simpleProject.owner}
+                                        </div>
+                                    </div>
+                                </a>
+                                // <a href={`../projects/${simpleProject._id}`} className="fs-4 col-md-4 d-block text-decoration-none">
+                                //     <div className="card h-100 mb-4 shadow-sm">
+                                //         <div className="card-header">{simpleProject.name}</div>
+                                //         <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
+                                //             alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
+                                //         <div className="card-body">
+                                //             <p className="card-text fs-6">
+                                //                 lorem
+                                //             </p>
+                                //         </div>
+                                //     </div>
+                                // </a>
+                            ))
+                            : <h3>You currently have no projects.</h3>
+                    }
                 </ul>
 
                 {/* Create Project Modal Form */}

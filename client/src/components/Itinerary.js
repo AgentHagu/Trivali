@@ -290,7 +290,6 @@ function Table({ projectId, data, socket }) {
     }
 
     const locationHandler = (place, dayIndex, activityIndex) => {
-        // const newLocation = place.formatted_address;
         const newRows = [...rows];
         newRows[dayIndex].activities[activityIndex].location = place;
 

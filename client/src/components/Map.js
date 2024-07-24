@@ -64,7 +64,7 @@ export default function Map({ projectId, data, socket }) {
 
     const tooltip = (
         <Tooltip id="tooltip" className="text-info">
-            <strong>No routes available!</strong> Possible disconnections in itinerary
+            <strong>No routes found!</strong> Possible disconnections in itinerary
         </Tooltip>
     );
 
@@ -183,7 +183,7 @@ export default function Map({ projectId, data, socket }) {
                             });
                             rowRoutes.push(result);
                         } catch (error) {
-                            console.log("Error fetching directions: ", error);
+                            console.error("Error fetching directions: ", error);
                         }
                     }
                 });
@@ -224,7 +224,6 @@ export default function Map({ projectId, data, socket }) {
 
     function travelModeHandler(event) {
         const element = event.target
-        console.log(travelMode)
         setTravelMode(element.getAttribute("id"))
     }
 
@@ -277,6 +276,13 @@ export default function Map({ projectId, data, socket }) {
 
                     <input type="radio" className="btn-check" name="travelMode" id="WALKING" autoComplete="off" onClick={travelModeHandler} />
                     <label className="btn btn-outline-primary me-2" htmlFor="WALKING"><i className="bi bi-person-walking" /></label>
+
+                    {
+                        travelMode === "TRANSIT" &&
+                        <h6 className="mb-0 ps-3 text-secondary" style={{ userSelect: "none" }}>
+                            Note: Transit data is inconsistent
+                        </h6>
+                    }
                 </div>
             </div>
         </div>

@@ -17,6 +17,8 @@ export default function GoogleMapSearchBar({ onPlaceSelected, locationValue }) {
 
         if (!locationValue.geometry && locationValue.name !== "") {
             setIsValid(false)
+        } else {
+            setIsValid(true)
         }
 
         setInputValue(locationValue.name || '');

@@ -107,6 +107,18 @@ export default function ProjectPage() {
         })
     }, [socket, loading, user, navigate])
 
+    useEffect(() => {
+        if (socket == null || loading) return
+
+        socket.on("project-deleted", () => {
+            toast.error("Project was deleted by owner. Redirecting to home page...", {
+                position: "top-center",
+                autoClose: 3000
+            })
+            navigate('/home')
+        })
+    }, [socket, loading, navigate])
+
     /**
      * Handles changes to the project name and emits the change to the server.
      * @param {Event} event - Input change event.
