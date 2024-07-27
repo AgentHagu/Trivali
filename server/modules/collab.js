@@ -27,7 +27,7 @@ module.exports = (server) => {
     })
 
     io.on("connection", socket => {
-        socket.setMaxListeners(20)
+        socket.setMaxListeners(50)
         /**
          * Event listener for when a client requests a document by ID.
          *
@@ -156,7 +156,7 @@ module.exports = (server) => {
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
-                    { $push: { projectList: simpleProject } }
+                    { $push: { projectList: projectToSimpleProject(updatedProject) } }
                 )
 
                 updatedProject.userList.forEach(
@@ -180,6 +180,8 @@ module.exports = (server) => {
              * @param {Object} simpleUser - The user to remove from the project.
              */
             socket.on("remove-user", async simpleUser => {
+                const previousProject = await Project.findById(projectId)
+
                 const updatedProject = await Project.findByIdAndUpdate(
                     projectId,
                     { $pull: { userList: { _id: simpleUser._id } } },
@@ -188,7 +190,7 @@ module.exports = (server) => {
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
-                    { $pull: { projectList: simpleProject } }
+                    { $pull: { projectList: projectToSimpleProject(previousProject) } }
                 )
 
                 updatedProject.userList.forEach(

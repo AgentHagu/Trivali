@@ -12,6 +12,7 @@ import useUserData from "../hooks/useUserData";
 import { v4 as uuidV4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -33,7 +34,6 @@ export default function HomePage() {
             </div>
         </div>
     )
-
     const navigate = useNavigate()
     const [socket, setSocket] = useState()
 
@@ -52,16 +52,19 @@ export default function HomePage() {
         e.preventDefault()
         const projectName = e.target[0].value
         const projectId = uuidV4()
-        socket.emit("create-project", {
-            projectId: projectId,
-            projectName: projectName,
-            userId: user._id,
-            userList: addedUsersList
-        })
 
-        socket.on("new-project-created", () => {
-            navigate(`/projects/${projectId}`)
-        })
+        if (socket) {
+            socket.emit("create-project", {
+                projectId: projectId,
+                projectName: projectName,
+                userId: user._id,
+                userList: addedUsersList
+            })
+
+            socket.once("new-project-created", () => {
+                navigate(`/projects/${projectId}`)
+            })
+        }
     }, [addedUsersList, navigate, socket, user])
 
     useEffect(() => {
@@ -70,25 +73,28 @@ export default function HomePage() {
         }
     }, [loading, user])
 
+    const tooltip = (
+        <Tooltip id="tooltip" className="text-info">
+            <strong>Create Project</strong>
+        </Tooltip>
+    );
+
     useEffect(() => {
         if (!loading) {
             const loadedContent = <>
-                <div className="row">
-                    <div className="col">
-                        <h1>Welcome, {user.username}</h1>
-                        <h2>User ID: {user._id}</h2>
-                        <h2>Email: {user.email}</h2>
-                    </div>
+                <OverlayTrigger placement="top" overlay={tooltip}>
+                    <button
+                        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
+                        style={{ width: "80px", height: "80px" }}
+                        data-bs-toggle="modal"
+                        data-bs-target="#createProjectModal"
+                        title="Create project"
+                    >
+                        <i className="bi bi-plus-circle" style={{ fontSize: "3rem" }}></i>
+                    </button>
+                </OverlayTrigger>
 
-                    <div className="col d-flex flex-column justify-content-end align-items-end">
-                        <button type="button" className="btn btn-primary fs-1" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                            Create Project
-                        </button>
-                    </div>
-                </div>
-
-                <hr />
-                <div className="row fs-4 my-2">
+                <div className="row fs-4 mb-2 mt-4">
                     <div className="col">
                         <div className="ps-3">
                             Project Name
@@ -107,16 +113,8 @@ export default function HomePage() {
                                 <a href={`../projects/${simpleProject._id}`} className="list-group-item list-group-item-action" key={simpleProject._id}>
                                     <div className="row">
                                         <div className="col text-truncate">
-                                            {
-                                                simpleProject.name
-                                                    ? <>{simpleProject.name}</>
-                                                    : <>Untitled Project</>
-                                            }
-                                            {
-                                                simpleProject.isShared
-                                                    ? <i className="bi bi-people-fill ms-3" title="Shared Project"></i>
-                                                    : null
-                                            }
+                                            {simpleProject.name || "Untitled Project"}
+                                            {simpleProject.isShared && <i className="bi bi-people-fill ms-3" title="Shared Project"></i>}
                                         </div>
                                         <div className="col">
                                             {simpleProject.owner === user.username

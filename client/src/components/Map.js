@@ -269,13 +269,13 @@ export default function Map({ projectId, data, socket }) {
                     </h5>
 
                     <input type="radio" className="btn-check" name="travelMode" id="DRIVING" autoComplete="off" onClick={travelModeHandler} />
-                    <label className="btn btn-outline-primary me-2" htmlFor="DRIVING"><i className="bi bi-car-front-fill" /></label>
+                    <label className="btn btn-outline-primary me-2" htmlFor="DRIVING" title="Driving"><i className="bi bi-car-front-fill" /></label>
 
                     <input type="radio" className="btn-check" name="travelMode" id="TRANSIT" autoComplete="off" onClick={travelModeHandler} defaultChecked />
-                    <label className="btn btn-outline-primary me-2" htmlFor="TRANSIT"><i className="bi bi-train-front-fill" /></label>
+                    <label className="btn btn-outline-primary me-2" htmlFor="TRANSIT" title="Transit"><i className="bi bi-train-front-fill" /></label>
 
                     <input type="radio" className="btn-check" name="travelMode" id="WALKING" autoComplete="off" onClick={travelModeHandler} />
-                    <label className="btn btn-outline-primary me-2" htmlFor="WALKING"><i className="bi bi-person-walking" /></label>
+                    <label className="btn btn-outline-primary me-2" htmlFor="WALKING" title="Walking"><i className="bi bi-person-walking" /></label>
 
                     {
                         travelMode === "TRANSIT" &&

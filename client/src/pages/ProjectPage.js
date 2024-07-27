@@ -211,7 +211,7 @@ export default function ProjectPage() {
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
                                     onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
-                                    About
+                                    Planning
                                 </button>
 
                                 <button

@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import useUserData from "../hooks/useUserData";
 import TextEditor from "./TextEditor";
 
 /**
@@ -14,9 +12,9 @@ export default function About({ projectId, data, socket }) {
     return <div className="container pb-3 px-3">
         <div className="row mb-2">
             <div className="col-8 pt-2 d-flex flex-column">
-                <h3 className="fw-bold">About:</h3>
+                <h3 className="fw-bold">Planning:</h3>
                 <div className="border border-2 flex-grow-1">
-                    <TextEditor page="about" number="0" placeholder="Provide a brief description about your trip" />
+                    <TextEditor page="about" number="0" placeholder="Plan your trip here, similar to Google Docs" />
                 </div>
             </div>
 

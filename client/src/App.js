@@ -26,11 +26,11 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 
 // Create router configuration
 const router = createBrowserRouter([
-  {
-    path: "/test",
-    // element: <PrivateRoute element = {<Test />}/>
-    element: <Test />
-  },
+  // {
+  //   path: "/test",
+  //   // element: <PrivateRoute element = {<Test />}/>
+  //   element: <Test />
+  // },
   {
     path: "/",
     element: <Navigate to={"/welcome"} />

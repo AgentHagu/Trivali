@@ -9,7 +9,7 @@ import TextEditor from "./TextEditor";
 import GoogleMapSearchBar from "../components/GoogleMapSearchBar"
 
 // Context Menu
-import { Menu, Item, Separator, Submenu, useContextMenu } from 'react-contexify';
+import { Menu, Item, Separator, useContextMenu } from 'react-contexify';
 import 'react-contexify/ReactContexify.css';
 
 // Toast Notifications
@@ -559,7 +559,7 @@ export default function Itinerary({ projectId, data, socket }) {
                                                                 className="btn btn-secondary border border-secondary"
                                                                 title="Copy to clipboard"
                                                             >
-                                                                <i className="bi bi-clipboard" />
+                                                                <i className="bi bi-copy" />
                                                             </button>
                                                         </OverlayTrigger>
                                                         <button
