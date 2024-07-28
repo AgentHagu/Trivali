@@ -77,7 +77,12 @@ export default function HomePage() {
         <Tooltip id="tooltip" className="text-info">
             <strong>Create Project</strong>
         </Tooltip>
-    );
+    )
+
+    function formatDate(date) {
+        const options = { day: 'numeric', month: 'short', year: 'numeric' }
+        return date.toLocaleDateString('en-US', options)
+    }
 
     useEffect(() => {
         if (!loading) {
@@ -95,52 +100,128 @@ export default function HomePage() {
                         />
                     </button>
                 </OverlayTrigger>
+                <ul className="list-group fs-5">
+                    <div className="list-group-item bg-transparent border-0 pb-0">
+                        <div className="row fs-4">
+                            <div className="col-6">
+                                Project Name
+                            </div>
 
-                <div className="row fs-4 mb-2 mt-4">
-                    <div className="col">
-                        <div className="ps-3">
-                            Project Name
+                            <div className="col">
+                                Owned by
+                            </div>
+
+                            <div className="col">
+                                Last updated
+                            </div>
+
+                            <div className="col">
+                                Date created
+                            </div>
+
+                            <div className="col-auto">
+                                {/* Add a button here */}
+                                <button
+                                    className="btn"
+                                    style={{ visibility: "hidden" }}
+                                >
+                                    <i className="bi bi-three-dots-vertical"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="col">
-                        Owned by
-                    </div>
-                </div>
-                <ul className="list-group fs-5">
                     {
                         user.projectList.length > 0
                             ? user.projectList.map(simpleProject => (
-                                // <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
-                                <a href={`../projects/${simpleProject._id}`} className="list-group-item list-group-item-action mt-2 border border-2 rounded" key={simpleProject._id}>
-                                    <div className="row">
-                                        <div className="col text-truncate">
+                                <a
+                                    href={`../projects/${simpleProject._id}`}
+                                    className="list-group-item list-group-item-action mt-2 border border-2 rounded"
+                                    key={simpleProject._id}
+                                >
+                                    <div className="row align-items-center">
+                                        <div className="col-6 text-truncate">
                                             {simpleProject.name || "Untitled Project"}
                                             {simpleProject.isShared && <i className="bi bi-people-fill ms-3" title="Shared Project"></i>}
                                         </div>
+
                                         <div className="col">
                                             {simpleProject.owner === user.username
                                                 ? "me"
                                                 : simpleProject.owner}
                                         </div>
+
+                                        <div className="col">
+                                            {simpleProject.lastUpdated}
+                                        </div>
+
+                                        <div className="col">
+                                            {simpleProject.dateCreated}
+                                        </div>
+
+                                        <div className="col-auto">
+                                            <div className="dropdown">
+                                                <button
+                                                    className="btn rounded-circle"
+                                                    type="button"
+                                                    id="moreOptionsButton"
+                                                    data-bs-toggle="dropdown"
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                        // Add your button click handler logic here
+                                                    }}
+                                                >
+                                                    <i className="bi bi-three-dots-vertical"></i>
+                                                </button>
+
+                                                <div className="dropdown-menu">
+                                                    {/* <button
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#renameProjectModal"
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            // Add your button click handler logic here
+                                                        }}
+                                                    >
+                                                        Rename
+                                                    </button> */}
+
+                                                    <a className="dropdown-item" href={`../projects/${simpleProject._id}`} target="_blank" rel="noreferrer">
+                                                        Open in new tab
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </a>
-                                // <a href={`../projects/${simpleProject._id}`} className="fs-4 col-md-4 d-block text-decoration-none">
-                                //     <div className="card h-100 mb-4 shadow-sm">
-                                //         <div className="card-header">{simpleProject.name}</div>
-                                //         <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
-                                //             alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
-                                //         <div className="card-body">
-                                //             <p className="card-text fs-6">
-                                //                 lorem
-                                //             </p>
-                                //         </div>
-                                //     </div>
-                                // </a>
                             ))
                             : <h3>You currently have no projects.</h3>
                     }
                 </ul>
+
+                {/* Rename Project Modal Form */}
+                {/* <div className="modal fade" id="renameProjectModal" data-bs-keyboard="false" tabIndex="-1">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Rename Project</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div className="modal-body">
+                                <form id="createProjectForm">
+                                    <div className="mb-3">
+                                        <label htmlFor="projectName" className="form-label">Project Name</label>
+                                        <input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" value={"test"} onBlur={changeNameHandler} />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div> */}
 
                 {/* Create Project Modal Form */}
                 <div className="modal fade" id="createProjectModal" data-bs-keyboard="false" tabIndex="-1">

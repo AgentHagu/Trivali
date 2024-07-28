@@ -27,7 +27,8 @@ module.exports = (server) => {
     })
 
     io.on("connection", socket => {
-        socket.setMaxListeners(50)
+        // socket.setMaxListeners(50)
+        console.log(`New connection: ${socket.id}`)
         /**
          * Event listener for when a client requests a document by ID.
          *
@@ -46,6 +47,8 @@ module.exports = (server) => {
              * @param {Object} delta - The changes made to the document.
              */
             socket.on("send-document-changes", delta => {
+                console.log(socket.id)
+                console.log("CHANGE: ", delta)
                 socket.broadcast.to(documentId).emit("receive-document-changes", delta)
             })
 
@@ -59,6 +62,10 @@ module.exports = (server) => {
                 await Document.findByIdAndUpdate(documentId, { data })
             })
         })
+
+        // socket.on("disconnect", () => {
+        //     console.log("Socket disconnected: ", socket.id)
+        // })
 
         /**
          * Event listener for when a client creates a new project.
@@ -408,12 +415,19 @@ function userToSimpleUser(user) {
     return simpleUser
 }
 
+function formatDate(date) {
+    const options = { day: 'numeric', month: 'short', year: 'numeric' }
+    return date.toLocaleDateString('en-US', options)
+}
+
 function projectToSimpleProject(project) {
     const simpleProject = {
         _id: project._id,
         name: project.name,
         owner: project.owner.username,
-        isShared: project.userList.length > 1
+        isShared: project.userList.length > 1,
+        dateCreated: project.dateCreated,
+        lastUpdated: formatDate(new Date(Date.now()))
     }
 
     return simpleProject
@@ -470,6 +484,8 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
             owner: owner,
             adminList: [owner],
             userList: userList,
+            dateCreated: formatDate(new Date(Date.now())),
+            lastUpdated: formatDate(new Date(Date.now())),
             itinerary: {
                 rows: [{
                     id: Date.now(),
@@ -478,7 +494,6 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
                         time: { start: "00:00", end: "00:00" },
                         location: { name: "" },
                         details: { page: "itinerary", number: Date.now() }
-                        // TODO: Adjust the page and number provided here
                     }]
                 }]
             },

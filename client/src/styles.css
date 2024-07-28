@@ -84,3 +84,20 @@ body {
     white-space: nowrap;
 }
 
+.btn:hover .bi-person-circle {
+    color: #6c757d;
+}
+
+#moreOptionsButton {
+    border: none; /* Optional: Remove border if desired */
+    cursor: pointer; /* Change cursor to pointer */
+    transition: background-color 0.3s; /* Smooth transition for background color changes */
+}
+
+#moreOptionsButton:hover {
+    background-color: #E8F0FE; /* Light blue color on hover */
+}
+
+#moreOptionsButton:active {
+    background-color: #B2C8FA; /* Darker blue color on click */
+}

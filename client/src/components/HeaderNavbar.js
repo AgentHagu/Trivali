@@ -95,11 +95,14 @@ export default function HeaderNavbar() {
                                 <li className="nav=item">
                                     <div className="dropdown">
                                         <button
-                                            className="btn btn-secondary"
+                                            className="btn p-0 border-0 bg-transparent"
                                             type="button"
                                             data-bs-toggle="dropdown"
                                             data-bs-auto-close="outside">
-                                            <i className="bi bi-person-circle"></i>
+                                            <i
+                                                className="bi bi-person-circle text-light"
+                                                style={{ fontSize: "2rem", cursor: "pointer" }}
+                                            />
                                         </button>
 
                                         <div

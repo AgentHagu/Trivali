@@ -1,5 +1,6 @@
 import { Button, ButtonToolbar, OverlayTrigger, Tooltip } from "react-bootstrap";
 import GoogleMapSearchBar from "../components/GoogleMapSearchBar";
+import TextEditor from "../components/TextEditor";
 
 export default function Test() {
     const handlePlaceSelected = (place) => {
@@ -12,33 +13,6 @@ export default function Test() {
     );
 
     return (
-        <div className="App">
-            <OverlayTrigger placement="right" overlay={tooltip}>
-                <i
-                    className="bi bi-info-circle-fill position-absolute"
-                    style={{ pointerEvents: 'none' }}
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    title="TEST"
-                />
-
-            </OverlayTrigger>
-
-            <OverlayTrigger placement="right" overlay={tooltip}>
-                <div>Test</div>
-            </OverlayTrigger>
-
-            {/* <OverlayTrigger placement="top" overlay={tooltip}>
-                    <Button bsStyle="default">Holy guacamole!</Button>
-                </OverlayTrigger>
-
-                <OverlayTrigger placement="bottom" overlay={tooltip}>
-                    <Button bsStyle="default">Holy guacamole!</Button>
-                </OverlayTrigger>
-
-                <OverlayTrigger placement="right" overlay={tooltip}>
-                    <Button bsStyle="default">Holy guacamole!</Button>
-                </OverlayTrigger> */}
-        </div>
+        <TextEditor page="hi" number="1"/>
     );
 }

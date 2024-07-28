@@ -12,7 +12,9 @@ const SimpleProject = new Schema({
     _id: String,
     name: String,
     owner: String,
-    isShared: Boolean
+    isShared: Boolean,
+    dateCreated: Object,
+    lastUpdated: Object
 })
 
 /**

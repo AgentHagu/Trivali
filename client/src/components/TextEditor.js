@@ -37,15 +37,9 @@ export default function TextEditor(props) {
 
     // Establish socket connection with server
     useEffect(() => {
-        const s = io(`${SERVER_URL}`, {
-            reconnection: true,
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
-            timeout: 20000
-        })
+        const s = io(`${SERVER_URL}`)
         setSocket(s)
-
+    
         return () => {
             s.disconnect()
         }
@@ -82,6 +76,8 @@ export default function TextEditor(props) {
 
         const handler = (delta, oldDelta, source) => {
             if (source !== "user") return
+            console.log("Emitting send-document-changes", delta);
+            console.log("Socket: ", socket)
             socket.emit("send-document-changes", delta)
         }
         quill.on("text-change", handler)
