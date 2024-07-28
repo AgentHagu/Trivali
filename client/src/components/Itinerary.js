@@ -485,8 +485,8 @@ export default function Itinerary({ projectId, data, socket }) {
 
     return <>
         <button
-            className="btn btn-primary position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
-            style={{ width: "60px", height: "60px", borderRadius: "15px" }}
+            className="btn position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
+            style={{ width: "60px", height: "60px", borderRadius: "15px", backgroundColor: "#10a37f" }}
             data-bs-toggle="modal"
             data-bs-target="#openAI"
             title="Create project"

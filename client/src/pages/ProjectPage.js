@@ -32,7 +32,13 @@ export default function ProjectPage() {
     const { user, loading } = useUserData()
     const { id } = useParams()
     const projectIdRef = useRef(id)
-    const [content, setContent] = useState(<h1>Loading...</h1>)
+    const [content, setContent] = useState(<div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+        <div className="text-center">
+            <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>)
     const [socket, setSocket] = useState()
     const [project, setProject] = useState()
     const [projectLoading, setProjectLoading] = useState(true)
@@ -197,8 +203,16 @@ export default function ProjectPage() {
                             {
                                 project.owner._id === user._id
                                     ? <div className="col d-flex">
-                                        <button type="button" className="btn btn-primary ms-auto fs-4" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
-                                            Manage Project
+                                        <button
+                                            className="btn btn-secondary ms-auto d-flex align-items-center justify-content-center"
+                                            style={{ width: "60px", height: "60px", borderRadius: "15px" }}
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#manageUsersModal"
+                                            title="Manage project"
+                                        >
+                                            <i className="bi bi-gear-fill"
+                                                style={{ fontSize: "2rem", lineHeight: "1" }}
+                                            />
                                         </button>
                                     </div>
                                     : <></>

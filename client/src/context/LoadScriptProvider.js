@@ -19,7 +19,13 @@ export default function LoadScriptProvider({ children }) {
 
   return (
     <LoadScriptContext.Provider value={{ isLoaded }}>
-      {isLoaded ? children : <div>Loading...</div>}
+      {isLoaded ? children : <div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>}
     </LoadScriptContext.Provider>
   );
 };

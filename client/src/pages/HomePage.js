@@ -80,8 +80,26 @@ export default function HomePage() {
     )
 
     function formatDate(date) {
+        const currentDate = new Date()
+        const inputDate = new Date(date)
+    
+        // Check if the date is within the same day as now
+        if (
+            currentDate.getFullYear() === inputDate.getFullYear() &&
+            currentDate.getMonth() === inputDate.getMonth() &&
+            currentDate.getDate() === inputDate.getDate()
+        ) {
+            // Return the time in the format "HH:MM AM/PM"
+            return inputDate.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            })
+        }
+    
+        // Otherwise, return the formatted date
         const options = { day: 'numeric', month: 'short', year: 'numeric' }
-        return date.toLocaleDateString('en-US', options)
+        return inputDate.toLocaleDateString('en-US', options)
     }
 
     useEffect(() => {
@@ -152,7 +170,7 @@ export default function HomePage() {
                                         </div>
 
                                         <div className="col">
-                                            {simpleProject.lastUpdated}
+                                            {formatDate(simpleProject.lastUpdated)}
                                         </div>
 
                                         <div className="col">
@@ -189,9 +207,16 @@ export default function HomePage() {
                                                         Rename
                                                     </button> */}
 
-                                                    <a className="dropdown-item" href={`../projects/${simpleProject._id}`} target="_blank" rel="noreferrer">
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            window.open(`../projects/${simpleProject._id}`, '_blank', 'noreferrer');
+                                                        }}
+                                                    >
                                                         Open in new tab
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

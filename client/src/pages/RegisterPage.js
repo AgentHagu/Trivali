@@ -78,7 +78,7 @@ export default function RegisterPage() {
     return (
         <>
             <HeaderNavbar />
-            <body className="text-center">
+            <div className="text-center">
                 <div style={{ width: "100%", maxWidth: "330px", padding: "15px", margin: "auto" }}>
                     <form onSubmit={handleSubmit} className="mb-4">
                         <h1 className="h3 mb-3 fw-normal">Register</h1>
@@ -109,7 +109,7 @@ export default function RegisterPage() {
                         <p>Have an account? <a href="/login" className="text-decoration-none">Login</a></p>
                     </div>
                 </div>
-            </body>
+            </div>
         </>
     );
 }

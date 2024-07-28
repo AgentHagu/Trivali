@@ -69,7 +69,7 @@ export default function HeaderNavbar() {
                         ? <></>
                         : user
                             ? <>
-                                <a className="navbar-brand d-flex align-items-center" href="/home" title="Go to home page">
+                                <a className="navbar-brand d-flex align-items-center fs-3" href="/home" title="Go to home page">
                                     {/* add logo here */}
                                     <strong>Trivali</strong>
                                 </a>

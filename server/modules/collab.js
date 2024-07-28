@@ -424,7 +424,7 @@ function projectToSimpleProject(project) {
         owner: project.owner.username,
         isShared: project.userList.length > 1,
         dateCreated: project.dateCreated,
-        lastUpdated: formatDate(new Date(Date.now()))
+        lastUpdated: new Date(Date.now())
     }
 
     return simpleProject
