@@ -86,7 +86,7 @@ export default function ProjectPage() {
             }
 
             // Set initial content based on project data
-            setContent(<About data={project.about} />)
+            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)
             setAddedUsersList(project.userList)
         })
 

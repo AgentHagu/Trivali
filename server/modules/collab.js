@@ -34,7 +34,7 @@ module.exports = (server) => {
          * @listens connection#get-document
          * @param {string} documentId - The ID of the document.
          */
-        socket.on("get-document", async documentId => {
+        socket.on("get-document", async ({ documentId, projectId }) => {
             const document = await findOrCreateDocument(documentId)
             socket.join(documentId)
             socket.emit("load-document", document.data)
@@ -47,6 +47,7 @@ module.exports = (server) => {
              */
             socket.on("send-document-changes", delta => {
                 socket.broadcast.to(documentId).emit("receive-document-changes", delta)
+                refreshLastUpdate(projectId)
             })
 
             /**
@@ -59,10 +60,6 @@ module.exports = (server) => {
                 await Document.findByIdAndUpdate(documentId, { data })
             })
         })
-
-        // socket.on("disconnect", () => {
-        //     console.log("Socket disconnected: ", socket.id)
-        // })
 
         /**
          * Event listener for when a client creates a new project.
@@ -428,6 +425,25 @@ function projectToSimpleProject(project) {
     }
 
     return simpleProject
+}
+
+async function refreshLastUpdate(projectId) {
+    const updatedProject = await Project.findById(
+        projectId
+    )
+
+    updatedProject.userList.forEach(
+        async user => {
+            await User.findOneAndUpdate(
+                {
+                    _id: user._id,
+                    'projectList._id': projectId
+                },
+                {
+                    $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                }
+            )
+        })
 }
 
 /**

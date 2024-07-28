@@ -389,7 +389,7 @@ function Table({ projectId, data, socket }) {
                             </td>
 
                             <td className="p-0" style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                <TextEditor page={activity.details.page} number={activity.details.number} />
+                                <TextEditor page={activity.details.page} number={activity.details.number} projectId={projectId} />
                             </td>
                         </tr>)
                     )))}

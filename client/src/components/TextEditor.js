@@ -52,7 +52,7 @@ export default function TextEditor(props) {
             quill.enable();
         })
 
-        socket.emit("get-document", documentId)
+        socket.emit("get-document", { documentId: documentId, projectId: props.projectId })
     }, [socket, quill, documentId])
 
     // Save document to server at regular intervals
