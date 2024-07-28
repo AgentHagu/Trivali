@@ -84,13 +84,15 @@ export default function HomePage() {
             const loadedContent = <>
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <button
-                        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
-                        style={{ width: "80px", height: "80px" }}
+                        className="btn btn-primary position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
+                        style={{ width: "60px", height: "60px", borderRadius: "15px" }}
                         data-bs-toggle="modal"
                         data-bs-target="#createProjectModal"
                         title="Create project"
                     >
-                        <i className="bi bi-plus-circle" style={{ fontSize: "3rem" }}></i>
+                        <i className="bi bi-plus"
+                            style={{ fontSize: "4rem", lineHeight: "1" }}
+                        />
                     </button>
                 </OverlayTrigger>
 
@@ -110,7 +112,7 @@ export default function HomePage() {
                         user.projectList.length > 0
                             ? user.projectList.map(simpleProject => (
                                 // <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
-                                <a href={`../projects/${simpleProject._id}`} className="list-group-item list-group-item-action" key={simpleProject._id}>
+                                <a href={`../projects/${simpleProject._id}`} className="list-group-item list-group-item-action mt-2 border border-2 rounded" key={simpleProject._id}>
                                     <div className="row">
                                         <div className="col text-truncate">
                                             {simpleProject.name || "Untitled Project"}
