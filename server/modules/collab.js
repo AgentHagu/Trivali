@@ -27,8 +27,7 @@ module.exports = (server) => {
     })
 
     io.on("connection", socket => {
-        // socket.setMaxListeners(50)
-        console.log(`New connection: ${socket.id}`)
+        socket.setMaxListeners(50)
         /**
          * Event listener for when a client requests a document by ID.
          *
@@ -47,8 +46,6 @@ module.exports = (server) => {
              * @param {Object} delta - The changes made to the document.
              */
             socket.on("send-document-changes", delta => {
-                console.log(socket.id)
-                console.log("CHANGE: ", delta)
                 socket.broadcast.to(documentId).emit("receive-document-changes", delta)
             })
 

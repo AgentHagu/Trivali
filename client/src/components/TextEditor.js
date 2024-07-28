@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
 import "quill/dist/quill.snow.css"
-import QuillCursors from "quill-cursors"
+
 import { io } from "socket.io-client"
 import { useParams } from "react-router-dom"
-
-Quill.register('modules/cursors', QuillCursors)
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -39,7 +37,7 @@ export default function TextEditor(props) {
     useEffect(() => {
         const s = io(`${SERVER_URL}`)
         setSocket(s)
-    
+
         return () => {
             s.disconnect()
         }
@@ -76,8 +74,6 @@ export default function TextEditor(props) {
 
         const handler = (delta, oldDelta, source) => {
             if (source !== "user") return
-            console.log("Emitting send-document-changes", delta);
-            console.log("Socket: ", socket)
             socket.emit("send-document-changes", delta)
         }
         quill.on("text-change", handler)
@@ -123,7 +119,7 @@ export default function TextEditor(props) {
         q.disable()
         // q.setText("")
         setQuill(q);
-    }, [props])
+    }, [])
     return <>
         <div className="w-100 h-100" ref={wrapperRef}></div>
     </>
