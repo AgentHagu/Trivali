@@ -31,6 +31,7 @@ import { useCallback, useEffect, useState } from "react";
 
 // Components
 import HeaderNavbar from "../components/HeaderNavbar";
+import SearchBar from "../components/SearchBar";
 
 // Custom Hooks
 import useUserData from "../hooks/useUserData";
@@ -39,117 +40,9 @@ import useUserData from "../hooks/useUserData";
 import { v4 as uuidV4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
-
-/**
- * SearchBar component for adding users to a project.
- * Handles user search, validation, and addition/removal.
- *
- * @param {Object} props - Component props.
- * @param {SocketIO.Socket} props.socket - Socket instance for real-time communication.
- * @param {Object} props.currUser - Current user object.
- * @param {Array} props.addedUsersList - List of users already added to the project.
- * @param {Function} props.setAddedUsersList - Function to update the addedUsersList state.
- * @returns {JSX.Element} - SearchBar component JSX.
- */
-function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
-    const [userValidity, setUserValidity] = useState(true)
-    const [invalidMessage, setInvalidMessage] = useState("")
-
-    function searchHandler(e) {
-        e.preventDefault()
-        const userSearch = e.target[0].value
-
-        socket.emit("search-user", userSearch)
-    }
-
-    useEffect(() => {
-        const handleUserFound = user => {
-            if (user == null) {
-                setUserValidity(false)
-                setInvalidMessage("No such user found")
-                return
-            }
-
-            if (user._id === currUser._id) {
-                setUserValidity(false)
-                setInvalidMessage("You have already been added")
-                return
-            }
-
-            const isUserInArray = addedUsersList.some(addedUser =>
-                addedUser._id === user._id
-            )
-
-            if (!isUserInArray) {
-                setUserValidity(true)
-                setInvalidMessage("")
-                const newList = [...addedUsersList, user]
-                setAddedUsersList(newList)
-            } else {
-                setUserValidity(false)
-                setInvalidMessage("User has already been added")
-            }
-        }
-
-        socket.on("found-user", handleUserFound)
-
-        return () => {
-            socket.off("found-user", handleUserFound)
-        }
-    }, [socket, addedUsersList, currUser, setAddedUsersList])
-
-    function removeUserHandler(user) {
-        const newList = addedUsersList.filter(addedUser => addedUser._id !== user._id)
-        setAddedUsersList(newList)
-    }
-
-    return &lt;>
-
-
-        &lt;form className="mb-3" onSubmit={searchHandler}>
-            &lt;label htmlFor="addUsers" className="form-label">Add Users to Project&lt;/label>
-            &lt;div className="input-group has-validation">
-                &lt;input type="search" className={`form-control me-2 ${userValidity ? '' : 'is-invalid'}`} id="addUsers" placeholder="Search with ID or Email" />
-                &lt;button className="btn btn-outline-primary" type="submit">&lt;i className="bi bi-search" />&lt;/button>
-                &lt;div className="invalid-feedback">
-                    {invalidMessage}
-                &lt;/div>
-            &lt;/div>
-
-        &lt;/form>
-
-
-        {
-            addedUsersList.length > 0
-                ? &lt;>
-                    &lt;label className="form-label">Added Users&lt;/label>
-                    &lt;ul className="list-group">
-                        {addedUsersList.map(user => (
-                            //TODO: Add unique key for list item
-                            &lt;li className="list-group-item d-flex justify-content-between align-items-center" key={user._id}>
-                                &lt;span>
-                                    {user.username} (Email: {user.email})
-                                &lt;/span>
-                                {
-                                    user._id !== currUser._id
-                                        ? &lt;button className="btn ms-auto p-0" onClick={() => removeUserHandler(user)}>&lt;i className="bi bi-person-fill-dash" />&lt;/button>
-                                        : &lt;>Owner&lt;/>
-                                }
-
-                            &lt;/li>
-                        ))}
-                    &lt;/ul>
-
-                &lt;/>
-                : &lt;>
-                    &lt;label className="form-label">No added Users&lt;/label>
-                &lt;/>
-        }
-
-    &lt;/>
-}
 
 /**
  * HomePage component to display the home page content.
@@ -169,7 +62,6 @@ export default function HomePage() {
             &lt;/div>
         &lt;/div>
     )
-
     const navigate = useNavigate()
     const [socket, setSocket] = useState()
 
@@ -188,16 +80,19 @@ export default function HomePage() {
         e.preventDefault()
         const projectName = e.target[0].value
         const projectId = uuidV4()
-        socket.emit("create-project", {
-            projectId: projectId,
-            projectName: projectName,
-            userId: user._id,
-            userList: addedUsersList
-        })
 
-        socket.on("new-project-created", () => {
-            navigate(`/projects/${projectId}`)
-        })
+        if (socket) {
+            socket.emit("create-project", {
+                projectId: projectId,
+                projectName: projectName,
+                userId: user._id,
+                userList: addedUsersList
+            })
+
+            socket.once("new-project-created", () => {
+                navigate(`/projects/${projectId}`)
+            })
+        }
     }, [addedUsersList, navigate, socket, user])
 
     useEffect(() => {
@@ -206,58 +101,180 @@ export default function HomePage() {
         }
     }, [loading, user])
 
+    const tooltip = (
+        &lt;Tooltip id="tooltip" className="text-info">
+            &lt;strong>Create Project&lt;/strong>
+        &lt;/Tooltip>
+    )
+
+    function formatDate(date) {
+        const currentDate = new Date()
+        const inputDate = new Date(date)
+    
+        // Check if the date is within the same day as now
+        if (
+            currentDate.getFullYear() === inputDate.getFullYear() &amp;&amp;
+            currentDate.getMonth() === inputDate.getMonth() &amp;&amp;
+            currentDate.getDate() === inputDate.getDate()
+        ) {
+            // Return the time in the format "HH:MM AM/PM"
+            return inputDate.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            })
+        }
+    
+        // Otherwise, return the formatted date
+        const options = { day: 'numeric', month: 'short', year: 'numeric' }
+        return inputDate.toLocaleDateString('en-US', options)
+    }
+
     useEffect(() => {
         if (!loading) {
             const loadedContent = &lt;>
-                &lt;div className="row">
-                    &lt;div className="col">
-                        &lt;h1>Welcome, {user.username}&lt;/h1>
-                        &lt;h2>User ID: {user._id}&lt;/h2>
-                        &lt;h2>Email: {user.email}&lt;/h2>
+                &lt;OverlayTrigger placement="top" overlay={tooltip}>
+                    &lt;button
+                        className="btn btn-primary position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
+                        style={{ width: "60px", height: "60px", borderRadius: "15px" }}
+                        data-bs-toggle="modal"
+                        data-bs-target="#createProjectModal"
+                        title="Create project"
+                    >
+                        &lt;i className="bi bi-plus"
+                            style={{ fontSize: "4rem", lineHeight: "1" }}
+                        />
+                    &lt;/button>
+                &lt;/OverlayTrigger>
+                &lt;ul className="list-group fs-5">
+                    &lt;div className="list-group-item bg-transparent border-0 pb-0">
+                        &lt;div className="row fs-4">
+                            &lt;div className="col-6">
+                                Project Name
+                            &lt;/div>
+
+                            &lt;div className="col">
+                                Owned by
+                            &lt;/div>
+
+                            &lt;div className="col">
+                                Last updated
+                            &lt;/div>
+
+                            &lt;div className="col">
+                                Date created
+                            &lt;/div>
+
+                            &lt;div className="col-auto">
+                                {/* Add a button here */}
+                                &lt;button
+                                    className="btn"
+                                    style={{ visibility: "hidden" }}
+                                >
+                                    &lt;i className="bi bi-three-dots-vertical">&lt;/i>
+                                &lt;/button>
+                            &lt;/div>
+                        &lt;/div>
                     &lt;/div>
 
-                    &lt;div className="col d-flex flex-column justify-content-end align-items-end">
-                        &lt;button type="button" className="btn btn-primary fs-1" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                            Create Project
-                        &lt;/button>
-                    &lt;/div>
-                &lt;/div>
+                    {
+                        user.projectList.length > 0
+                            ? user.projectList.map(simpleProject => (
+                                &lt;a
+                                    href={`../projects/${simpleProject._id}`}
+                                    className="list-group-item list-group-item-action mt-2 border border-2 rounded"
+                                    key={simpleProject._id}
+                                >
+                                    &lt;div className="row align-items-center">
+                                        &lt;div className="col-6 text-truncate">
+                                            {simpleProject.name || "Untitled Project"}
+                                            {simpleProject.isShared &amp;&amp; &lt;i className="bi bi-people-fill ms-3" title="Shared Project">&lt;/i>}
+                                        &lt;/div>
 
-                &lt;hr />
-                &lt;h1 className="pb-2">Your Projects:&lt;/h1>
-                &lt;ul className="list-group">
-                    &lt;div className="row">
-                        {
-                            user.projectList.length > 0
-                                ? user.projectList.map(simpleProject => (
-                                    &lt;li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
-                                        &lt;a href={`../projects/${simpleProject._id}`} className="fs-4">
-                                            &lt;span>
-                                                {
-                                                    simpleProject.name
-                                                        ? &lt;>{simpleProject.name}&lt;/>
-                                                        : &lt;>Untitled Project&lt;/>
-                                                }
-                                            &lt;/span>
-                                        &lt;/a>
-                                    &lt;/li>
-                                    // &lt;a href={`../projects/${simpleProject._id}`} className="fs-4 col-md-4 d-block text-decoration-none">
-                                    //     &lt;div className="card h-100 mb-4 shadow-sm">
-                                    //         &lt;div className="card-header">{simpleProject.name}&lt;/div>
-                                    //         &lt;img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
-                                    //             alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
-                                    //         &lt;div className="card-body">
-                                    //             &lt;p className="card-text fs-6">
-                                    //                 lorem
-                                    //             &lt;/p>
-                                    //         &lt;/div>
-                                    //     &lt;/div>
-                                    // &lt;/a>
-                                ))
-                                : &lt;h3>You currently have no projects.&lt;/h3>
-                        }
-                    &lt;/div>
+                                        &lt;div className="col">
+                                            {simpleProject.owner === user.username
+                                                ? "me"
+                                                : simpleProject.owner}
+                                        &lt;/div>
+
+                                        &lt;div className="col">
+                                            {formatDate(simpleProject.lastUpdated)}
+                                        &lt;/div>
+
+                                        &lt;div className="col">
+                                            {simpleProject.dateCreated}
+                                        &lt;/div>
+
+                                        &lt;div className="col-auto">
+                                            &lt;div className="dropdown">
+                                                &lt;button
+                                                    className="btn rounded-circle"
+                                                    type="button"
+                                                    id="moreOptionsButton"
+                                                    data-bs-toggle="dropdown"
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                        // Add your button click handler logic here
+                                                    }}
+                                                >
+                                                    &lt;i className="bi bi-three-dots-vertical">&lt;/i>
+                                                &lt;/button>
+
+                                                &lt;div className="dropdown-menu">
+                                                    {/* &lt;button
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#renameProjectModal"
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            // Add your button click handler logic here
+                                                        }}
+                                                    >
+                                                        Rename
+                                                    &lt;/button> */}
+
+                                                    &lt;button
+                                                        className="dropdown-item"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            window.open(`../projects/${simpleProject._id}`, '_blank', 'noreferrer');
+                                                        }}
+                                                    >
+                                                        Open in new tab
+                                                    &lt;/button>
+                                                &lt;/div>
+                                            &lt;/div>
+                                        &lt;/div>
+                                    &lt;/div>
+                                &lt;/a>
+                            ))
+                            : &lt;h3>You currently have no projects.&lt;/h3>
+                    }
                 &lt;/ul>
+
+                {/* Rename Project Modal Form */}
+                {/* &lt;div className="modal fade" id="renameProjectModal" data-bs-keyboard="false" tabIndex="-1">
+                    &lt;div className="modal-dialog modal-dialog-centered">
+                        &lt;div className="modal-content">
+                            &lt;div className="modal-header">
+                                &lt;h5 className="modal-title">Rename Project&lt;/h5>
+                                &lt;button type="button" className="btn-close" data-bs-dismiss="modal">&lt;/button>
+                            &lt;/div>
+
+                            &lt;div className="modal-body">
+                                &lt;form id="createProjectForm">
+                                    &lt;div className="mb-3">
+                                        &lt;label htmlFor="projectName" className="form-label">Project Name&lt;/label>
+                                        &lt;input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" value={"test"} onBlur={changeNameHandler} />
+                                    &lt;/div>
+                                &lt;/form>
+                            &lt;/div>
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div> */}
 
                 {/* Create Project Modal Form */}
                 &lt;div className="modal fade" id="createProjectModal" data-bs-keyboard="false" tabIndex="-1">
@@ -308,13 +325,13 @@ export default function HomePage() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jun 27 2024 22:03:07 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

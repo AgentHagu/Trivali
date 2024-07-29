@@ -32,9 +32,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 // Components
 import HeaderNavbar from "../components/HeaderNavbar";
+import SearchBar from "../components/SearchBar";
 import About from "../components/About";
 import Expenses from "../components/Expenses";
 import Itinerary from "../components/Itinerary";
+import Map from "../components/Map";
+import Weather from "../components/Weather";
 
 // Custom Hooks
 import useUserData from "../hooks/useUserData";
@@ -43,155 +46,9 @@ import useUserData from "../hooks/useUserData";
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
 import { BudgetsProvider } from "../context/BudgetsContext";
+import LoadScriptProvider from "../context/LoadScriptProvider";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
-
-/**
- * SearchBar component for adding users to a project.
- * Handles user search, validation, and addition/removal.
- *
- * @param {Object} props - Component props.
- * @param {SocketIO.Socket} props.socket - Socket instance for real-time communication.
- * @param {Object} props.currUser - Current user object.
- * @param {Array} props.addedUsersList - List of users already added to the project.
- * @param {Function} props.setAddedUsersList - Function to update the addedUsersList state.
- * @returns {JSX.Element} - SearchBar component JSX.
- */
-function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
-    const [userValidity, setUserValidity] = useState(true)
-    const [invalidMessage, setInvalidMessage] = useState("")
-
-    /**
-     * Converts a full user object to a simplified user object for storage.
-     * @param {Object} user - Full user object.
-     * @returns {Object} Simplified user object containing _id, username, and email.
-     */
-    function userToSimpleUser(user) {
-        const simpleUser = {
-            _id: user._id,
-            username: user.username,
-            email: user.email
-        }
-
-        return simpleUser
-    }
-
-    /**
-     * Handles the search form submission.
-     * Emits a 'search-user' event to the server with the search query.
-     * @param {Event} e - Form submit event.
-     */
-    function searchHandler(e) {
-        e.preventDefault()
-        const userSearch = e.target[0].value
-
-        socket.emit("search-user", userSearch)
-    }
-
-    useEffect(() => {
-        /**
-         * Handles the 'found-user' event from the server.
-         * Validates the found user and updates the addedUsersList state if valid.
-         * @param {Object} user - Found user object or null if not found.
-         */
-        const handleUserFound = user => {
-            if (user == null) {
-                setUserValidity(false)
-                setInvalidMessage("No such user found")
-                return
-            }
-
-            if (user._id === currUser._id) {
-                setUserValidity(false)
-                setInvalidMessage("You have already been added")
-                return
-            }
-
-            const isUserInArray = addedUsersList.some(addedUser =>
-                addedUser._id === user._id
-            )
-
-            if (!isUserInArray) {
-                setUserValidity(true)
-                setInvalidMessage("")
-                const newList = [...addedUsersList, user]
-                setAddedUsersList(newList)
-                socket.emit("add-user", userToSimpleUser(user))
-
-            } else {
-                setUserValidity(false)
-                setInvalidMessage("User has already been added")
-            }
-        }
-
-        socket.on("found-user", handleUserFound)
-
-        return () => {
-            socket.off("found-user", handleUserFound)
-        }
-    }, [socket, addedUsersList, currUser, setAddedUsersList])
-
-    /**
-     * Removes a user from the addedUsersList state and emits a 'remove-user' event to the server.
-     * @param {Object} simpleUser - Simplified user object to be removed.
-     */
-    function removeUserHandler(simpleUser) {
-        const newList = addedUsersList.filter(addedUser => addedUser._id !== simpleUser._id)
-        setAddedUsersList(newList)
-        socket.emit("remove-user", simpleUser)
-    }
-
-    return &lt;>
-        &lt;form className="mb-3" onSubmit={searchHandler}>
-            &lt;label htmlFor="addUsers" className="form-label">Add Users to Project&lt;/label>
-            &lt;div className="input-group has-validation">
-                &lt;input
-                    type="search"
-                    className={`form-control me-2 
-                        ${userValidity ? '' : 'is-invalid'}`}
-                    id="addUsers"
-                    placeholder="Search with ID or Email"
-                />
-                &lt;button className="btn btn-outline-primary" type="submit">
-                    &lt;i className="bi bi-search" />
-                &lt;/button>
-                &lt;div className="invalid-feedback">
-                    {invalidMessage}
-                &lt;/div>
-            &lt;/div>
-        &lt;/form>
-
-        {addedUsersList.length > 0
-            ? &lt;>
-                &lt;label className="form-label">Added Users&lt;/label>
-                &lt;ul className="list-group">
-                    {addedUsersList.map(user => (
-                        &lt;li className="list-group-item d-flex justify-content-between align-items-center" key={user._id}>
-                            &lt;span>
-                                {user.username} (Email: {user.email})
-                            &lt;/span>
-                            {
-                                user._id !== currUser._id
-                                    ? &lt;button
-                                        className="btn ms-auto p-0"
-                                        onClick={() => removeUserHandler(user)}
-                                    >
-                                        &lt;i className="bi bi-person-fill-dash" />
-                                    &lt;/button>
-                                    : &lt;>Owner&lt;/>
-                            }
-                        &lt;/li>
-                    ))}
-                &lt;/ul>
-            &lt;/>
-            : &lt;>
-                &lt;label className="form-label">No added Users&lt;/label>
-            &lt;/>
-        }
-
-    &lt;/>
-}
-
 
 /**
  * Main component for managing a project, including its details and related functionalities.
@@ -203,7 +60,13 @@ export default function ProjectPage() {
     const { user, loading } = useUserData()
     const { id } = useParams()
     const projectIdRef = useRef(id)
-    const [content, setContent] = useState(&lt;h1>Loading...&lt;/h1>)
+    const [content, setContent] = useState(&lt;div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+        &lt;div className="text-center">
+            &lt;div className="spinner-border" role="status">
+                &lt;span className="visually-hidden">Loading...&lt;/span>
+            &lt;/div>
+        &lt;/div>
+    &lt;/div>)
     const [socket, setSocket] = useState()
     const [project, setProject] = useState()
     const [projectLoading, setProjectLoading] = useState(true)
@@ -224,7 +87,7 @@ export default function ProjectPage() {
     useEffect(() => {
         if (socket == null || loading) return
 
-        socket.once("load-project", project => {
+        socket.on("load-project", project => {
             // Regardless of outcome, setProject and setProjectLoading
             setProject(project)
             setProjectLoading(false)
@@ -251,14 +114,45 @@ export default function ProjectPage() {
             }
 
             // Set initial content based on project data
-            setContent(&lt;About data={project.about} />)
+            setContent(&lt;About projectId={projectIdRef.current} data={project.about} socket={socket} />)
             setAddedUsersList(project.userList)
         })
 
+        // Request for project
         if (!loading &amp;&amp; user) {
             socket.emit("get-project", projectIdRef.current)
         }
     }, [socket, loading, user, navigate])
+
+    useEffect(() => {
+        if (socket == null || loading) return
+
+        socket.on("update-project", updatedProject => {
+            setProject(updatedProject)
+
+            // Check user's permission to access the project, user may have been kicked
+            if (!loading &amp;&amp; !updatedProject.userList.some(addedUser =>
+                addedUser._id === user._id)) {
+                toast.error("You were kicked and no longer have access to this project. Redirecting to home page...", {
+                    position: "top-center",
+                    autoClose: 5000
+                })
+                navigate('/home')
+            }
+        })
+    }, [socket, loading, user, navigate])
+
+    useEffect(() => {
+        if (socket == null || loading) return
+
+        socket.on("project-deleted", () => {
+            toast.error("Project was deleted by owner. Redirecting to home page...", {
+                position: "top-center",
+                autoClose: 3000
+            })
+            navigate('/home')
+        })
+    }, [socket, loading, navigate])
 
     /**
      * Handles changes to the project name and emits the change to the server.
@@ -277,30 +171,6 @@ export default function ProjectPage() {
             navigate('/home')
         }
     }
-
-    // useEffect(() => {
-    //     if (socket == null) return
-
-    //     socket.on("kick-user", simpleUser => {
-    //         // console.log("TRYING TO KICK USER -----")
-    //         // console.log("USER TO KICK: ", simpleUser._id)
-    //         // console.log("CURRENT USER: ", user._id)
-    //         // if (simpleUser._id === user._id) {
-    //         //     console.log("HEY")
-    //         //     toast.error("You don't have access to this project. Redirecting to home page...", {
-    //         //         //position: toast.POSITION.TOP_CENTER,
-    //         //         autoClose: 3000
-    //         //     })
-    //         //     navigate('/home')
-    //         // }
-
-    //         toast.error("You don't have access to this project. Redirecting to home page...", {
-    //             //position: toast.POSITION.TOP_CENTER,
-    //             autoClose: 3000
-    //         })
-    //         navigate('/home')
-    //     })
-    // }, [loading, navigate, project, socket, user])
 
     /**
      * Switches the displayed content based on user selection.
@@ -344,86 +214,108 @@ export default function ProjectPage() {
     // Render the main project page once project data is loaded
     return (
         &lt;>
-            &lt;BudgetsProvider>
-                &lt;HeaderNavbar />
-                &lt;div className="container mt-3">
-                    &lt;div className="row">
-                        &lt;div className="col">
+            &lt;LoadScriptProvider>
+                &lt;BudgetsProvider>
+                    &lt;HeaderNavbar />
+                    &lt;div className="container mt-3">
+                        &lt;div className="row">
+                            &lt;div className="col">
+                                {
+                                    !project.name
+                                        ? &lt;h1>Untitled Project&lt;/h1>
+                                        : &lt;h1>{project.name}&lt;/h1>
+                                }
+                            &lt;/div>
+
+                            {/* Only render the manage user button for the owner */}
+                            {/* TODO: Have it exist for the admins as well */}
                             {
-                                !project.name
-                                    ? &lt;h1>Untitled Project&lt;/h1>
-                                    : &lt;h1>{project.name}&lt;/h1>
-                            }
-                        &lt;/div>
-
-                        {/* Only render the manage user button for the owner */}
-                        {/* TODO: Have it exist for the admins as well */}
-                        {
-                            project.owner._id === user._id
-                                ? &lt;div className="col d-flex">
-                                    &lt;button type="button" className="btn btn-primary ms-auto fs-4" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
-                                        Manage Project
-                                    &lt;/button>
-                                &lt;/div>
-                                : &lt;>&lt;/>
-                        }
-
-                    &lt;/div>
-
-                    &lt;div className="row row-cols-2 mt-3">
-                        &lt;div className="btn-group btn-group-lg" role="group">
-                            &lt;button
-                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                onClick={switchContent(&lt;About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
-                                About
-                            &lt;/button>
-
-                            &lt;button
-                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                onClick={switchContent(&lt;Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} />)} >
-                                Itinerary
-                            &lt;/button>
-
-                            &lt;button
-                                className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                onClick={switchContent(&lt;Expenses projectId={projectIdRef.current} data={project.expenses} socket={socket} />)} >
-                                Expenses
-                            &lt;/button>
-                        &lt;/div>
-                    &lt;/div>
-
-                    &lt;div className="border border-2 border-dark bg-white">
-                        {content}
-                    &lt;/div>
-                &lt;/div>
-
-                {/* Create Project Modal Form */}
-                &lt;div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    &lt;div className="modal-dialog modal-dialog-centered">
-                        &lt;div className="modal-content">
-                            &lt;div className="modal-header">
-                                &lt;h5 className="modal-title" id="exampleModalLabel">Manage Users&lt;/h5>
-                                &lt;button type="button" className="btn-close" data-bs-dismiss="modal">&lt;/button>
-                            &lt;/div>
-
-                            &lt;div className="modal-body">
-                                &lt;form id="createProjectForm">
-                                    &lt;div className="mb-3">
-                                        &lt;label htmlFor="projectName" className="form-label">Project Name&lt;/label>
-                                        &lt;input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" value={project.name} onChange={(e) => setProject({ ...project, name: e.target.value })} onBlur={changeNameHandler} />
+                                project.owner._id === user._id
+                                    ? &lt;div className="col d-flex">
+                                        &lt;button
+                                            className="btn btn-secondary ms-auto d-flex align-items-center justify-content-center"
+                                            style={{ width: "60px", height: "60px", borderRadius: "15px" }}
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#manageUsersModal"
+                                            title="Manage project"
+                                        >
+                                            &lt;i className="bi bi-gear-fill"
+                                                style={{ fontSize: "2rem", lineHeight: "1" }}
+                                            />
+                                        &lt;/button>
                                     &lt;/div>
-                                &lt;/form>
+                                    : &lt;>&lt;/>
+                            }
 
-                                &lt;SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
+                        &lt;/div>
+
+                        &lt;div className="row row-cols-1 mt-3">
+                            &lt;div className="btn-group btn-group-lg" role="group">
+                                &lt;button
+                                    className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                    onClick={switchContent(&lt;About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
+                                    Planning
+                                &lt;/button>
+
+                                &lt;button
+                                    className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                    onClick={switchContent(&lt;Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} />)} >
+                                    Itinerary
+                                &lt;/button>
+
+                                &lt;button
+                                    className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                    onClick={switchContent(&lt;Expenses projectId={projectIdRef.current} data={project.expenses} socket={socket} />)} >
+                                    Expenses
+                                &lt;/button>
+
+                                &lt;button
+                                    className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                    onClick={switchContent(&lt;Map projectId={projectIdRef.current} data={project} socket={socket} />)} >
+                                    Map
+                                &lt;/button>
+
+                                &lt;button
+                                    className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
+                                    onClick={switchContent(&lt;Weather projectId={projectIdRef.current} data={project} socket={socket} />)} >
+                                    Weather
+                                &lt;/button>
                             &lt;/div>
+                        &lt;/div>
 
-                            &lt;div className="modal-footer">
-                                &lt;button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={deleteProjectHandler}>Delete Project&lt;/button>
+                        &lt;div className="border border-2 border-dark bg-white mb-5">
+                            {content}
+                        &lt;/div>
+                    &lt;/div>
+
+                    {/* Create Project Modal Form */}
+                    &lt;div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-hidden="true">
+                        &lt;div className="modal-dialog modal-dialog-centered">
+                            &lt;div className="modal-content">
+                                &lt;div className="modal-header">
+                                    &lt;h5 className="modal-title">Manage Users&lt;/h5>
+                                    &lt;button type="button" className="btn-close" data-bs-dismiss="modal">&lt;/button>
+                                &lt;/div>
+
+                                &lt;div className="modal-body">
+                                    &lt;form id="createProjectForm">
+                                        &lt;div className="mb-3">
+                                            &lt;label htmlFor="projectName" className="form-label">Project Name&lt;/label>
+                                            &lt;input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" value={project.name} onChange={(e) => setProject({ ...project, name: e.target.value })} onBlur={changeNameHandler} />
+                                        &lt;/div>
+                                    &lt;/form>
+
+                                    &lt;SearchBar socket={socket} currUser={user} addedUsersList={addedUsersList} setAddedUsersList={setAddedUsersList} />
+                                &lt;/div>
+
+                                &lt;div className="modal-footer">
+                                    &lt;button type="button" className="btn btn-danger" data-bs-dismiss="modal" onClick={deleteProjectHandler}>Delete Project&lt;/button>
+                                &lt;/div>
                             &lt;/div>
                         &lt;/div>
                     &lt;/div>
-                &lt;/div>
-            &lt;/BudgetsProvider>
+                &lt;/BudgetsProvider>
+            &lt;/LoadScriptProvider>
         &lt;/>
     )
 }</code></pre>
@@ -436,13 +328,13 @@ export default function ProjectPage() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jun 27 2024 22:03:07 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -28,6 +28,8 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { useNavigate } from "react-router-dom";
 import useUserData from "../hooks/useUserData"
+import { useState } from "react";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -40,6 +42,7 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 export default function HeaderNavbar() {
     const { user, loading } = useUserData();
     const navigate = useNavigate()
+    const [showCopiedTooltip, setShowCopiedTooltip] = useState(false)
 
     /**
      * Handles user logout by sending a DELETE request to the server.
@@ -61,10 +64,28 @@ export default function HeaderNavbar() {
         if (response.ok) {
             navigate('/')
         } else {
-            // Not sure if this shld be procedure
             navigate('/')
         }
     };
+
+    async function copyToClipboard(event) {
+        const uid = event.target.closest("h6").textContent
+
+        try {
+            await navigator.clipboard.writeText(uid)
+            setShowCopiedTooltip(true)
+            setTimeout(() => setShowCopiedTooltip(false), 1000)
+        } catch (err) {
+            console.log(err)
+            setShowCopiedTooltip(false)
+        }
+    }
+
+    const tooltip = (
+        &lt;Tooltip id="button-tooltip">
+            Copied!
+        &lt;/Tooltip>
+    )
 
     return &lt;header className="sticky-top mb-2">
         &lt;div className="navbar navbar-expand-sm navbar-dark bg-dark">
@@ -76,13 +97,13 @@ export default function HeaderNavbar() {
                         ? &lt;>&lt;/>
                         : user
                             ? &lt;>
-                                &lt;a className="navbar-brand d-flex align-items-center" href="/home">
+                                &lt;a className="navbar-brand d-flex align-items-center fs-3" href="/home" title="Go to home page">
                                     {/* add logo here */}
                                     &lt;strong>Trivali&lt;/strong>
                                 &lt;/a>
                             &lt;/>
                             : &lt;>
-                                &lt;a className="navbar-brand d-flex align-items-center" href="/welcome">
+                                &lt;a className="navbar-brand d-flex align-items-center" href="/welcome" title="Go to welcome page">
                                     {/* add logo here */}
                                     &lt;strong>Trivali&lt;/strong>
                                 &lt;/a>
@@ -98,9 +119,55 @@ export default function HeaderNavbar() {
                         loading
                             ? &lt;>&lt;/>
                             : user
-                                ? &lt;li className="nav-item">
-                                    &lt;a className="nav-link" onClick={handleLogout} href={`${SERVER_URL}/logout`}>Logout&lt;/a>
+                                ?
+                                &lt;li className="nav=item">
+                                    &lt;div className="dropdown">
+                                        &lt;button
+                                            className="btn p-0 border-0 bg-transparent"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            data-bs-auto-close="outside">
+                                            &lt;i
+                                                className="bi bi-person-circle text-light"
+                                                style={{ fontSize: "2rem", cursor: "pointer" }}
+                                            />
+                                        &lt;/button>
+
+                                        &lt;div
+                                            className="dropdown-menu dropdown-menu-end"
+                                            style={{ width: "250px" }}
+                                        >
+                                            &lt;div className="container">
+                                                &lt;h4>Hi, {user.username}&lt;/h4>
+                                                &lt;h6 className="d-flex align-items-center">
+                                                    UID: {user._id}
+                                                    &lt;OverlayTrigger
+                                                        placement="top"
+                                                        show={showCopiedTooltip}
+                                                        overlay={tooltip}
+                                                    >
+                                                        &lt;button
+                                                            onClick={copyToClipboard}
+                                                            className="btn py-0 text-primary"
+                                                            title="Copy to clipboard"
+                                                        >
+                                                            &lt;i className="bi bi-copy" />
+                                                        &lt;/button>
+                                                    &lt;/OverlayTrigger>
+                                                &lt;/h6>
+                                                &lt;h6>Email: {user.email}&lt;/h6>
+                                            &lt;/div>
+                                            &lt;a className="dropdown-item d-flex align-items-center" onClick={handleLogout} href={`${SERVER_URL}/logout`}>
+                                                &lt;i className="bi bi-box-arrow-right me-2">&lt;/i>
+                                                Logout
+                                            &lt;/a>
+                                        &lt;/div>
+                                    &lt;/div>
                                 &lt;/li>
+
+                                // &lt;li className="nav-item">
+                                //     &lt;a className="nav-link" onClick={handleLogout} href={`${SERVER_URL}/logout`}>Logout&lt;/a>
+                                // &lt;/li>
                                 : &lt;>
                                     &lt;li className="nav-item">
                                         &lt;a className="nav-link" href="/login">Login&lt;/a>
@@ -125,13 +192,13 @@ export default function HeaderNavbar() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#SearchBar">SearchBar</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Jun 27 2024 22:03:07 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

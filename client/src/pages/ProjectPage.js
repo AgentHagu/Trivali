@@ -90,6 +90,7 @@ export default function ProjectPage() {
             setAddedUsersList(project.userList)
         })
 
+        // Request for project
         if (!loading && user) {
             socket.emit("get-project", projectIdRef.current)
         }
@@ -101,7 +102,7 @@ export default function ProjectPage() {
         socket.on("update-project", updatedProject => {
             setProject(updatedProject)
 
-            // Check user's permission to access the project
+            // Check user's permission to access the project, user may have been kicked
             if (!loading && !updatedProject.userList.some(addedUser =>
                 addedUser._id === user._id)) {
                 toast.error("You were kicked and no longer have access to this project. Redirecting to home page...", {

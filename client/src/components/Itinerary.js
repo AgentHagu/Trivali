@@ -414,6 +414,15 @@ export default function Itinerary({ projectId, data, socket }) {
     const [replaceItineraryStatus, setReplaceItineraryStatus] = useState(null)
     const [showCopiedTooltip, setShowCopiedTooltip] = useState(false)
 
+    /**
+     * Handles the form submission for generating an itinerary.
+     * 
+     * Sends a POST request to the server with the user's prompt to generate an itinerary.
+     * Updates the status and response state based on the server's response.
+     * 
+     * @param {React.FormEvent<HTMLFormElement>} event - The form submission event.
+     * @returns {Promise<void>} - A promise that resolves when the function completes.
+     */
     async function generateItineraryHandler(event) {
         event.preventDefault()
         const prompt = event.target[0].value
@@ -436,6 +445,16 @@ export default function Itinerary({ projectId, data, socket }) {
         }
     }
 
+    /**
+     * Handles the form submission for replacing the current itinerary.
+     * 
+     * Prompts the user for confirmation before sending a POST request to replace
+     * the current itinerary with the newly generated one. Updates the status and
+     * sends the new itinerary data to the server.
+     * 
+     * @param {React.FormEvent<HTMLFormElement>} event - The form submission event.
+     * @returns {Promise<void>} - A promise that resolves when the function completes.
+     */
     async function replaceItineraryHandler(event) {
         event.preventDefault()
 
@@ -465,6 +484,13 @@ export default function Itinerary({ projectId, data, socket }) {
         }
     }
 
+    /**
+     * Copies the generated itinerary response to the clipboard.
+     * 
+     * Displays a tooltip indicating success if the copy operation is successful.
+     * 
+     * @returns {Promise<void>} - A promise that resolves when the function completes.
+     */
     async function copyToClipboard() {
         try {
             await navigator.clipboard.writeText(generateItineraryResponse)
@@ -476,7 +502,13 @@ export default function Itinerary({ projectId, data, socket }) {
         }
 
     }
-
+    
+    /**
+     * Renders a tooltip indicating that the text has been copied.
+     * 
+     * @param {Object} props - The props for the tooltip.
+     * @returns {React.ReactElement} - The rendered tooltip component.
+     */
     const renderTooltip = (props) => (
         <Tooltip id="button-tooltip" {...props}>
             Copied!
