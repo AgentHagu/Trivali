@@ -191,7 +191,7 @@ module.exports = (server) => {
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
-                    { $pull: { projectList: projectToSimpleProject(previousProject) } }
+                    { $pull: { projectList: { _id: projectId } } }
                 )
 
                 updatedProject.userList.forEach(
