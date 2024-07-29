@@ -87,7 +87,7 @@ export default function LoginPage() {
     return (
         <>
             <HeaderNavbar />
-            <body className="text-center">
+            <div className="text-center">
                 <div style={{ width: "100%", maxWidth: "330px", padding: "15px", margin: "auto" }}>
                     <form onSubmit={handleSubmit} className="mb-4" noValidate>
                         <h1 className="h3 mb-3 fw-normal">Sign in here</h1>
@@ -113,7 +113,7 @@ export default function LoginPage() {
                         <p>Not a member? <a href="/register" className="text-decoration-none">Register</a></p>
                     </div>
                 </div>
-            </body>
+            </div>
         </>
     );
 }

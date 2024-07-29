@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import useUserData from "../hooks/useUserData"
+import { useState } from "react";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -12,6 +14,7 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 export default function HeaderNavbar() {
     const { user, loading } = useUserData();
     const navigate = useNavigate()
+    const [showCopiedTooltip, setShowCopiedTooltip] = useState(false)
 
     /**
      * Handles user logout by sending a DELETE request to the server.
@@ -33,10 +36,28 @@ export default function HeaderNavbar() {
         if (response.ok) {
             navigate('/')
         } else {
-            // Not sure if this shld be procedure
             navigate('/')
         }
     };
+
+    async function copyToClipboard(event) {
+        const uid = event.target.closest("h6").textContent
+
+        try {
+            await navigator.clipboard.writeText(uid)
+            setShowCopiedTooltip(true)
+            setTimeout(() => setShowCopiedTooltip(false), 1000)
+        } catch (err) {
+            console.log(err)
+            setShowCopiedTooltip(false)
+        }
+    }
+
+    const tooltip = (
+        <Tooltip id="button-tooltip">
+            Copied!
+        </Tooltip>
+    )
 
     return <header className="sticky-top mb-2">
         <div className="navbar navbar-expand-sm navbar-dark bg-dark">
@@ -48,13 +69,13 @@ export default function HeaderNavbar() {
                         ? <></>
                         : user
                             ? <>
-                                <a className="navbar-brand d-flex align-items-center" href="/home">
+                                <a className="navbar-brand d-flex align-items-center fs-3" href="/home" title="Go to home page">
                                     {/* add logo here */}
                                     <strong>Trivali</strong>
                                 </a>
                             </>
                             : <>
-                                <a className="navbar-brand d-flex align-items-center" href="/welcome">
+                                <a className="navbar-brand d-flex align-items-center" href="/welcome" title="Go to welcome page">
                                     {/* add logo here */}
                                     <strong>Trivali</strong>
                                 </a>
@@ -70,9 +91,55 @@ export default function HeaderNavbar() {
                         loading
                             ? <></>
                             : user
-                                ? <li className="nav-item">
-                                    <a className="nav-link" onClick={handleLogout} href={`${SERVER_URL}/logout`}>Logout</a>
+                                ?
+                                <li className="nav=item">
+                                    <div className="dropdown">
+                                        <button
+                                            className="btn p-0 border-0 bg-transparent"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            data-bs-auto-close="outside">
+                                            <i
+                                                className="bi bi-person-circle text-light"
+                                                style={{ fontSize: "2rem", cursor: "pointer" }}
+                                            />
+                                        </button>
+
+                                        <div
+                                            className="dropdown-menu dropdown-menu-end"
+                                            style={{ width: "250px" }}
+                                        >
+                                            <div className="container">
+                                                <h4>Hi, {user.username}</h4>
+                                                <h6 className="d-flex align-items-center">
+                                                    UID: {user._id}
+                                                    <OverlayTrigger
+                                                        placement="top"
+                                                        show={showCopiedTooltip}
+                                                        overlay={tooltip}
+                                                    >
+                                                        <button
+                                                            onClick={copyToClipboard}
+                                                            className="btn py-0 text-primary"
+                                                            title="Copy to clipboard"
+                                                        >
+                                                            <i className="bi bi-copy" />
+                                                        </button>
+                                                    </OverlayTrigger>
+                                                </h6>
+                                                <h6>Email: {user.email}</h6>
+                                            </div>
+                                            <a className="dropdown-item d-flex align-items-center" onClick={handleLogout} href={`${SERVER_URL}/logout`}>
+                                                <i className="bi bi-box-arrow-right me-2"></i>
+                                                Logout
+                                            </a>
+                                        </div>
+                                    </div>
                                 </li>
+
+                                // <li className="nav-item">
+                                //     <a className="nav-link" onClick={handleLogout} href={`${SERVER_URL}/logout`}>Logout</a>
+                                // </li>
                                 : <>
                                     <li className="nav-item">
                                         <a className="nav-link" href="/login">Login</a>

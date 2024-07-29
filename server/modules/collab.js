@@ -27,14 +27,14 @@ module.exports = (server) => {
     })
 
     io.on("connection", socket => {
-
+        socket.setMaxListeners(50)
         /**
          * Event listener for when a client requests a document by ID.
          *
          * @listens connection#get-document
          * @param {string} documentId - The ID of the document.
          */
-        socket.on("get-document", async documentId => {
+        socket.on("get-document", async ({ documentId, projectId }) => {
             const document = await findOrCreateDocument(documentId)
             socket.join(documentId)
             socket.emit("load-document", document.data)
@@ -47,6 +47,7 @@ module.exports = (server) => {
              */
             socket.on("send-document-changes", delta => {
                 socket.broadcast.to(documentId).emit("receive-document-changes", delta)
+                refreshLastUpdate(projectId)
             })
 
             /**
@@ -68,10 +69,7 @@ module.exports = (server) => {
          */
         socket.on("create-project", async ({ projectId, projectName, userId, userList }) => {
             const project = await findOrCreateProject(projectId, projectName, userId, userList)
-            const simpleProject = {
-                _id: project._id,
-                name: project.name
-            }
+            const simpleProject = projectToSimpleProject(project)
 
             // Update each user's projectList with the new project
             userList.forEach(async user => {
@@ -112,10 +110,7 @@ module.exports = (server) => {
             const project = await Project.findById(projectId)
             let simpleProject
             if (project !== null) {
-                simpleProject = {
-                    _id: project._id,
-                    name: project.name
-                }
+                simpleProject = projectToSimpleProject(project)
                 socket.join(projectId)
             }
             socket.emit("load-project", project)
@@ -154,15 +149,29 @@ module.exports = (server) => {
              * @param {Object} simpleUser - The user to add to the project.
              */
             socket.on("add-user", async simpleUser => {
-                await Project.findByIdAndUpdate(
+                const updatedProject = await Project.findByIdAndUpdate(
                     projectId,
-                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) } }
+                    { $push: { userList: userToSimpleUser(await User.findById(simpleUser._id)) } },
+                    { new: true }
                 )
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
-                    { $push: { projectList: simpleProject } }
+                    { $push: { projectList: projectToSimpleProject(updatedProject) } }
                 )
+
+                updatedProject.userList.forEach(
+                    async user => {
+                        await User.findOneAndUpdate(
+                            {
+                                _id: user._id,
+                                'projectList._id': projectId
+                            },
+                            {
+                                $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                            }
+                        )
+                    })
             })
 
             /**
@@ -172,17 +181,33 @@ module.exports = (server) => {
              * @param {Object} simpleUser - The user to remove from the project.
              */
             socket.on("remove-user", async simpleUser => {
-                await Project.findByIdAndUpdate(
+                const previousProject = await Project.findById(projectId)
+
+                const updatedProject = await Project.findByIdAndUpdate(
                     projectId,
-                    { $pull: { userList: { _id: simpleUser._id } } }
+                    { $pull: { userList: { _id: simpleUser._id } } },
+                    { new: true }
                 )
 
                 await User.findByIdAndUpdate(
                     simpleUser._id,
-                    { $pull: { projectList: simpleProject } }
+                    { $pull: { projectList: projectToSimpleProject(previousProject) } }
                 )
 
-                // socket.emit("kick-user", simpleUser)
+                updatedProject.userList.forEach(
+                    async user => {
+                        await User.findOneAndUpdate(
+                            {
+                                _id: user._id,
+                                'projectList._id': projectId
+                            },
+                            {
+                                $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                            }
+                        )
+                    })
+
+                io.to(projectId).emit("update-project", updatedProject)
             })
 
             /**
@@ -191,16 +216,19 @@ module.exports = (server) => {
              * @listens connection#delete-project
              */
             socket.on("delete-project", async () => {
+                const oldProject = await Project.findById(projectId)
                 await Project.findByIdAndDelete(projectId)
 
                 // Delete project from every user's projectList
-                project.userList.forEach(
+                oldProject.userList.forEach(
                     async user => {
                         await User.findByIdAndUpdate(
                             user._id,
-                            { $pull: { projectList: simpleProject } }
+                            { $pull: { projectList: { _id: projectId } } }
                         )
                     })
+
+                socket.broadcast.to(projectId).emit("project-deleted")
             })
 
             /**
@@ -210,7 +238,7 @@ module.exports = (server) => {
              * @param {Array} newRows - The new rows of the itinerary.
              */
             socket.on("send-itinerary-changes", newRows => {
-                socket.broadcast.to(projectId).emit("receive-itinerary-changes", newRows)
+                io.to(projectId).emit("receive-itinerary-changes", newRows)
             })
 
             /**
@@ -220,9 +248,13 @@ module.exports = (server) => {
              * @param {Array} newRows - The new rows of the itinerary to save.
              */
             socket.on("save-itinerary", async newRows => {
-                await Project.findByIdAndUpdate(
+                const updatedProject = await Project.findByIdAndUpdate(
                     projectId,
-                    { 'itinerary.rows': newRows })
+                    { 'itinerary.rows': newRows },
+                    { new: true })
+
+                io.to(projectId).emit("load-itinerary", updatedProject.itinerary)
+                io.to(projectId).emit("update-project", updatedProject)
             })
 
             /**
@@ -242,7 +274,11 @@ module.exports = (server) => {
              * @param {Object} timeChange - The time change details.
              */
             socket.on("send-time-changes", timeChange => {
-                socket.broadcast.to(projectId).emit("receive-time-changes", timeChange)
+                io.to(projectId).emit("receive-time-changes", timeChange)
+            })
+
+            socket.on("send-location-changes", placeChange => {
+                io.to(projectId).emit("receive-location-changes", placeChange)
             })
         })
 
@@ -373,6 +409,43 @@ function userToSimpleUser(user) {
     return simpleUser
 }
 
+function formatDate(date) {
+    const options = { day: 'numeric', month: 'short', year: 'numeric' }
+    return date.toLocaleDateString('en-US', options)
+}
+
+function projectToSimpleProject(project) {
+    const simpleProject = {
+        _id: project._id,
+        name: project.name,
+        owner: project.owner.username,
+        isShared: project.userList.length > 1,
+        dateCreated: project.dateCreated,
+        lastUpdated: new Date(Date.now())
+    }
+
+    return simpleProject
+}
+
+async function refreshLastUpdate(projectId) {
+    const updatedProject = await Project.findById(
+        projectId
+    )
+
+    updatedProject.userList.forEach(
+        async user => {
+            await User.findOneAndUpdate(
+                {
+                    _id: user._id,
+                    'projectList._id': projectId
+                },
+                {
+                    $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                }
+            )
+        })
+}
+
 /**
  * Default value for documents.
  * @type {string}
@@ -424,14 +497,16 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
             owner: owner,
             adminList: [owner],
             userList: userList,
+            dateCreated: formatDate(new Date(Date.now())),
+            lastUpdated: formatDate(new Date(Date.now())),
             itinerary: {
                 rows: [{
                     id: Date.now(),
                     activities: [{
                         id: Date.now(),
                         time: { start: "00:00", end: "00:00" },
+                        location: { name: "" },
                         details: { page: "itinerary", number: Date.now() }
-                        // TODO: Adjust the page and number provided here
                     }]
                 }]
             },

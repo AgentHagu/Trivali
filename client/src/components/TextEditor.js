@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
-import QuillBetterTable from 'quill-better-table'
 import "quill/dist/quill.snow.css"
-import { io } from "socket.io-client"
-import { useParams, useNavigate } from "react-router-dom"
 
-Quill.register({
-    'modules/better-table': QuillBetterTable
-}, true)
+import { io } from "socket.io-client"
+import { useParams } from "react-router-dom"
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -56,7 +52,7 @@ export default function TextEditor(props) {
             quill.enable();
         })
 
-        socket.emit("get-document", documentId)
+        socket.emit("get-document", { documentId: documentId, projectId: props.projectId })
     }, [socket, quill, documentId])
 
     // Save document to server at regular intervals
@@ -117,10 +113,11 @@ export default function TextEditor(props) {
                     history: { userOnly: true },
                 },
                 placeholder: props.placeholder
-            })
+            }
+        )
 
         q.disable()
-        q.setText("Loading...")
+        // q.setText("")
         setQuill(q);
     }, [])
     return <>

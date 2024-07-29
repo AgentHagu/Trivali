@@ -34,6 +34,10 @@ beforeAll(async () => {
         useUnifiedTopology: true,
     });
 
+    await Document.deleteMany({});
+    await Project.deleteMany({});
+    await User.deleteMany({});
+
     httpServer.listen();
 });
 
@@ -42,7 +46,7 @@ afterAll(async () => {
     httpServer.close();
 });
 
-beforeEach(async () => {
+afterEach(async () => {
     await Document.deleteMany({});
     await Project.deleteMany({});
     await User.deleteMany({});

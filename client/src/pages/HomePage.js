@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 // Components
 import HeaderNavbar from "../components/HeaderNavbar";
+import SearchBar from "../components/SearchBar";
 
 // Custom Hooks
 import useUserData from "../hooks/useUserData";
@@ -11,117 +12,9 @@ import useUserData from "../hooks/useUserData";
 import { v4 as uuidV4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
-
-/**
- * SearchBar component for adding users to a project.
- * Handles user search, validation, and addition/removal.
- *
- * @param {Object} props - Component props.
- * @param {SocketIO.Socket} props.socket - Socket instance for real-time communication.
- * @param {Object} props.currUser - Current user object.
- * @param {Array} props.addedUsersList - List of users already added to the project.
- * @param {Function} props.setAddedUsersList - Function to update the addedUsersList state.
- * @returns {JSX.Element} - SearchBar component JSX.
- */
-function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
-    const [userValidity, setUserValidity] = useState(true)
-    const [invalidMessage, setInvalidMessage] = useState("")
-
-    function searchHandler(e) {
-        e.preventDefault()
-        const userSearch = e.target[0].value
-
-        socket.emit("search-user", userSearch)
-    }
-
-    useEffect(() => {
-        const handleUserFound = user => {
-            if (user == null) {
-                setUserValidity(false)
-                setInvalidMessage("No such user found")
-                return
-            }
-
-            if (user._id === currUser._id) {
-                setUserValidity(false)
-                setInvalidMessage("You have already been added")
-                return
-            }
-
-            const isUserInArray = addedUsersList.some(addedUser =>
-                addedUser._id === user._id
-            )
-
-            if (!isUserInArray) {
-                setUserValidity(true)
-                setInvalidMessage("")
-                const newList = [...addedUsersList, user]
-                setAddedUsersList(newList)
-            } else {
-                setUserValidity(false)
-                setInvalidMessage("User has already been added")
-            }
-        }
-
-        socket.on("found-user", handleUserFound)
-
-        return () => {
-            socket.off("found-user", handleUserFound)
-        }
-    }, [socket, addedUsersList, currUser, setAddedUsersList])
-
-    function removeUserHandler(user) {
-        const newList = addedUsersList.filter(addedUser => addedUser._id !== user._id)
-        setAddedUsersList(newList)
-    }
-
-    return <>
-
-
-        <form className="mb-3" onSubmit={searchHandler}>
-            <label htmlFor="addUsers" className="form-label">Add Users to Project</label>
-            <div className="input-group has-validation">
-                <input type="search" className={`form-control me-2 ${userValidity ? '' : 'is-invalid'}`} id="addUsers" placeholder="Search with ID or Email" />
-                <button className="btn btn-outline-primary" type="submit"><i className="bi bi-search" /></button>
-                <div className="invalid-feedback">
-                    {invalidMessage}
-                </div>
-            </div>
-
-        </form>
-
-
-        {
-            addedUsersList.length > 0
-                ? <>
-                    <label className="form-label">Added Users</label>
-                    <ul className="list-group">
-                        {addedUsersList.map(user => (
-                            //TODO: Add unique key for list item
-                            <li className="list-group-item d-flex justify-content-between align-items-center" key={user._id}>
-                                <span>
-                                    {user.username} (Email: {user.email})
-                                </span>
-                                {
-                                    user._id !== currUser._id
-                                        ? <button className="btn ms-auto p-0" onClick={() => removeUserHandler(user)}><i className="bi bi-person-fill-dash" /></button>
-                                        : <>Owner</>
-                                }
-
-                            </li>
-                        ))}
-                    </ul>
-
-                </>
-                : <>
-                    <label className="form-label">No added Users</label>
-                </>
-        }
-
-    </>
-}
 
 /**
  * HomePage component to display the home page content.
@@ -141,7 +34,6 @@ export default function HomePage() {
             </div>
         </div>
     )
-
     const navigate = useNavigate()
     const [socket, setSocket] = useState()
 
@@ -160,16 +52,19 @@ export default function HomePage() {
         e.preventDefault()
         const projectName = e.target[0].value
         const projectId = uuidV4()
-        socket.emit("create-project", {
-            projectId: projectId,
-            projectName: projectName,
-            userId: user._id,
-            userList: addedUsersList
-        })
 
-        socket.on("new-project-created", () => {
-            navigate(`/projects/${projectId}`)
-        })
+        if (socket) {
+            socket.emit("create-project", {
+                projectId: projectId,
+                projectName: projectName,
+                userId: user._id,
+                userList: addedUsersList
+            })
+
+            socket.once("new-project-created", () => {
+                navigate(`/projects/${projectId}`)
+            })
+        }
     }, [addedUsersList, navigate, socket, user])
 
     useEffect(() => {
@@ -178,58 +73,180 @@ export default function HomePage() {
         }
     }, [loading, user])
 
+    const tooltip = (
+        <Tooltip id="tooltip" className="text-info">
+            <strong>Create Project</strong>
+        </Tooltip>
+    )
+
+    function formatDate(date) {
+        const currentDate = new Date()
+        const inputDate = new Date(date)
+    
+        // Check if the date is within the same day as now
+        if (
+            currentDate.getFullYear() === inputDate.getFullYear() &&
+            currentDate.getMonth() === inputDate.getMonth() &&
+            currentDate.getDate() === inputDate.getDate()
+        ) {
+            // Return the time in the format "HH:MM AM/PM"
+            return inputDate.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            })
+        }
+    
+        // Otherwise, return the formatted date
+        const options = { day: 'numeric', month: 'short', year: 'numeric' }
+        return inputDate.toLocaleDateString('en-US', options)
+    }
+
     useEffect(() => {
         if (!loading) {
             const loadedContent = <>
-                <div className="row">
-                    <div className="col">
-                        <h1>Welcome, {user.username}</h1>
-                        <h2>User ID: {user._id}</h2>
-                        <h2>Email: {user.email}</h2>
+                <OverlayTrigger placement="top" overlay={tooltip}>
+                    <button
+                        className="btn btn-primary position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
+                        style={{ width: "60px", height: "60px", borderRadius: "15px" }}
+                        data-bs-toggle="modal"
+                        data-bs-target="#createProjectModal"
+                        title="Create project"
+                    >
+                        <i className="bi bi-plus"
+                            style={{ fontSize: "4rem", lineHeight: "1" }}
+                        />
+                    </button>
+                </OverlayTrigger>
+                <ul className="list-group fs-5">
+                    <div className="list-group-item bg-transparent border-0 pb-0">
+                        <div className="row fs-4">
+                            <div className="col-6">
+                                Project Name
+                            </div>
+
+                            <div className="col">
+                                Owned by
+                            </div>
+
+                            <div className="col">
+                                Last updated
+                            </div>
+
+                            <div className="col">
+                                Date created
+                            </div>
+
+                            <div className="col-auto">
+                                {/* Add a button here */}
+                                <button
+                                    className="btn"
+                                    style={{ visibility: "hidden" }}
+                                >
+                                    <i className="bi bi-three-dots-vertical"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="col d-flex flex-column justify-content-end align-items-end">
-                        <button type="button" className="btn btn-primary fs-1" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                            Create Project
-                        </button>
-                    </div>
-                </div>
+                    {
+                        user.projectList.length > 0
+                            ? user.projectList.map(simpleProject => (
+                                <a
+                                    href={`../projects/${simpleProject._id}`}
+                                    className="list-group-item list-group-item-action mt-2 border border-2 rounded"
+                                    key={simpleProject._id}
+                                >
+                                    <div className="row align-items-center">
+                                        <div className="col-6 text-truncate">
+                                            {simpleProject.name || "Untitled Project"}
+                                            {simpleProject.isShared && <i className="bi bi-people-fill ms-3" title="Shared Project"></i>}
+                                        </div>
 
-                <hr />
-                <h1 className="pb-2">Your Projects:</h1>
-                <ul className="list-group">
-                    <div className="row">
-                        {
-                            user.projectList.length > 0
-                                ? user.projectList.map(simpleProject => (
-                                    <li className="list-group-item d-flex justify-content-between align-items-center" key={simpleProject._id}>
-                                        <a href={`../projects/${simpleProject._id}`} className="fs-4">
-                                            <span>
-                                                {
-                                                    simpleProject.name
-                                                        ? <>{simpleProject.name}</>
-                                                        : <>Untitled Project</>
-                                                }
-                                            </span>
-                                        </a>
-                                    </li>
-                                    // <a href={`../projects/${simpleProject._id}`} className="fs-4 col-md-4 d-block text-decoration-none">
-                                    //     <div className="card h-100 mb-4 shadow-sm">
-                                    //         <div className="card-header">{simpleProject.name}</div>
-                                    //         <img className="card-img-top" src="https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
-                                    //             alt="Feature" style={{ height: "225px", width: "100%", display: "block" }} />
-                                    //         <div className="card-body">
-                                    //             <p className="card-text fs-6">
-                                    //                 lorem
-                                    //             </p>
-                                    //         </div>
-                                    //     </div>
-                                    // </a>
-                                ))
-                                : <h3>You currently have no projects.</h3>
-                        }
-                    </div>
+                                        <div className="col">
+                                            {simpleProject.owner === user.username
+                                                ? "me"
+                                                : simpleProject.owner}
+                                        </div>
+
+                                        <div className="col">
+                                            {formatDate(simpleProject.lastUpdated)}
+                                        </div>
+
+                                        <div className="col">
+                                            {simpleProject.dateCreated}
+                                        </div>
+
+                                        <div className="col-auto">
+                                            <div className="dropdown">
+                                                <button
+                                                    className="btn rounded-circle"
+                                                    type="button"
+                                                    id="moreOptionsButton"
+                                                    data-bs-toggle="dropdown"
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                        // Add your button click handler logic here
+                                                    }}
+                                                >
+                                                    <i className="bi bi-three-dots-vertical"></i>
+                                                </button>
+
+                                                <div className="dropdown-menu">
+                                                    {/* <button
+                                                        className="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#renameProjectModal"
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            e.stopPropagation()
+                                                            // Add your button click handler logic here
+                                                        }}
+                                                    >
+                                                        Rename
+                                                    </button> */}
+
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            window.open(`../projects/${simpleProject._id}`, '_blank', 'noreferrer');
+                                                        }}
+                                                    >
+                                                        Open in new tab
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            ))
+                            : <h3>You currently have no projects.</h3>
+                    }
                 </ul>
+
+                {/* Rename Project Modal Form */}
+                {/* <div className="modal fade" id="renameProjectModal" data-bs-keyboard="false" tabIndex="-1">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Rename Project</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div className="modal-body">
+                                <form id="createProjectForm">
+                                    <div className="mb-3">
+                                        <label htmlFor="projectName" className="form-label">Project Name</label>
+                                        <input type="text" className="form-control" id="projectName" placeholder="Enter a name for your project" value={"test"} onBlur={changeNameHandler} />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div> */}
 
                 {/* Create Project Modal Form */}
                 <div className="modal fade" id="createProjectModal" data-bs-keyboard="false" tabIndex="-1">

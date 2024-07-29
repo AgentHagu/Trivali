@@ -70,6 +70,7 @@ const Itinerary = new Schema({
                 start: String,
                 end: String
             },
+            location: Object,
             details: {
                 page: String,
                 number: Number
@@ -150,6 +151,8 @@ const Project = new Schema({
     owner: SimpleUser,
     adminList: [SimpleUser],
     userList: [SimpleUser],
+    dateCreated: Object,
+    lastUpdated: Object,
     about: About,
     itinerary: Itinerary,
     expenses: Expenses
