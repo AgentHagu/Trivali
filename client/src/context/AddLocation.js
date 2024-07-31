@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 export default function AddLocation({ show, handleClose, addLocation }) {
-    const [location, setLocation] = useState('');
+    const [location, setLocation] = useState('')
 
     const handleSubmit = (event) => {
-        event.preventDefault();
-        addLocation(location);
-        setLocation('');
-        handleClose();
+        event.preventDefault()
+        addLocation(location)
+        setLocation('')
+        handleClose()
     };
 
     return (

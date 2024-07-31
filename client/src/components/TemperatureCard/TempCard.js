@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Button } from 'react-bootstrap';
-//import './TempCard.css';
+import React from 'react'
+import { Card, Button } from 'react-bootstrap'
+//import './TempCard.css'
 
 export default function TemperatureCard({ data, onDelete }) {
     return (
