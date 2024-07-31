@@ -82,7 +82,7 @@ export default function HomePage() {
     function formatDate(date) {
         const currentDate = new Date()
         const inputDate = new Date(date)
-    
+
         // Check if the date is within the same day as now
         if (
             currentDate.getFullYear() === inputDate.getFullYear() &&
@@ -96,7 +96,7 @@ export default function HomePage() {
                 hour12: true
             })
         }
-    
+
         // Otherwise, return the formatted date
         const options = { day: 'numeric', month: 'short', year: 'numeric' }
         return inputDate.toLocaleDateString('en-US', options)
@@ -108,7 +108,12 @@ export default function HomePage() {
                 <OverlayTrigger placement="top" overlay={tooltip}>
                     <button
                         className="btn btn-primary position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
-                        style={{ width: "60px", height: "60px", borderRadius: "15px" }}
+                        style={{
+                            width: "60px",
+                            height: "60px",
+                            borderRadius: "15px",
+                            zIndex: 1000
+                        }}
                         data-bs-toggle="modal"
                         data-bs-target="#createProjectModal"
                         title="Create project"

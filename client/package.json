@@ -5,6 +5,7 @@
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
     "@uiw/react-markdown-preview": "^5.1.2",
+    "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "express": "^4.19.2",
