@@ -1,4 +1,32 @@
-import { DirectionsRenderer, GoogleMap, Marker } from '@react-google-maps/api';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/components/Map.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/components/Map.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { DirectionsRenderer, GoogleMap, Marker } from '@react-google-maps/api';
 import { useLoadScriptContext } from '../context/LoadScriptProvider';
 import { useEffect, useRef, useState } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
@@ -64,9 +92,9 @@ export default function Map({ projectId, data, socket }) {
 
     // Tooltip for no routes found
     const tooltip = (
-        <Tooltip id="tooltip" className="text-info">
-            <strong>No routes found!</strong> Possible disconnections in itinerary
-        </Tooltip>
+        &lt;Tooltip id="tooltip" className="text-info">
+            &lt;strong>No routes found!&lt;/strong> Possible disconnections in itinerary
+        &lt;/Tooltip>
     );
 
     // Dynamically load itinerary to display on Map tab
@@ -168,7 +196,7 @@ export default function Map({ projectId, data, socket }) {
                     const location1 = activity.location.geometry?.location;
                     const location2 = row.activities[i + 1].location.geometry?.location;
 
-                    if (location1 && location2) {
+                    if (location1 &amp;&amp; location2) {
                         const request = {
                             origin: { lat: location1.lat, lng: location1.lng },
                             destination: { lat: location2.lat, lng: location2.lng },
@@ -205,7 +233,7 @@ export default function Map({ projectId, data, socket }) {
     }, [rows, selected, travelMode])
 
     if (!isLoaded) {
-        return <div>Loading Maps...</div>;
+        return &lt;div>Loading Maps...&lt;/div>;
     }
 
     function viewHandler(event) {
@@ -241,66 +269,66 @@ export default function Map({ projectId, data, socket }) {
         // strokeColor: "#FFFFFF",
     };
 
-    return <div className="container py-3 px-3">
-        <div className="row mb-2 px-3">
-            <div className="col-3 ps-0  d-flex align-items-center">
-                <div className="form-check form-switch d-flex align-items-center ps-1">
-                    <h5 className="mb-0" style={{ userSelect: "none" }}>
+    return &lt;div className="container py-3 px-3">
+        &lt;div className="row mb-2 px-3">
+            &lt;div className="col-3 ps-0  d-flex align-items-center">
+                &lt;div className="form-check form-switch d-flex align-items-center ps-1">
+                    &lt;h5 className="mb-0" style={{ userSelect: "none" }}>
                         View routes
-                    </h5>
-                    <h5 className="mb-0 ps-2 pe-3">
-                        <input className="form-check-input ms-2" type="checkbox" role="switch" onChange={viewRoutesHandler} />
-                    </h5>
-                    {showRoutes && routes.length === 0
-                        ? <OverlayTrigger placement="top" overlay={tooltip}>
-                            <h5 className="mb-0" style={{ backgroundColor: "white" }}>
-                                <i
+                    &lt;/h5>
+                    &lt;h5 className="mb-0 ps-2 pe-3">
+                        &lt;input className="form-check-input ms-2" type="checkbox" role="switch" onChange={viewRoutesHandler} />
+                    &lt;/h5>
+                    {showRoutes &amp;&amp; routes.length === 0
+                        ? &lt;OverlayTrigger placement="top" overlay={tooltip}>
+                            &lt;h5 className="mb-0" style={{ backgroundColor: "white" }}>
+                                &lt;i
                                     className="bi bi-info-circle-fill text-warning p-1"
                                 />
-                            </h5>
-                        </OverlayTrigger>
+                            &lt;/h5>
+                        &lt;/OverlayTrigger>
                         : null
                     }
 
-                </div>
-            </div>
+                &lt;/div>
+            &lt;/div>
 
             {/* TODO: its off center/aligned */}
-            <div className="col">
-                <div className=" d-flex align-items-center">
-                    <h5 className="mb-0 pe-3" style={{ userSelect: "none" }}>
+            &lt;div className="col">
+                &lt;div className=" d-flex align-items-center">
+                    &lt;h5 className="mb-0 pe-3" style={{ userSelect: "none" }}>
                         Travel modes:
-                    </h5>
+                    &lt;/h5>
 
-                    <input type="radio" className="btn-check" name="travelMode" id="DRIVING" autoComplete="off" onClick={travelModeHandler} />
-                    <label className="btn btn-outline-primary me-2" htmlFor="DRIVING" title="Driving"><i className="bi bi-car-front-fill" /></label>
+                    &lt;input type="radio" className="btn-check" name="travelMode" id="DRIVING" autoComplete="off" onClick={travelModeHandler} />
+                    &lt;label className="btn btn-outline-primary me-2" htmlFor="DRIVING" title="Driving">&lt;i className="bi bi-car-front-fill" />&lt;/label>
 
-                    <input type="radio" className="btn-check" name="travelMode" id="TRANSIT" autoComplete="off" onClick={travelModeHandler} defaultChecked />
-                    <label className="btn btn-outline-primary me-2" htmlFor="TRANSIT" title="Transit"><i className="bi bi-train-front-fill" /></label>
+                    &lt;input type="radio" className="btn-check" name="travelMode" id="TRANSIT" autoComplete="off" onClick={travelModeHandler} defaultChecked />
+                    &lt;label className="btn btn-outline-primary me-2" htmlFor="TRANSIT" title="Transit">&lt;i className="bi bi-train-front-fill" />&lt;/label>
 
-                    <input type="radio" className="btn-check" name="travelMode" id="WALKING" autoComplete="off" onClick={travelModeHandler} />
-                    <label className="btn btn-outline-primary me-2" htmlFor="WALKING" title="Walking"><i className="bi bi-person-walking" /></label>
+                    &lt;input type="radio" className="btn-check" name="travelMode" id="WALKING" autoComplete="off" onClick={travelModeHandler} />
+                    &lt;label className="btn btn-outline-primary me-2" htmlFor="WALKING" title="Walking">&lt;i className="bi bi-person-walking" />&lt;/label>
 
                     {
-                        travelMode === "TRANSIT" &&
-                        <h6 className="mb-0 ps-3 text-secondary" style={{ userSelect: "none" }}>
+                        travelMode === "TRANSIT" &amp;&amp;
+                        &lt;h6 className="mb-0 ps-3 text-secondary" style={{ userSelect: "none" }}>
                             Note: Transit data is inconsistent
-                        </h6>
+                        &lt;/h6>
                     }
-                </div>
-            </div>
-        </div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
 
-        <div className="row px-3">
-            <div className="col-9 p-0 border border-2 border-black h-100">
-                <GoogleMap
+        &lt;div className="row px-3">
+            &lt;div className="col-9 p-0 border border-2 border-black h-100">
+                &lt;GoogleMap
                     mapContainerStyle={containerStyle}
                     onLoad={map => (mapRef.current = map)}
                 >
                     {
                         showRoutes
                             ? routes.map((route, index) => {
-                                return <DirectionsRenderer
+                                return &lt;DirectionsRenderer
                                     key={index}
                                     directions={route}
                                     options={{
@@ -325,7 +353,7 @@ export default function Map({ projectId, data, socket }) {
                                 const location = activity.location.geometry?.location
                                 if (location) {
                                     return (
-                                        <Marker
+                                        &lt;Marker
                                             // icon={customMarker}
                                             key={`marker-${rowIndex}-${index}`}
                                             position={{ lat: location.lat, lng: location.lng }}
@@ -338,12 +366,12 @@ export default function Map({ projectId, data, socket }) {
                         })
                     }
 
-                </GoogleMap>
-            </div>
+                &lt;/GoogleMap>
+            &lt;/div>
 
-            <div className="col pe-0 overflow-auto" style={{ height: '500px' }}>
+            &lt;div className="col pe-0 overflow-auto" style={{ height: '500px' }}>
                 {rows.map((row, dayIndex) => (
-                    <table
+                    &lt;table
                         className={`table table-bordered table-fit
                             ${selected.includes(dayIndex)
                                 ? 'border-success'
@@ -353,25 +381,25 @@ export default function Map({ projectId, data, socket }) {
                         day={dayIndex}
                         onClick={viewHandler}
                     >
-                        <thead
+                        &lt;thead
                             className={`border-2 ${selected.includes(dayIndex)
                                 ? 'table-success border-success'
                                 : 'table-secondary border-secondary'}`}
                         >
-                            <tr>
-                                <th
+                            &lt;tr>
+                                &lt;th
                                     scope="col"
                                     colSpan={2}
                                     className="col-1 text-center"
                                 >
                                     Click to toggle Day {dayIndex + 1} markers
-                                </th>
-                            </tr>
-                        </thead>
+                                &lt;/th>
+                            &lt;/tr>
+                        &lt;/thead>
 
-                        <tbody className='border-2'>
+                        &lt;tbody className='border-2'>
                             {row.activities.map((activity, index) => (
-                                <tr
+                                &lt;tr
                                     className={`${(activity.location.name)
                                         ? activity.location.geometry
                                             ? ""
@@ -380,20 +408,42 @@ export default function Map({ projectId, data, socket }) {
                                     key={activity.id}
                                     day={dayIndex}
                                 >
-                                    <td className="fit text-center align-middle">
+                                    &lt;td className="fit text-center align-middle">
                                         {/* TODO: Time start? Or range? */}
                                         {activity.time.start}
-                                    </td>
+                                    &lt;/td>
 
-                                    <td style={{ maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    &lt;td style={{ maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                         {(activity.location.name) ? activity.location.name : "No location specified"}
-                                    </td>
-                                </tr>
+                                    &lt;/td>
+                                &lt;/tr>
                             ))}
-                        </tbody>
-                    </table>
+                        &lt;/tbody>
+                    &lt;/table>
                 ))}
-            </div>
-        </div>
-    </div>
-}
+            &lt;/div>
+        &lt;/div>
+    &lt;/div>
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/src/components/SearchBar.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/src/components/SearchBar.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { useEffect, useState } from "react"
+
+/**
+ * SearchBar component for adding users to a project.
+ * Handles user search, validation, and addition/removal.
+ *
+ * @param {Object} props - Component props.
+ * @param {SocketIO.Socket} props.socket - Socket instance for real-time communication.
+ * @param {Object} props.currUser - Current user object.
+ * @param {Array} props.addedUsersList - List of users already added to the project.
+ * @param {Function} props.setAddedUsersList - Function to update the addedUsersList state.
+ * @returns {JSX.Element} - SearchBar component JSX.
+ */
+export default function SearchBar({ socket, currUser, addedUsersList, setAddedUsersList }) {
+    const [userValidity, setUserValidity] = useState(true)
+    const [invalidMessage, setInvalidMessage] = useState("")
+
+    /**
+     * Converts a full user object to a simplified user object for storage.
+     * @param {Object} user - Full user object.
+     * @returns {Object} Simplified user object containing _id, username, and email.
+     */
+    function userToSimpleUser(user) {
+        const simpleUser = {
+            _id: user._id,
+            username: user.username,
+            email: user.email
+        }
+
+        return simpleUser
+    }
+
+    /**
+     * Handles the search form submission.
+     * Emits a 'search-user' event to the server with the search query.
+     * @param {Event} e - Form submit event.
+     */
+    function searchHandler(e) {
+        e.preventDefault()
+        const userSearch = e.target[0].value
+
+        socket.emit("search-user", userSearch)
+    }
+
+    useEffect(() => {
+        /**
+         * Handles the 'found-user' event from the server.
+         * Validates the found user and updates the addedUsersList state if valid.
+         * @param {Object} user - Found user object or null if not found.
+         */
+        const handleUserFound = user => {
+            if (user == null) {
+                setUserValidity(false)
+                setInvalidMessage("No such user found")
+                return
+            }
+
+            if (user._id === currUser._id) {
+                setUserValidity(false)
+                setInvalidMessage("You have already been added")
+                return
+            }
+
+            const isUserInArray = addedUsersList.some(addedUser =>
+                addedUser._id === user._id
+            )
+
+            if (!isUserInArray) {
+                setUserValidity(true)
+                setInvalidMessage("")
+                const newList = [...addedUsersList, user]
+                setAddedUsersList(newList)
+                socket.emit("add-user", userToSimpleUser(user))
+
+            } else {
+                setUserValidity(false)
+                setInvalidMessage("User has already been added")
+            }
+        }
+
+        socket.on("found-user", handleUserFound)
+
+        return () => {
+            socket.off("found-user", handleUserFound)
+        }
+    }, [socket, addedUsersList, currUser, setAddedUsersList])
+
+    /**
+     * Removes a user from the addedUsersList state and emits a 'remove-user' event to the server.
+     * @param {Object} simpleUser - Simplified user object to be removed.
+     */
+    function removeUserHandler(simpleUser) {
+        const newList = addedUsersList.filter(addedUser => addedUser._id !== simpleUser._id)
+        setAddedUsersList(newList)
+        socket.emit("remove-user", simpleUser)
+    }
+
+    return &lt;>
+        &lt;form className="mb-3" onSubmit={searchHandler}>
+            &lt;label htmlFor="addUsers" className="form-label">Add Users to Project&lt;/label>
+            &lt;div className="input-group has-validation">
+                &lt;input
+                    type="search"
+                    className={`form-control me-2 
+                        ${userValidity ? '' : 'is-invalid'}`}
+                    id="addUsers"
+                    placeholder="Search with ID or Email"
+                />
+                &lt;button className="btn btn-outline-primary" type="submit">
+                    &lt;i className="bi bi-search" />
+                &lt;/button>
+                &lt;div className="invalid-feedback">
+                    {invalidMessage}
+                &lt;/div>
+            &lt;/div>
+        &lt;/form>
+
+        {addedUsersList.length > 0
+            ? &lt;>
+                &lt;label className="form-label">Added Users&lt;/label>
+                &lt;ul className="list-group">
+                    {addedUsersList.map(user => (
+                        &lt;li className="list-group-item d-flex justify-content-between align-items-center" key={user._id}>
+                            &lt;span>
+                                {user.username} (Email: {user.email})
+                            &lt;/span>
+                            {
+                                user._id !== currUser._id
+                                    ? &lt;button
+                                        className="btn ms-auto p-0"
+                                        onClick={() => removeUserHandler(user)}
+                                    >
+                                        &lt;i className="bi bi-person-fill-dash" />
+                                    &lt;/button>
+                                    : &lt;>Owner&lt;/>
+                            }
+                        &lt;/li>
+                    ))}
+                &lt;/ul>
+            &lt;/>
+            : &lt;>
+                &lt;label className="form-label">No added Users&lt;/label>
+            &lt;/>
+        }
+    &lt;/>
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

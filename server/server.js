@@ -20,6 +20,9 @@ require('./modules/auth')(app);
 // Import and use text-editor module
 require('./modules/collab')(server);
 
+// Import and use openAI module
+require('./modules/openAI')(app);
+
 server.listen(3001, () => {
   console.log("Server running on port 3001")
 })

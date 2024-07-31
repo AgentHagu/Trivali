@@ -151,6 +151,8 @@ const Project = new Schema({
     owner: SimpleUser,
     adminList: [SimpleUser],
     userList: [SimpleUser],
+    dateCreated: Object,
+    lastUpdated: Object,
     about: About,
     itinerary: Itinerary,
     expenses: Expenses

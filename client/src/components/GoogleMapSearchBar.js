@@ -1,42 +1,100 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Autocomplete } from '@react-google-maps/api';
 import { useLoadScriptContext } from '../context/LoadScriptProvider';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
-const AutocompleteSearch = ({ onPlaceSelected }) => {
-    const [autocomplete, setAutocomplete] = useState(null);
+export default function GoogleMapSearchBar({ onPlaceSelected, locationValue }) {
+    const autocompleteRef = useRef(null);
     const inputRef = useRef(null);
     const { isLoaded } = useLoadScriptContext();
+    const [inputValue, setInputValue] = useState(locationValue.name || '');
+    const [isValid, setIsValid] = useState(true)
 
-    const onLoad = (autocompleteInstance) => {
-        setAutocomplete(autocompleteInstance);
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.value = locationValue.name || '';
+        }
+
+        if (!locationValue.geometry && locationValue.name !== "") {
+            setIsValid(false)
+        } else {
+            setIsValid(true)
+        }
+
+        setInputValue(locationValue.name || '');
+    }, [locationValue]);
+
+    const handlePlaceChanged = () => {
+        const place = autocompleteRef.current.getPlace();
+        if (place && place.name) {
+            setIsValid(true)
+            setInputValue(place.name);
+            if (inputRef.current) {
+                inputRef.current.value = place.name;
+            }
+            onPlaceSelected(place);
+        }
     };
 
-    const onPlaceChanged = () => {
-        if (autocomplete !== null) {
-            const place = autocomplete.getPlace();
-            onPlaceSelected(place);
-        } else {
-            console.log('Autocomplete is not loaded yet!');
+    const handleInputChange = (e) => {
+        const value = e.target.value
+        setInputValue(value)
+        setIsValid(false)
+        if (value === "") {
+            setIsValid(true)
         }
+
+        if (inputRef.current) {
+            inputRef.current.value = value;
+        }
+
+        onPlaceSelected({ name: value });
     };
 
     if (!isLoaded) {
         return null;
     }
 
-    return (
-        <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-            <input
-                type="text"
-                placeholder="Search for a place"
-                ref={inputRef}
-                className="border-0 h-100 p-2"
-                style={{
-                    width: '300px',
-                }}
-            />
-        </Autocomplete>
+    const tooltip = (
+        <Tooltip id="tooltip" className="text-info">
+            <strong>Unrecognized location!</strong> Use autocomplete suggestions
+        </Tooltip>
     );
-};
 
-export default AutocompleteSearch;
+
+    return (
+        <Autocomplete
+            onLoad={(autocomplete) => {
+                autocompleteRef.current = autocomplete
+                autocomplete.setFields(['name', 'geometry.location'])
+            }}
+            onPlaceChanged={handlePlaceChanged}
+            className='h-100'
+        >
+            <div className="position-relative h-100">
+                <input
+                    type="text"
+                    placeholder="Search for a place"
+                    ref={inputRef}
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    className="border-0 h-100 p-2"
+                    style={{
+                        width: '300px',
+                    }}
+                />
+
+                {isValid
+                    ? null
+                    : <OverlayTrigger placement="top" overlay={tooltip}>
+                        <h5
+                            className='position-absolute'
+                            style={{ top: '50%', right: '10px', transform: 'translateY(-50%)', backgroundColor: "white" }}
+                        >
+                            <i className="bi bi-info-circle-fill text-warning p-1" />
+                        </h5>
+                    </OverlayTrigger>}
+            </div>
+        </Autocomplete>
+    )
+};

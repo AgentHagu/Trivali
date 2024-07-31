@@ -163,6 +163,13 @@ module.exports = (app) => {
             res.send('/logout success')
         })
     })
+
+    app.get('/api', (req, res) => {
+        const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY
+        const openWeatherApiKey = process.env.OPENWEATHER_API_KEY
+
+        res.json({ googleMapsApiKey, openWeatherApiKey })
+    })
 }
 
 /**

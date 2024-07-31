@@ -32,7 +32,13 @@ export default function ProjectPage() {
     const { user, loading } = useUserData()
     const { id } = useParams()
     const projectIdRef = useRef(id)
-    const [content, setContent] = useState(<h1>Loading...</h1>)
+    const [content, setContent] = useState(<div className="container mt-3 d-flex justify-content-center align-items-center vh-100">
+        <div className="text-center">
+            <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>)
     const [socket, setSocket] = useState()
     const [project, setProject] = useState()
     const [projectLoading, setProjectLoading] = useState(true)
@@ -53,7 +59,7 @@ export default function ProjectPage() {
     useEffect(() => {
         if (socket == null || loading) return
 
-        socket.once("load-project", project => {
+        socket.on("load-project", project => {
             // Regardless of outcome, setProject and setProjectLoading
             setProject(project)
             setProjectLoading(false)
@@ -80,14 +86,45 @@ export default function ProjectPage() {
             }
 
             // Set initial content based on project data
-            setContent(<About data={project.about} />)
+            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)
             setAddedUsersList(project.userList)
         })
 
+        // Request for project
         if (!loading && user) {
             socket.emit("get-project", projectIdRef.current)
         }
     }, [socket, loading, user, navigate])
+
+    useEffect(() => {
+        if (socket == null || loading) return
+
+        socket.on("update-project", updatedProject => {
+            setProject(updatedProject)
+
+            // Check user's permission to access the project, user may have been kicked
+            if (!loading && !updatedProject.userList.some(addedUser =>
+                addedUser._id === user._id)) {
+                toast.error("You were kicked and no longer have access to this project. Redirecting to home page...", {
+                    position: "top-center",
+                    autoClose: 5000
+                })
+                navigate('/home')
+            }
+        })
+    }, [socket, loading, user, navigate])
+
+    useEffect(() => {
+        if (socket == null || loading) return
+
+        socket.on("project-deleted", () => {
+            toast.error("Project was deleted by owner. Redirecting to home page...", {
+                position: "top-center",
+                autoClose: 3000
+            })
+            navigate('/home')
+        })
+    }, [socket, loading, navigate])
 
     /**
      * Handles changes to the project name and emits the change to the server.
@@ -106,30 +143,6 @@ export default function ProjectPage() {
             navigate('/home')
         }
     }
-
-    // useEffect(() => {
-    //     if (socket == null) return
-
-    //     socket.on("kick-user", simpleUser => {
-    //         // console.log("TRYING TO KICK USER -----")
-    //         // console.log("USER TO KICK: ", simpleUser._id)
-    //         // console.log("CURRENT USER: ", user._id)
-    //         // if (simpleUser._id === user._id) {
-    //         //     console.log("HEY")
-    //         //     toast.error("You don't have access to this project. Redirecting to home page...", {
-    //         //         //position: toast.POSITION.TOP_CENTER,
-    //         //         autoClose: 3000
-    //         //     })
-    //         //     navigate('/home')
-    //         // }
-
-    //         toast.error("You don't have access to this project. Redirecting to home page...", {
-    //             //position: toast.POSITION.TOP_CENTER,
-    //             autoClose: 3000
-    //         })
-    //         navigate('/home')
-    //     })
-    // }, [loading, navigate, project, socket, user])
 
     /**
      * Switches the displayed content based on user selection.
@@ -191,8 +204,16 @@ export default function ProjectPage() {
                             {
                                 project.owner._id === user._id
                                     ? <div className="col d-flex">
-                                        <button type="button" className="btn btn-primary ms-auto fs-4" data-bs-toggle="modal" data-bs-target="#manageUsersModal">
-                                            Manage Project
+                                        <button
+                                            className="btn btn-secondary ms-auto d-flex align-items-center justify-content-center"
+                                            style={{ width: "60px", height: "60px", borderRadius: "15px" }}
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#manageUsersModal"
+                                            title="Manage project"
+                                        >
+                                            <i className="bi bi-gear-fill"
+                                                style={{ fontSize: "2rem", lineHeight: "1" }}
+                                            />
                                         </button>
                                     </div>
                                     : <></>
@@ -205,7 +226,7 @@ export default function ProjectPage() {
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
                                     onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
-                                    About
+                                    Planning
                                 </button>
 
                                 <button
@@ -234,17 +255,17 @@ export default function ProjectPage() {
                             </div>
                         </div>
 
-                        <div className="border border-2 border-dark bg-white">
+                        <div className="border border-2 border-dark bg-white mb-5">
                             {content}
                         </div>
                     </div>
 
                     {/* Create Project Modal Form */}
-                    <div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div className="modal fade" id="manageUsersModal" data-bs-keyboard="false" tabIndex="-1" aria-hidden="true">
                         <div className="modal-dialog modal-dialog-centered">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Manage Users</h5>
+                                    <h5 className="modal-title">Manage Users</h5>
                                     <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
 
