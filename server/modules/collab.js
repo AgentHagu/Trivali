@@ -61,8 +61,7 @@ module.exports = (server) => {
             })
 
             socket.on("send-cursor-changes", ({ id, user, color, range }) => {
-                // socket.emit(id)
-                console.log({ id, user, color, range })
+                // console.log({ id, user, color, range })
                 socket.broadcast.to(documentId).emit("receive-cursor-changes", { id, user, color, range })
             })
         })

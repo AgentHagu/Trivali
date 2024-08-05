@@ -105,7 +105,7 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
         if (socket == null || quill == null || user == null) return
 
         const handler = (range, oldRange, source) => {
-            console.log("Local cursor change: ", range);
+            // console.log("Local cursor change: ", range);
             socket.emit("send-cursor-changes", { id, user, color: "orange", range })
         }
 

@@ -41,7 +41,9 @@ export default function HeaderNavbar() {
     };
 
     async function copyToClipboard(event) {
-        const uid = event.target.closest("h6").textContent
+        const uidString = event.target.closest("h6").textContent
+        const match = uidString.match(/UID: (\d+)/)
+        const uid = match ? match[1] : null
 
         try {
             await navigator.clipboard.writeText(uid)
