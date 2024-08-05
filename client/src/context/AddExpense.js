@@ -1,49 +1,22 @@
 import { Form, Modal, Button } from 'react-bootstrap';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { UNCATEGORIZED_BUDGET_ID, useBudgets } from './BudgetsContext';
 
-/**
- * Modal component for adding a new expense.
- * 
- * @param {object} props - Component props.
- * @param {boolean} props.show - Controls whether the modal is displayed.
- * @param {Function} props.handleClose - Callback function to close the modal.
- * @param {string} props.defaultBudgetId - Default budget ID for the expense.
- * @returns {JSX.Element} Modal component for adding a new expense.
- */
 export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
     const descriptionRef = useRef();
     const amountRef = useRef();
     const budgetIdRef = useRef();
-    const splitDescriptionRef = useRef();
-    const splitAmountRef = useRef();
-    const splitUserRef = useRef();
     const { addExpense, budgets } = useBudgets();
-    const [splitExpenses, setSplitExpenses] = useState([]);
 
-    /**
-     * Handles form submission to add a new expense.
-     * 
-     * @param {Event} e - Form submission event.
-     */
     function handleSubmit(e) {
         e.preventDefault();
 
         addExpense({
             description: descriptionRef.current.value,
             amount: parseFloat(amountRef.current.value),
-            budgetId: budgetIdRef.current.value,
-            splitExpenses: splitExpenses
+            budgetId: budgetIdRef.current.value
         });
         handleClose();
-    }
-
-    function handleAddSplitExpense() {
-        setSplitExpenses([...splitExpenses, {
-            description: splitDescriptionRef.current.value,
-            amount: parseFloat(splitAmountRef.current.value),
-            user: splitUserRef.current.value
-        }]);
     }
 
     return (
@@ -72,47 +45,14 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
                     <Form.Group className="mb-3" controlId="budgetId">
                         <Form.Label>Budget</Form.Label>
                         <Form.Select defaultValue={defaultBudgetId} ref={budgetIdRef}>
-                            <option id={UNCATEGORIZED_BUDGET_ID}>Uncategorized</option>
-                            {budgets.map(budget => (
-                                <option key={budget.id} value={budget.id}>{budget.name}</option>
+                            {/* <option id={UNCATEGORIZED_BUDGET_ID}>Uncategorized</option> */}
+                            {budgets.map(budget=> (
+                                <option key = {budget.id} value = {budget.id}> {budget.name} </option>
                             ))}
                         </Form.Select>
                     </Form.Group>
 
-                    <hr />
-
-                    <h5>Split Expenses</h5>
-                    {splitExpenses.map((split, index) => (
-                        <div key={index} className="mb-3">
-                            <p>{split.description}: {split.amount} with {split.user}</p>
-                        </div>
-                    ))}
-
-                    <Form.Group className="mb-3" controlId="splitDescription">
-                        <Form.Label>Split Description</Form.Label>
-                        <Form.Control ref={splitDescriptionRef} type="text" />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="splitAmount">
-                        <Form.Label>Split Amount</Form.Label>
-                        <Form.Control 
-                            ref={splitAmountRef} 
-                            type="number" 
-                            min={0} 
-                            step={0.01} 
-                        />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="splitUser">
-                        <Form.Label>Split With</Form.Label>
-                        <Form.Control ref={splitUserRef} type="text" />
-                    </Form.Group>
-
-                    <Button variant="secondary" onClick={handleAddSplitExpense}>
-                        Add Split
-                    </Button>
-
-                    <div className="d-flex justify-content-end mt-3">
+                    <div className="d-flex justify-content-end">
                         <Button variant="primary" type="submit">
                             Add
                         </Button>

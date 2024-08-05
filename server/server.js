@@ -5,6 +5,7 @@ require("dotenv").config()
 
 const app = express()
 const server = http.createServer(app);
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY
 
 // Middleware
 app.use(cors({

@@ -502,7 +502,7 @@ export default function Itinerary({ projectId, data, socket }) {
         }
 
     }
-    
+
     /**
      * Renders a tooltip indicating that the text has been copied.
      * 
@@ -518,7 +518,13 @@ export default function Itinerary({ projectId, data, socket }) {
     return <>
         <button
             className="btn position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
-            style={{ width: "60px", height: "60px", borderRadius: "15px", backgroundColor: "#10a37f" }}
+            style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "15px",
+                backgroundColor: "#10a37f",
+                zIndex: 1000
+            }}
             data-bs-toggle="modal"
             data-bs-target="#openAI"
             title="Create project"
