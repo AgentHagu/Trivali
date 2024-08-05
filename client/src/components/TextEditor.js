@@ -56,7 +56,7 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
         })
 
         socket.emit("get-document", { documentId: documentId, projectId: projectId })
-    }, [socket, quill, documentId])
+    }, [socket, quill, documentId, projectId])
 
     // Save document to server at regular intervals
     useEffect(() => {
@@ -106,7 +106,7 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
 
         const handler = (range, oldRange, source) => {
             // console.log("Local cursor change: ", range);
-            socket.emit("send-cursor-changes", { id, user, color: "orange", range })
+            socket.emit("send-cursor-changes", { id, user, range })
         }
 
         quill.on("selection-change", handler)
@@ -114,18 +114,30 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
         return () => {
             quill.off("selection-change", handler)
         }
-    }, [socket, quill])
+    }, [socket, quill, user, id])
 
     useEffect(() => {
         if (socket == null || quill == null) return
 
-        socket.on("receive-cursor-changes", ({id, user, color, range}) => {
+        socket.on("receive-cursor-changes", ({ id, user, range }) => {
             const cursors = quill.getModule("cursors")
-            cursors.createCursor(id, user.username, color)
+            cursors.createCursor(id, user.username, user.color)
             cursors.moveCursor(id, range)
-            cursors.toggleFlag(id, true)
+            // cursors.toggleFlag(id, true)
         })
-    })
+    }, [socket, quill])
+
+    useEffect(() => {
+        if (socket == null) return
+
+        //TODO: Add mounting + dismounting logic to add and remove cursors
+        // console.log("Socket: ", socket)
+
+        return () => {
+            // console.log(socket.connected)
+            // console.log('About Component is unmounting')
+        }
+    }, [socket])
 
     // Initialize Quill editor
     const wrapperRef = useCallback(wrapper => {
@@ -141,7 +153,9 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
                 modules: {
                     toolbar: false,
                     history: { userOnly: true },
-                    cursors: true
+                    cursors: {
+                        hideDelayMs: 1000
+                    }
                 },
                 placeholder: placeholder
             }

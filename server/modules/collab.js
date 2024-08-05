@@ -60,9 +60,9 @@ module.exports = (server) => {
                 await Document.findByIdAndUpdate(documentId, { data })
             })
 
-            socket.on("send-cursor-changes", ({ id, user, color, range }) => {
+            socket.on("send-cursor-changes", ({ id, user, range }) => {
                 // console.log({ id, user, color, range })
-                socket.broadcast.to(documentId).emit("receive-cursor-changes", { id, user, color, range })
+                socket.broadcast.to(documentId).emit("receive-cursor-changes", { id, user, range })
             })
         })
 

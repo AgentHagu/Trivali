@@ -21,6 +21,23 @@ import { BudgetsProvider } from "../context/BudgetsContext";
 import LoadScriptProvider from "../context/LoadScriptProvider";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
+const USER_COLORS = [
+    '#FF5733', // Vibrant Red
+    '#3357FF', // Deep Blue
+    '#F1C40F', // Bright Yellow
+    '#9B59B6', // Purple
+    '#1ABC9C', // Teal
+    '#34495E', // Slate Gray
+    '#E74C3C', // Coral Red
+    '#2ECC71', // Emerald Green
+    '#3498DB', // Sky Blue
+    '#F39C12'  // Golden Yellow
+]
+
+function getRandomColor() {
+    const randomIndex = Math.floor(Math.random() * USER_COLORS.length)
+    return USER_COLORS[randomIndex]
+}
 
 /**
  * Main component for managing a project, including its details and related functionalities.
@@ -44,6 +61,7 @@ export default function ProjectPage() {
     const [projectLoading, setProjectLoading] = useState(true)
     const navigate = useNavigate()
     const [addedUsersList, setAddedUsersList] = useState([])
+    const [userColor, setUserColor] = useState(getRandomColor())
 
     // Establish socket connection with server
     useEffect(() => {
@@ -86,7 +104,7 @@ export default function ProjectPage() {
             }
 
             // Set initial content based on project data
-            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={user} />)
+            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={{...user, color: userColor }} />)
             setAddedUsersList(project.userList)
         })
 
@@ -94,7 +112,7 @@ export default function ProjectPage() {
         if (!loading && user) {
             socket.emit("get-project", projectIdRef.current)
         }
-    }, [socket, loading, user, navigate])
+    }, [socket, loading, user, navigate, userColor])
 
     useEffect(() => {
         if (socket == null || loading) return
@@ -225,13 +243,13 @@ export default function ProjectPage() {
                             <div className="btn-group btn-group-lg" role="group">
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                    onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={user} />)} >
+                                    onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={{...user, color: userColor }} />)} >
                                     Planning
                                 </button>
 
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                    onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} user={user} />)} >
+                                    onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} user={{...user, color: userColor }} />)} >
                                     Itinerary
                                 </button>
 

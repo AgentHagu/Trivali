@@ -283,7 +283,7 @@ export default function HomePage() {
             </>
             setContent(loadedContent)
         }
-    }, [loading, user, submitHandler, socket, addedUsersList])
+    }, [loading, user, socket, submitHandler, addedUsersList])
 
 
     return <>

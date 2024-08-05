@@ -22,6 +22,10 @@ body {
     justify-content: center;
 }
 
+/* .container .ql-cursor-flag {
+
+} */
+
 .table td.fit, 
 .table th.fit {
    white-space: nowrap;
