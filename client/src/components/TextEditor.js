@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import Quill from "quill"
+import QuillCursors from 'quill-cursors';
 import "quill/dist/quill.snow.css"
 
 import { io } from "socket.io-client"
@@ -20,18 +21,20 @@ const TOOLBAR_OPTIONS = [
     ["clean"],
 ]
 
+Quill.register('modules/cursors', QuillCursors)
+
 /**
  * TextEditor component for editing documents with real-time collaboration.
  *
  * @component
  * @returns {JSX.Element} The rendered component.
  */
-export default function TextEditor(props) {
+export default function TextEditor({ page, number, projectId, placeholder, user }) {
     const { id } = useParams()
     const [socket, setSocket] = useState()
     const [quill, setQuill] = useState()
 
-    const documentId = id + "/" + props.page + "/" + props.number
+    const documentId = id + "/" + page + "/" + number
 
     // Establish socket connection with server
     useEffect(() => {
@@ -52,7 +55,7 @@ export default function TextEditor(props) {
             quill.enable();
         })
 
-        socket.emit("get-document", { documentId: documentId, projectId: props.projectId })
+        socket.emit("get-document", { documentId: documentId, projectId: projectId })
     }, [socket, quill, documentId])
 
     // Save document to server at regular intervals
@@ -97,6 +100,33 @@ export default function TextEditor(props) {
         }
     }, [socket, quill])
 
+    // Send cursor data to server and other users
+    useEffect(() => {
+        if (socket == null || quill == null || user == null) return
+
+        const handler = (range, oldRange, source) => {
+            console.log("Local cursor change: ", range);
+            socket.emit("send-cursor-changes", { id, user, color: "orange", range })
+        }
+
+        quill.on("selection-change", handler)
+
+        return () => {
+            quill.off("selection-change", handler)
+        }
+    }, [socket, quill])
+
+    useEffect(() => {
+        if (socket == null || quill == null) return
+
+        socket.on("receive-cursor-changes", ({id, user, color, range}) => {
+            const cursors = quill.getModule("cursors")
+            cursors.createCursor(id, user.username, color)
+            cursors.moveCursor(id, range)
+            cursors.toggleFlag(id, true)
+        })
+    })
+
     // Initialize Quill editor
     const wrapperRef = useCallback(wrapper => {
         if (wrapper == null) return
@@ -111,8 +141,9 @@ export default function TextEditor(props) {
                 modules: {
                     toolbar: false,
                     history: { userOnly: true },
+                    cursors: true
                 },
-                placeholder: props.placeholder
+                placeholder: placeholder
             }
         )
 

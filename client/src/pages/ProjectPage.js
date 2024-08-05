@@ -86,7 +86,7 @@ export default function ProjectPage() {
             }
 
             // Set initial content based on project data
-            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)
+            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={user} />)
             setAddedUsersList(project.userList)
         })
 
@@ -225,13 +225,13 @@ export default function ProjectPage() {
                             <div className="btn-group btn-group-lg" role="group">
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                    onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} />)} >
+                                    onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={user} />)} >
                                     Planning
                                 </button>
 
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                    onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} />)} >
+                                    onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} user={user} />)} >
                                     Itinerary
                                 </button>
 

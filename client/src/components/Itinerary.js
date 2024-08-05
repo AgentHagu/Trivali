@@ -32,7 +32,7 @@ function supportsFirefox() {
  * @param {object} props.socket - Socket.io instance for real-time updates.
  * @returns {JSX.Element} Table component displaying itinerary data.
  */
-function Table({ projectId, data, socket }) {
+function Table({ projectId, data, socket, user }) {
     const MENU_ID = 'Itinerary Menu';
     const [rows, setRows] = useState(data)
 
@@ -389,7 +389,7 @@ function Table({ projectId, data, socket }) {
                             </td>
 
                             <td className="p-0" style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                <TextEditor page={activity.details.page} number={activity.details.number} projectId={projectId} />
+                                <TextEditor page={activity.details.page} number={activity.details.number} projectId={projectId} user={user}/>
                             </td>
                         </tr>)
                     )))}
@@ -407,7 +407,7 @@ function Table({ projectId, data, socket }) {
     </>
 }
 
-export default function Itinerary({ projectId, data, socket }) {
+export default function Itinerary({ projectId, data, socket, user }) {
     const [itineraryData, setItineraryData] = useState(data)
     const [generateItineraryStatus, setGenerateItineraryStatus] = useState(null)
     const [generateItineraryResponse, setGenerateItineraryResponse] = useState()
@@ -558,7 +558,7 @@ export default function Itinerary({ projectId, data, socket }) {
 
         {
             !replaceItineraryStatus
-                ? <Table projectId={projectId} data={itineraryData.rows} socket={socket} />
+                ? <Table projectId={projectId} data={itineraryData.rows} socket={socket} user={user} />
                 : <div className="py-5 text-center border-top border-black border-2">
                     <div className="spinner-border" role="status">
                         <span className="visually-hidden">Loading...</span>
