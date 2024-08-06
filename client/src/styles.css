@@ -22,9 +22,9 @@ body {
     justify-content: center;
 }
 
-/* .container .ql-cursor-flag {
-
-} */
+.container .ql-cursor-flag {
+    padding-bottom: 0%;
+}
 
 .table td.fit, 
 .table th.fit {

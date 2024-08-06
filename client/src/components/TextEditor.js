@@ -104,40 +104,97 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
     useEffect(() => {
         if (socket == null || quill == null || user == null) return
 
-        const handler = (range, oldRange, source) => {
-            // console.log("Local cursor change: ", range);
-            socket.emit("send-cursor-changes", { id, user, range })
+        const changeHandler = (range, oldRange, source) => {
+            socket.emit("send-cursor-changes", { id: id + user._id, user, range })
         }
 
-        quill.on("selection-change", handler)
+        quill.on("selection-change", changeHandler)
+
+        const handleBlur = () => {
+            socket.emit("send-delete-cursor", id + user._id)
+        }
+
+        const editorContainer = quill.root
+        editorContainer.addEventListener('blur', handleBlur)
 
         return () => {
-            quill.off("selection-change", handler)
+            quill.off("selection-change", changeHandler)
+            editorContainer.removeEventListener('blur', handleBlur)
         }
     }, [socket, quill, user, id])
 
     useEffect(() => {
         if (socket == null || quill == null) return
+        const cursors = quill.getModule("cursors")
 
-        socket.on("receive-cursor-changes", ({ id, user, range }) => {
-            const cursors = quill.getModule("cursors")
+        const handler = ({ id, user, range }) => {
             cursors.createCursor(id, user.username, user.color)
             cursors.moveCursor(id, range)
             // cursors.toggleFlag(id, true)
-        })
+
+            // setTimeout(() => {
+            //     cursors.toggleFlag(id, false)
+            // }, 2000)
+        }
+
+        socket.on("receive-cursor-changes", handler)
+
+        return () => {
+            socket.off("receive-cursor-changes", handler)
+        }
     }, [socket, quill])
 
     useEffect(() => {
-        if (socket == null) return
+        if (socket == null || quill == null) return
+        const cursors = quill.getModule("cursors")
 
-        //TODO: Add mounting + dismounting logic to add and remove cursors
-        // console.log("Socket: ", socket)
+        // When first connect, ask for other cursors
+        const connectHandler = () => {
+            // console.log("heyy")
+            socket.emit("get-cursors", socket.id)
+        }
+
+        socket.on("connect", connectHandler)
+
+        // When receive the other cursors data, draw them with a flag
+        const receiveHandler = cursor => {
+            cursors.createCursor(cursor.id, cursor.name, cursor.color)
+            cursors.moveCursor(cursor.id, cursor.range)
+            cursors.toggleFlag(cursor.id, true)
+
+            setTimeout(() => {
+                cursors.toggleFlag(cursor.id, false)
+            }, 2000)
+        }
+
+        // When asked for my cursor data, send to senderId
+        const sendHandler = senderId => {
+            const range = quill.getSelection()
+
+            if (range) {
+                const cursor = { id: id + user._id, name: user.username, color: user.color, range: range }
+                socket.emit("send-cursor-data", { cursor, senderId })
+            }
+        }
+
+        // When asked to delete other cursor, delete based on id
+        const deleteHandler = id => {
+            cursors.removeCursor(id)
+        }
+
+        socket.on("receive-cursor", receiveHandler)
+        socket.on("send-cursor", sendHandler)
+
+        // TODO: Check if this works with 3 accounts
+        socket.on("delete-cursor", deleteHandler)
 
         return () => {
-            // console.log(socket.connected)
-            // console.log('About Component is unmounting')
+            socket.off("connect", connectHandler)
+            socket.off("receive-cursor", receiveHandler)
+            socket.off("send-cursor", sendHandler)
+            socket.off("delete-cursor", deleteHandler)
         }
-    }, [socket])
+    }, [socket, quill, id, user])
 
     // Initialize Quill editor
     const wrapperRef = useCallback(wrapper => {
@@ -154,7 +211,7 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
                     toolbar: false,
                     history: { userOnly: true },
                     cursors: {
-                        hideDelayMs: 1000
+                        hideDelayMs: 2000,
                     }
                 },
                 placeholder: placeholder
@@ -164,7 +221,7 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
         q.disable()
         // q.setText("")
         setQuill(q);
-    }, [])
+    }, [placeholder])
     return <>
         <div className="w-100 h-100" ref={wrapperRef}></div>
     </>
