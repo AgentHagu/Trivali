@@ -69,13 +69,18 @@ module.exports = (server) => {
                 socket.broadcast.to(documentId).emit("send-cursor", senderId)
             })
 
-            socket.on("send-cursor-data", ({cursor, senderId}) => {
+            socket.on("send-cursor-data", ({ cursor, senderId }) => {
                 io.to(senderId).emit("receive-cursor", cursor)
             })
 
             socket.on("send-delete-cursor", id => {
                 socket.broadcast.to(documentId).emit("delete-cursor", id)
             })
+
+            // socket.on("disconnect", () => {
+            //     console.log("disconnect!")
+            //     socket.broadcast.to(documentId).emit("refresh-cursors")
+            // })
         })
 
         /**

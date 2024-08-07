@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom"
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
-const SAVE_INTERVAL_MS = 2000
+const SAVE_INTERVAL_MS = 1000
 const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
     [{ font: [] }],
@@ -41,10 +41,18 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
         const s = io(`${SERVER_URL}`)
         setSocket(s)
 
-        return () => {
-            s.disconnect()
+        const handleBeforeUnload = () => {
+            s.emit("send-delete-cursor", id + user._id)
         }
-    }, [])
+
+        window.addEventListener("beforeunload", handleBeforeUnload)
+
+        return () => {
+            s.emit("send-delete-cursor", id + user._id)
+            s.disconnect()
+            window.removeEventListener("beforeunload", handleBeforeUnload)
+        }
+    }, [id, user])
 
     // Load document from server on component mount
     useEffect(() => {
@@ -64,6 +72,7 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
 
         const interval = setInterval(() => {
             socket.emit("save-document", quill.getContents())
+            socket.emit("get-cursors", socket.id)
         }, SAVE_INTERVAL_MS)
 
         return () => {
@@ -103,31 +112,15 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
     // Send cursor data to server and other users
     useEffect(() => {
         if (socket == null || quill == null || user == null) return
+        const cursors = quill.getModule("cursors")
 
+        // Whenever text editor selection changes, emit events to update
         const changeHandler = (range, oldRange, source) => {
             socket.emit("send-cursor-changes", { id: id + user._id, user, range })
         }
 
-        quill.on("selection-change", changeHandler)
-
-        const handleBlur = () => {
-            socket.emit("send-delete-cursor", id + user._id)
-        }
-
-        const editorContainer = quill.root
-        editorContainer.addEventListener('blur', handleBlur)
-
-        return () => {
-            quill.off("selection-change", changeHandler)
-            editorContainer.removeEventListener('blur', handleBlur)
-        }
-    }, [socket, quill, user, id])
-
-    useEffect(() => {
-        if (socket == null || quill == null) return
-        const cursors = quill.getModule("cursors")
-
-        const handler = ({ id, user, range }) => {
+        // Whenever receive cursor updates, redraw the cursor
+        const receiveHandler = ({ id, user, range }) => {
             cursors.createCursor(id, user.username, user.color)
             cursors.moveCursor(id, range)
             // cursors.toggleFlag(id, true)
@@ -137,12 +130,14 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
             // }, 2000)
         }
 
-        socket.on("receive-cursor-changes", handler)
+        quill.on("selection-change", changeHandler)
+        socket.on("receive-cursor-changes", receiveHandler)
 
         return () => {
-            socket.off("receive-cursor-changes", handler)
+            quill.off("selection-change", changeHandler)
+            socket.off("receive-cursor-changes", receiveHandler)
         }
-    }, [socket, quill])
+    }, [socket, quill, user, id])
 
     useEffect(() => {
         if (socket == null || quill == null) return
@@ -150,24 +145,23 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
 
         // When first connect, ask for other cursors
         const connectHandler = () => {
-            // console.log("heyy")
             socket.emit("get-cursors", socket.id)
         }
 
         socket.on("connect", connectHandler)
 
-        // When receive the other cursors data, draw them with a flag
+        // When first receive the other cursors data, draw them with a flag
         const receiveHandler = cursor => {
             cursors.createCursor(cursor.id, cursor.name, cursor.color)
             cursors.moveCursor(cursor.id, cursor.range)
-            cursors.toggleFlag(cursor.id, true)
+            // cursors.toggleFlag(cursor.id, true)
 
-            setTimeout(() => {
-                cursors.toggleFlag(cursor.id, false)
-            }, 2000)
+            // setTimeout(() => {
+            //     cursors.toggleFlag(cursor.id, false)
+            // }, 2000)
         }
 
-        // When asked for my cursor data, send to senderId
+        // When asked for my own cursor data, send to senderId
         const sendHandler = senderId => {
             const range = quill.getSelection()
 

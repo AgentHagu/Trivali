@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 // Components
 import HeaderNavbar from "../components/HeaderNavbar";
+import { toast } from "react-toastify";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -25,8 +26,12 @@ export default function RegisterPage() {
         async function validateUser() {
             const token = localStorage.getItem('token')
             if (token) {
+                toast.error("You are already logged in! Redirecting to home page...", {
+                    position: "top-center",
+                    autoClose: 3000
+                  })
                 navigate('/home')
-                return;
+                return
             }
         }
 
