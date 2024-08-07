@@ -26,11 +26,11 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 
 // Create router configuration
 const router = createBrowserRouter([
-  // {
-  //   path: "/test",
-  //   // element: <PrivateRoute element = {<Test />}/>
-  //   element: <Test />
-  // },
+  {
+    path: "/test",
+    // element: <PrivateRoute element = {<Test />}/>
+    element: <Test />
+  },
   {
     path: "/",
     element: <Navigate to={"/welcome"} />
@@ -90,16 +90,27 @@ function PrivateRoute({ element }) {
 
     async function fetchUser() {
       try {
-        const response = await fetch(`${SERVER_URL}`, {
-          method: 'GET',
-          credentials: 'include'
-        });
+        const token = localStorage.getItem('token')
 
-        if (response.ok) {
-          if (isMounted) setIsAuthenticated(true);
+        // If have token, means authenticated
+        if (token) {
+          if (isMounted) setIsAuthenticated(true)
         } else {
-          if (isMounted) setIsAuthenticated(false);
+          if (isMounted) setIsAuthenticated(false)
         }
+
+        // const response = await fetch(`${SERVER_URL}`, {
+        //   method: 'GET',
+        //   credentials: 'include'
+        // });
+
+        // console.log(response.ok)
+
+        // if (response.ok) {
+        //   if (isMounted) setIsAuthenticated(true);
+        // } else {
+        //   if (isMounted) setIsAuthenticated(false);
+        // }
       } catch (error) {
         if (isMounted) setIsAuthenticated(false);
       }

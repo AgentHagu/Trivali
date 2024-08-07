@@ -23,18 +23,10 @@ export default function RegisterPage() {
     // Validate user session on component mount
     useEffect(() => {
         async function validateUser() {
-            const response = await fetch(`${SERVER_URL}/register`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            })
-
-            if (response.ok) {
-                //console.log("Allowed to register")
-            } else {
+            const token = localStorage.getItem('token')
+            if (token) {
                 navigate('/home')
+                return;
             }
         }
 

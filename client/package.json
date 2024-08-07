@@ -10,6 +10,8 @@
     "bootstrap-icons": "^1.11.3",
     "express": "^4.19.2",
     "jquery": "^3.7.1",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "openai": "^4.53.0",
     "quill": "^2.0.2",
     "quill-better-table": "^1.2.10",

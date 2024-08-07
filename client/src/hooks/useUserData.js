@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { jwtDecode } from 'jwt-decode';
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
@@ -16,15 +17,22 @@ function useUserData() {
     useEffect(() => {
         async function fetchUserData() {
             try {
-                const response = await fetch(`${SERVER_URL}`, {
-                    method: 'GET',
+                const token = localStorage.getItem('token')
+                const decoded = jwtDecode(token)
+                const userId = decoded.id
+                
+                const response = await fetch(`${SERVER_URL}/getUserData`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    credentials: 'include'
+                    body: JSON.stringify({ userId })
                 });
-                setUser(await response.json())
+
+                const data = await response.json()
+                setUser(data)
             } catch (error) {
+                // console.log("ERROR: ", error)
                 // TODO: Handle error if needed
             } finally {
                 setLoading(false)

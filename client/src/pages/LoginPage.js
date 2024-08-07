@@ -25,23 +25,15 @@ export default function LoginPage() {
     // Validate user session on component mount
     useEffect(() => {
         async function validateUser() {
-            const response = await fetch(`${SERVER_URL}/login`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            })
-
-            if (response.ok) {
-                //console.log("Allowed to login")
-            } else {
+            const token = localStorage.getItem('token')
+            if (token) {
                 navigate('/home')
+                return;
             }
         }
 
         validateUser()
-    }, [])
+    }, [navigate])
 
     // Handle input change
     const handleChange = (event) => {
@@ -64,23 +56,23 @@ export default function LoginPage() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include',
             body: JSON.stringify({ email, password })
         })
 
         if (response.ok) {
+            const data = await response.json()
+            localStorage.setItem('token', data.token)
             navigate('/home')
         } else {
-            response.text().then(errorMessage => {
-                setError(errorMessage)
+            const errorMessage = await response.text()
+            setError(errorMessage)
 
-                if (errorMessage === "Password incorrect") {
-                    setIsPasswordValid(false)
-                } else {
-                    setIsEmailValid(false)
-                    setIsPasswordValid(false)
-                }
-            });
+            if (errorMessage === "Incorrect password") {
+                setIsPasswordValid(false)
+            } else {
+                setIsEmailValid(false)
+                setIsPasswordValid(false)
+            }
         }
     };
 

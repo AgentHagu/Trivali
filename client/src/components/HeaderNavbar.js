@@ -25,19 +25,8 @@ export default function HeaderNavbar() {
     const handleLogout = async (event) => {
         event.preventDefault();
 
-        const response = await fetch(`${SERVER_URL}/logout`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include'
-        })
-
-        if (response.ok) {
-            navigate('/')
-        } else {
-            navigate('/')
-        }
+        localStorage.removeItem('token')
+        navigate('/')
     };
 
     async function copyToClipboard(event) {
