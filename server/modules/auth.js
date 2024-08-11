@@ -93,4 +93,10 @@ module.exports = (app) => {
 
         res.status(200).json({ googleMapsApiKey, openWeatherApiKey })
     })
+
+    app.post('/delete-user', async (req, res) => {
+        const email = req.body.email
+        await User.findOneAndDelete({ email: email })
+        res.status(200).send('User deleted successfully')
+    })
 };

@@ -133,10 +133,10 @@ export default function HeaderNavbar() {
                                 // </li>
                                 : <>
                                     <li className="nav-item">
-                                        <a className="nav-link" href="/login">Login</a>
+                                        <a id="login" className="nav-link" href="/login">Login</a>
                                     </li>
                                     <li className="nav-item">
-                                        <a className="nav-link" href="/register">Sign up</a>
+                                        <a id="register" className="nav-link" href="/register">Sign up</a>
                                     </li>
                                 </>
                     }
