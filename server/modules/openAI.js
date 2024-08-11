@@ -123,4 +123,8 @@ module.exports = (app) => {
             res.status(500).json({ error: 'Error generating itinerary ' })
         }
     })
+
+    return {
+        generateItinerary
+    }
 }
