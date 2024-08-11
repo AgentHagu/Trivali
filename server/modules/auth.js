@@ -18,8 +18,17 @@ module.exports = (app) => {
 
     // Return User Data Route
     app.post('/getUserData', async (req, res) => {
-        const user = await User.findOne({ _id: req.body.userId })
-        res.send(user)
+        try {
+            const user = await User.findOne({ _id: req.body.userId })
+
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' })
+            }
+
+            res.status(200).send(user)
+        } catch (error) {
+            res.status(500).json({ error: 'Internal server error' })
+        }
     })
 
     /**
@@ -45,7 +54,8 @@ module.exports = (app) => {
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
+        res.status(200).json({ token, message: "Logged in successfully" });
+
     });
 
     /**
@@ -81,6 +91,6 @@ module.exports = (app) => {
         const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY
         const openWeatherApiKey = process.env.OPENWEATHER_API_KEY
 
-        res.json({ googleMapsApiKey, openWeatherApiKey })
+        res.status(200).json({ googleMapsApiKey, openWeatherApiKey })
     })
 };

@@ -172,7 +172,7 @@ export default function Map({ projectId, data, socket }) {
                         const request = {
                             origin: { lat: location1.lat, lng: location1.lng },
                             destination: { lat: location2.lat, lng: location2.lng },
-                            travelMode: travelMode // Adjust if needed
+                            travelMode: travelMode
                         };
 
                         try {

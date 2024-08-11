@@ -72,7 +72,7 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
 
         const interval = setInterval(() => {
             socket.emit("save-document", quill.getContents())
-            socket.emit("get-cursors", socket.id)
+            socket.emit("get-cursors", { senderId: socket.id, toggleFlag: false })
         }, SAVE_INTERVAL_MS)
 
         return () => {
@@ -145,29 +145,32 @@ export default function TextEditor({ page, number, projectId, placeholder, user 
 
         // When first connect, ask for other cursors
         const connectHandler = () => {
-            socket.emit("get-cursors", socket.id)
+            socket.emit("get-cursors", { senderId: socket.id, toggleFlag: true })
         }
 
         socket.on("connect", connectHandler)
 
         // When first receive the other cursors data, draw them with a flag
-        const receiveHandler = cursor => {
+        const receiveHandler = ({ cursor, toggleFlag }) => {
             cursors.createCursor(cursor.id, cursor.name, cursor.color)
             cursors.moveCursor(cursor.id, cursor.range)
-            // cursors.toggleFlag(cursor.id, true)
 
-            // setTimeout(() => {
-            //     cursors.toggleFlag(cursor.id, false)
-            // }, 2000)
+            if (toggleFlag) {
+                cursors.toggleFlag(cursor.id, true)
+
+                setTimeout(() => {
+                    cursors.toggleFlag(cursor.id, false)
+                }, 2000)
+            }
         }
 
         // When asked for my own cursor data, send to senderId
-        const sendHandler = senderId => {
+        const sendHandler = ({ senderId, toggleFlag }) => {
             const range = quill.getSelection()
 
             if (range) {
                 const cursor = { id: id + user._id, name: user.username, color: user.color, range: range }
-                socket.emit("send-cursor-data", { cursor, senderId })
+                socket.emit("send-cursor-data", { cursor, senderId, toggleFlag })
             }
         }
 

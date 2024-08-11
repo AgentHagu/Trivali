@@ -58,29 +58,24 @@ module.exports = (server) => {
              */
             socket.on("save-document", async data => {
                 await Document.findByIdAndUpdate(documentId, { data })
+                socket.emit("save-document-complete")
             })
 
             socket.on("send-cursor-changes", ({ id, user, range }) => {
-                // console.log({ id, user, color, range })
                 socket.broadcast.to(documentId).emit("receive-cursor-changes", { id, user, range })
             })
 
-            socket.on("get-cursors", senderId => {
-                socket.broadcast.to(documentId).emit("send-cursor", senderId)
+            socket.on("get-cursors", ({ senderId, toggleFlag }) => {
+                socket.broadcast.to(documentId).emit("send-cursor", { senderId, toggleFlag })
             })
 
-            socket.on("send-cursor-data", ({ cursor, senderId }) => {
-                io.to(senderId).emit("receive-cursor", cursor)
+            socket.on("send-cursor-data", ({ cursor, senderId, toggleFlag }) => {
+                io.to(senderId).emit("receive-cursor", { cursor, toggleFlag })
             })
 
             socket.on("send-delete-cursor", id => {
                 socket.broadcast.to(documentId).emit("delete-cursor", id)
             })
-
-            // socket.on("disconnect", () => {
-            //     console.log("disconnect!")
-            //     socket.broadcast.to(documentId).emit("refresh-cursors")
-            // })
         })
 
         /**
@@ -162,6 +157,9 @@ module.exports = (server) => {
                             }
                         )
                     })
+                
+                // For tests only
+                socket.emit("project-name-updated")
             })
 
             /**
@@ -194,6 +192,9 @@ module.exports = (server) => {
                             }
                         )
                     })
+                
+                // For tests only
+                socket.emit('TEST-user-added')
             })
 
             /**
@@ -287,6 +288,9 @@ module.exports = (server) => {
              */
             socket.on("delete-itinerary-activity", async idPart => {
                 await Document.findByIdAndDelete(projectId + "/" + idPart)
+            
+                // For tests only
+                socket.emit("TEST-delete-itinerary-activity-complete")
             })
 
             /**
@@ -453,19 +457,20 @@ async function refreshLastUpdate(projectId) {
     const updatedProject = await Project.findById(
         projectId
     )
-
-    updatedProject.userList.forEach(
-        async user => {
-            await User.findOneAndUpdate(
-                {
-                    _id: user._id,
-                    'projectList._id': projectId
-                },
-                {
-                    $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
-                }
-            )
-        })
+    if (updatedProject) {
+        updatedProject.userList.forEach(
+            async user => {
+                await User.findOneAndUpdate(
+                    {
+                        _id: user._id,
+                        'projectList._id': projectId
+                    },
+                    {
+                        $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                    }
+                )
+            })
+    }
 }
 
 /**
@@ -551,3 +556,11 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
     }
 }
 
+if (process.env.NODE_ENV === 'test') {
+    module.exports.userToSimpleUser = userToSimpleUser
+    module.exports.formatDate = formatDate
+    module.exports.projectToSimpleProject = projectToSimpleProject
+    module.exports.refreshLastUpdate = refreshLastUpdate
+    module.exports.findOrCreateDocument = findOrCreateDocument
+    module.exports.findOrCreateProject = findOrCreateProject
+}

@@ -28,24 +28,9 @@ authModule(app);
 // Connect to test database
 beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-});
-
-afterAll(async () => {
-    await mongoose.disconnect();
-});
-
-// Sample test user
-const testUser = {
-    username: 'authTestUser',
-    email: 'authTestUser@example.com',
-    password: 'authTestPassword'
-};
-
-// Register a user before running tests
-beforeEach(async () => {
     const hashedPassword = await bcrypt.hash(testUser.password, 10);
     await User.create({
-        _id: Date.now().toString(),
+        _id: testUser._id,
         username: testUser.username,
         email: testUser.email,
         password: hashedPassword,
@@ -53,20 +38,39 @@ beforeEach(async () => {
     });
 });
 
-// Clean up after each test
-afterEach(async () => {
-    await User.deleteMany({});
+afterAll(async () => {
+    await User.findOneAndDelete({ email: testUser.email })
+    await mongoose.disconnect();
 });
 
-describe('Authentication Routes', () => {
-    it('should register a new user', async () => {
-        const response = await request(app)
-            .post('/register')
-            .set('Content-Type', 'application/json')
-            .send({ username: 'newuser', email: 'newuser@example.com', password: 'newpassword' });
+// Sample test existing user
+const testUser = {
+    _id: Date.now().toString(),
+    username: 'authTestUser',
+    email: 'authTestUser@example.com',
+    password: 'authTestPassword'
+};
 
-        expect(response.status).toBe(200);
-        expect(response.text).toBe('Registered!');
+// Sample new user
+const newUser = {
+    username: 'newUser',
+    email: 'newUser@example.com',
+    password: 'newPassword'
+};
+
+describe('Authentication Module Routes', () => {    
+    it('should register a new user', async () => {
+        try {
+            const response = await request(app)
+                .post('/register')
+                .set('Content-Type', 'application/json')
+                .send({ username: newUser.username, email: newUser.email, password: newUser.password });
+
+            expect(response.status).toBe(200);
+            expect(response.text).toBe('Registered!');
+        } finally {
+            await User.findOneAndDelete({ email: newUser.email })
+        }
     });
 
     it('should not register a user with an existing email', async () => {
@@ -77,12 +81,14 @@ describe('Authentication Routes', () => {
         expect(response.text).toBe('Email is already registered');
     });
 
-    it('should log in an existing user', async () => {
+    it('should log in an existing user and return a token', async () => {
         const response = await request(app)
             .post('/login')
             .send({ email: testUser.email, password: testUser.password });
         expect(response.status).toBe(200);
-        expect(response.text).toBe('Logged in successfully');
+        expect(response.body.token).toBeDefined()
+        expect(response.body.token).not.toBeNull()
+        expect(response.body.message).toBe('Logged in successfully');
     });
 
     it('should not log in with incorrect credentials', async () => {
@@ -92,36 +98,55 @@ describe('Authentication Routes', () => {
         expect(response.status).toBe(401);
     });
 
-    it('should access the protected route when authenticated', async () => {
-        const loginResponse = await request(app)
-            .post('/login')
-            .send({ email: testUser.email, password: testUser.password });
-
-        const cookies = loginResponse.headers['set-cookie'];
-
+    it('should return correct user data for a valid user ID', async () => {
         const response = await request(app)
-            .get('/')
-            .set('Cookie', cookies);
-        expect(response.status).toBe(200);
-    });
+            .post('/getUserData')
+            .send({ userId: testUser._id })
+        
+        expect(response.status).toBe(200)
+        expect(response.body).toHaveProperty('username', testUser.username)
+        expect(response.body).toHaveProperty('email', testUser.email)
+    })
 
-    it('should not access the protected route when not authenticated', async () => {
+    it('should return an error for an invalid user ID', async () => {
         const response = await request(app)
-            .get('/');
-        expect(response.status).toBe(401);
-    });
+            .post('/getUserData')
+            .send({ userId: "invalidId" })
+        
+        expect(response.status).toBe(404)
+        expect(response.body.error).toBe("User not found")
+    })
 
-    it('should log out a user', async () => {
-        const loginResponse = await request(app)
-            .post('/login')
-            .send({ email: testUser.email, password: testUser.password });
+    it('should return user data for newly created user', async () => {
+        try {
+            // Create new test user
+            await request(app)
+                .post('/register')
+                .set('Content-Type', 'application/json')
+                .send({ username: newUser.username, email: newUser.email, password: newUser.password })
+            
+            // Get newly created user
+            const newUserInDatabase = await User.findOne({ email: newUser.email })
 
-        const cookies = loginResponse.headers['set-cookie'];
+            // Use newly created user's id
+            const response = await request(app)
+                .post('/getUserData')
+                .send({ userId: newUserInDatabase._id })
+            
+                expect(response.status).toBe(200)
+                expect(response.body).toHaveProperty('username', newUser.username)
+                expect(response.body).toHaveProperty('email', newUser.email)
+        } finally {
+            await User.findOneAndDelete({ email: newUser.email })
+        }
+    })
 
+    it('should return defined API keys for Google Maps and OpenWeather', async () => {
         const response = await request(app)
-            .delete('/logout')
-            .set('Cookie', cookies);
-        expect(response.status).toBe(200);
-        expect(response.text).toBe('/logout success');
-    });
+            .get('/api')
+        
+        expect(response.status).toBe(200)
+        expect(response.body.googleMapsApiKey).toBeDefined()
+        expect(response.body.openWeatherApiKey).toBeDefined()
+    })
 });
