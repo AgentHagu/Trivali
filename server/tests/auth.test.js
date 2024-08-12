@@ -141,12 +141,13 @@ describe('Authentication Module Routes', () => {
         }
     })
 
-    it('should return defined API keys for Google Maps and OpenWeather', async () => {
+    it('should return defined API keys for Google Maps, OpenWeather and CurrencyConverter', async () => {
         const response = await request(app)
             .get('/api')
         
         expect(response.status).toBe(200)
         expect(response.body.googleMapsApiKey).toBeDefined()
         expect(response.body.openWeatherApiKey).toBeDefined()
+        expect(response.body.currencyConverterApiKey).toBeDefined()
     })
 });

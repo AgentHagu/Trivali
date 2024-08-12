@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver')
 const chrome = require('chromedriver')
 const firefox = require('selenium-webdriver/firefox')
 
-describe('Routing Logic Check', () => {
+describe('Welcome Page Interactions', () => {
     let driver
     let expect
 

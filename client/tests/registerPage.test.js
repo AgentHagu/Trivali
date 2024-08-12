@@ -107,6 +107,7 @@ describe('RegisterPage Component Interactions', () => {
 
         const loginButton = await driver.findElement(By.css('button[type="submit"]'))
         await loginButton.click()
+        await driver.sleep(500)
 
         const afterLoginUrl = await driver.getCurrentUrl()
         expect(afterLoginUrl).to.equal('http://localhost:3000/home')

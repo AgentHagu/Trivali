@@ -283,7 +283,7 @@ export default function ProjectPage() {
                         <div className="modal-dialog modal-dialog-centered">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h5 className="modal-title">Manage Users</h5>
+                                    <h5 className="modal-title">Manage Project</h5>
                                     <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
 

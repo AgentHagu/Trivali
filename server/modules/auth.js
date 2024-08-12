@@ -90,8 +90,9 @@ module.exports = (app) => {
     app.get('/api', (req, res) => {
         const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY
         const openWeatherApiKey = process.env.OPENWEATHER_API_KEY
+        const currencyConverterApiKey = process.env.CURRENCYCONVERTER_API_KEY
 
-        res.status(200).json({ googleMapsApiKey, openWeatherApiKey })
+        res.status(200).json({ googleMapsApiKey, openWeatherApiKey, currencyConverterApiKey })
     })
 
     app.post('/delete-user', async (req, res) => {

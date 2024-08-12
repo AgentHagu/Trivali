@@ -56,6 +56,7 @@ describe('HeaderNavbar Component Interactions', () => {
 
             const loginButton = await driver.findElement(By.css('button[type="submit"]'))
             await loginButton.click()
+            await driver.sleep(500)
 
             await driver.get('http://localhost:3000/')
             await driver.wait(until.elementLocated(By.css('.navbar-brand')), 5000)
@@ -84,6 +85,7 @@ describe('HeaderNavbar Component Interactions', () => {
 
             const loginButton = await driver.findElement(By.css('#login'))
             await loginButton.click()
+            await driver.sleep(500)
 
             // Verify navigation to home page
             const url = await driver.getCurrentUrl()
@@ -123,6 +125,7 @@ describe('HeaderNavbar Component Interactions', () => {
 
             const loginButton = await driver.findElement(By.css('button[type="submit"]'))
             await loginButton.click()
+            await driver.sleep(500)
 
             const profileButton = await driver.findElement(By.css('.bi-person-circle'))
             await profileButton.click()
