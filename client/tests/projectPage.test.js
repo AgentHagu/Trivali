@@ -110,154 +110,154 @@ describe('Project Page Interactions', () => {
             await itineraryTabButton.click()
         })
 
-    it('should load Itinerary tab', async () => {
-        const itineraryTable = await driver.findElement(By.css('table'), 5000)
-        expect(itineraryTable).to.not.be.null
-    })
+        it('should load Itinerary tab', async () => {
+            const itineraryTable = await driver.findElement(By.css('table'), 5000)
+            expect(itineraryTable).to.not.be.null
+        })
 
-    it('should load a custom context menu', async () => {
-        const itineraryTable = await driver.findElement(By.css('table'), 5000) 
-        const actions = driver.actions({async: true})
-        await actions.contextClick(itineraryTable).perform()
+        it('should load a custom context menu', async () => {
+            const itineraryTable = await driver.findElement(By.css('table'), 5000)
+            const actions = driver.actions({ async: true })
+            await actions.contextClick(itineraryTable).perform()
 
-        const contextMenu = await driver.findElement(By.css('div .contexify.contexify_willEnter-fade'))
-        expect(contextMenu).to.not.be.null
-    })
+            const contextMenu = await driver.findElement(By.css('div .contexify.contexify_willEnter-fade'))
+            expect(contextMenu).to.not.be.null
+        })
 
-    it('should add a new activity to itinerary table', async () => {
-        const itineraryTable = await driver.findElement(By.css('table'), 5000) 
-        const actions = driver.actions({async: true})
-        await actions.contextClick(itineraryTable).perform()
+        it('should add a new activity to itinerary table', async () => {
+            const itineraryTable = await driver.findElement(By.css('table'), 5000)
+            const actions = driver.actions({ async: true })
+            await actions.contextClick(itineraryTable).perform()
 
-        let initialRows = await driver.findElements(By.css('tr'))
-        initialRows = initialRows.length
+            let initialRows = await driver.findElements(By.css('tr'))
+            initialRows = initialRows.length
 
-        const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
-        const addActivityButton = contextMenu[0]
-        await addActivityButton.click()
+            const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
+            const addActivityButton = contextMenu[0]
+            await addActivityButton.click()
 
-        let finalRows = await driver.findElements(By.css('tr'))
-        finalRows = finalRows.length
+            let finalRows = await driver.findElements(By.css('tr'))
+            finalRows = finalRows.length
 
-        expect(finalRows).to.equal(initialRows + 1)
-    })
+            expect(finalRows).to.equal(initialRows + 1)
+        })
 
-    it('should remove an activity from itinerary table', async () => {
-        const itineraryTable = await driver.findElement(By.css('table'), 5000) 
-        const actions = driver.actions({async: true})
-        await actions.contextClick(itineraryTable).perform()
+        it('should remove an activity from itinerary table', async () => {
+            const itineraryTable = await driver.findElement(By.css('table'), 5000)
+            const actions = driver.actions({ async: true })
+            await actions.contextClick(itineraryTable).perform()
 
-        let initialRows = await driver.findElements(By.css('tr'))
-        initialRows = initialRows.length
+            let initialRows = await driver.findElements(By.css('tr'))
+            initialRows = initialRows.length
 
-        const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
-        const removeActivityButton = contextMenu[1]
-        await removeActivityButton.click()
+            const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
+            const removeActivityButton = contextMenu[1]
+            await removeActivityButton.click()
 
-        let finalRows = await driver.findElements(By.css('tr'))
-        finalRows = finalRows.length
+            let finalRows = await driver.findElements(By.css('tr'))
+            finalRows = finalRows.length
 
-        expect(finalRows).to.equal(initialRows - 1)
-    })
+            expect(finalRows).to.equal(initialRows - 1)
+        })
 
-    it('should add a new day to itinerary table', async () => {
-        const itineraryTable = await driver.findElement(By.css('table'), 5000) 
-        const actions = driver.actions({async: true})
-        await actions.contextClick(itineraryTable).perform()
+        it('should add a new day to itinerary table', async () => {
+            const itineraryTable = await driver.findElement(By.css('table'), 5000)
+            const actions = driver.actions({ async: true })
+            await actions.contextClick(itineraryTable).perform()
 
-        let initialRows = await driver.findElements(By.css('tr'))
-        initialRows = initialRows.length
+            let initialRows = await driver.findElements(By.css('tr'))
+            initialRows = initialRows.length
 
-        const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
-        const addDayButton = contextMenu[2]
-        await addDayButton.click()
+            const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
+            const addDayButton = contextMenu[2]
+            await addDayButton.click()
 
-        let finalRows = await driver.findElements(By.css('tr'))
-        finalRows = finalRows.length
+            let finalRows = await driver.findElements(By.css('tr'))
+            finalRows = finalRows.length
 
-        expect(finalRows).to.equal(initialRows + 1)
-    })
+            expect(finalRows).to.equal(initialRows + 1)
+        })
 
-    it('should remove a day from itinerary table', async () => {
-        const itineraryTable = await driver.findElement(By.css('table'), 5000) 
-        const actions = driver.actions({async: true})
-        await actions.contextClick(itineraryTable).perform()
+        it('should remove a day from itinerary table', async () => {
+            const itineraryTable = await driver.findElement(By.css('table'), 5000)
+            const actions = driver.actions({ async: true })
+            await actions.contextClick(itineraryTable).perform()
 
-        let initialRows = await driver.findElements(By.css('tr'))
-        initialRows = initialRows.length
+            let initialRows = await driver.findElements(By.css('tr'))
+            initialRows = initialRows.length
 
-        const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
-        const removeDayButton = contextMenu[3]
-        await removeDayButton.click()
+            const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
+            const removeDayButton = contextMenu[3]
+            await removeDayButton.click()
 
-        let finalRows = await driver.findElements(By.css('tr'))
-        finalRows = finalRows.length
+            let finalRows = await driver.findElements(By.css('tr'))
+            finalRows = finalRows.length
 
-        expect(finalRows).to.equal(initialRows - 1)
-    })
+            expect(finalRows).to.equal(initialRows - 1)
+        })
 
-    it('should not remove last remaining day from itinerary table', async () => {
-        const itineraryTable = await driver.findElement(By.css('table'), 5000) 
-        const actions = driver.actions({async: true})
-        await actions.contextClick(itineraryTable).perform()
+        it('should not remove last remaining day from itinerary table', async () => {
+            const itineraryTable = await driver.findElement(By.css('table'), 5000)
+            const actions = driver.actions({ async: true })
+            await actions.contextClick(itineraryTable).perform()
 
-        const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
-        const removeDayButton = contextMenu[3]
-        await removeDayButton.click()
+            const contextMenu = await driver.findElements(By.css('.contexify.contexify_willEnter-fade .contexify_item'))
+            const removeDayButton = contextMenu[3]
+            await removeDayButton.click()
 
-        let finalRows = await driver.findElements(By.css('tbody tr'))
-        finalRows = finalRows.length
+            let finalRows = await driver.findElements(By.css('tbody tr'))
+            finalRows = finalRows.length
 
-        expect(finalRows).to.equal(1)
-    })
+            expect(finalRows).to.equal(1)
+        })
 
-    it('should have autocomplete suggestions for location column', async () => {
-        const locationInput = await driver.findElement(By.css('input.border-0.h-100.p-2.pac-target-input'), 5000)
-        await locationInput.sendKeys('Test')
-        await locationInput.click()
+        it('should have autocomplete suggestions for location column', async () => {
+            const locationInput = await driver.findElement(By.css('input.border-0.h-100.p-2.pac-target-input'), 5000)
+            await locationInput.sendKeys('Test')
+            await locationInput.click()
 
-        const autocompleteSuggestions = await driver.findElement(By.css('div.pac-container.pac-logo, div.pac-container.pac-logo.hdpi'), 5000)
-        expect(autocompleteSuggestions).to.not.be.null
-    })
+            const autocompleteSuggestions = await driver.findElement(By.css('div.pac-container.pac-logo, div.pac-container.pac-logo.hdpi'), 5000)
+            expect(autocompleteSuggestions).to.not.be.null
+        })
 
-    it('should load the openAI modal form', async () => {
-        const openAIModalButton = await driver.findElement(By.css('button svg'), 5000)
-        await openAIModalButton.click()
+        it('should load the openAI modal form', async () => {
+            const openAIModalButton = await driver.findElement(By.css('button svg'), 5000)
+            await openAIModalButton.click()
 
-        const openAIModal = await driver.findElement(By.css('#openAI'))
-        expect(openAIModal).to.not.be.null
-    })
+            const openAIModal = await driver.findElement(By.css('#openAI'))
+            expect(openAIModal).to.not.be.null
+        })
 
-    it('should generate itinerary for valid prompts', async function() {
-        this.timeout(60000)
-        const openAIModalButton = await driver.findElement(By.css('button svg'), 5000)
-        await openAIModalButton.click()
+        it('should generate itinerary for valid prompts', async function () {
+            this.timeout(60000)
+            const openAIModalButton = await driver.findElement(By.css('button svg'), 5000)
+            await openAIModalButton.click()
 
-        await driver.findElement(By.css('#itineraryRequirements'), 5000).sendKeys('I want a 1 day trip to Singapore')
+            await driver.findElement(By.css('#itineraryRequirements'), 5000).sendKeys('I want a 1 day trip to Singapore')
 
-        const generateItineraryButton = await driver.findElement(By.css('form div button.btn.btn-primary'), 5000)
-        await generateItineraryButton.click()
-        await driver.sleep(20000)
+            const generateItineraryButton = await driver.findElement(By.css('form div button.btn.btn-primary'), 5000)
+            await generateItineraryButton.click()
+            await driver.sleep(20000)
 
-        const generatedItinerary = await driver.findElement(By.css('.wmde-markdown'), 5000)
-        expect(generatedItinerary).to.not.be.null
-    })
+            const generatedItinerary = await driver.findElement(By.css('.wmde-markdown'), 5000)
+            expect(generatedItinerary).to.not.be.null
+        })
 
-    it('should fail to generate itinerary for invalid prompts', async function () {
-        this.timeout(60000)
-        const openAIModalButton = await driver.findElement(By.css('button svg'), 5000)
-        await openAIModalButton.click()
+        it('should fail to generate itinerary for invalid prompts', async function () {
+            this.timeout(60000)
+            const openAIModalButton = await driver.findElement(By.css('button svg'), 5000)
+            await openAIModalButton.click()
 
-        await driver.findElement(By.css('#itineraryRequirements'), 5000).sendKeys('')
+            await driver.findElement(By.css('#itineraryRequirements'), 5000).sendKeys('')
 
-        const generateItineraryButton = await driver.findElement(By.css('form div button.btn.btn-primary'), 5000)
-        await generateItineraryButton.click()
-        await driver.sleep(5000)
+            const generateItineraryButton = await driver.findElement(By.css('form div button.btn.btn-primary'), 5000)
+            await generateItineraryButton.click()
+            await driver.sleep(5000)
 
-        let generatedItinerary = await driver.findElement(By.css('.wmde-markdown > p:nth-child(1)'), 5000)
-        generatedItinerary = await generatedItinerary.getText()
-        expect(generatedItinerary).to.have.string('Invalid or improper prompt for itinerary creation:')
-    })
+            let generatedItinerary = await driver.findElement(By.css('.wmde-markdown > p:nth-child(1)'), 5000)
+            generatedItinerary = await generatedItinerary.getText()
+            expect(generatedItinerary).to.have.string('Invalid or improper prompt for itinerary creation:')
+        })
     })
 
     describe('Expenses Tab Contents', () => {
