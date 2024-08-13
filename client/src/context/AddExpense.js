@@ -8,7 +8,7 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
     const descriptionRef = useRef();
     const amountRef = useRef();
     const budgetIdRef = useRef();
-    const fromCurrencyRef = useRef(); // Updated to "fromCurrencyRef"
+    const fromCurrencyRef = useRef();
     const { addExpense, budgets } = useBudgets();
     const { currencyConverterApi } = useApiKeys();
 
@@ -21,11 +21,11 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
             const response = await axios.get(currencyApiUrl);
             const rates = response.data.data;
 
-            // Fetch conversion rates for USD to SGD and USD to the selected currency
+           
             const usdToSgdRate = rates['SGD'].value;
             const usdToFromRate = rates[fromCurrency].value;
 
-            // Calculate the conversion rate from the selected currency to SGD
+            
             const fromToSgdRate = usdToSgdRate / usdToFromRate;
 
             setConversionRate(fromToSgdRate);
@@ -42,12 +42,11 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
     function handleSubmit(e) {
         e.preventDefault();
 
-        // Convert the entered amount in the selected currency to SGD
         const convertedAmount = parseFloat(amountRef.current.value) * conversionRate;
 
         addExpense({
             description: descriptionRef.current.value,
-            amount: convertedAmount, // This is now in SGD
+            amount: convertedAmount, 
             budgetId: budgetIdRef.current.value
         });
         handleClose();
