@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const SERVER_URL = process.env.REACT_APP_API_URL;
 
-// Context for storing and providing API keys
 const ApiKeysContext = createContext();
 
 /**
