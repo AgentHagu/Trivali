@@ -18,13 +18,12 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
 
     async function fetchConversionRates(fromCurrency) {
         try {
+            console.log(currencyApiUrl)
             const response = await axios.get(currencyApiUrl);
             const rates = response.data.data;
-
            
             const usdToSgdRate = rates['SGD'].value;
             const usdToFromRate = rates[fromCurrency].value;
-
             
             const fromToSgdRate = usdToSgdRate / usdToFromRate;
 

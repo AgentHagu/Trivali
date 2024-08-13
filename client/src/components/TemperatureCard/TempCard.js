@@ -4,7 +4,7 @@ import { Card, Button } from 'react-bootstrap'
 
 export default function TemperatureCard({ data, onDelete }) {
     return (
-        <Card className="mt-4">
+        <Card className="">
             <Card.Body>
                 <Card.Title>
                     <div className="top">

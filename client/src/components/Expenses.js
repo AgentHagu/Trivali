@@ -34,14 +34,14 @@ export default function Expenses() {
 
     return (
         <>
-            <Container className="mt-2">
-                <Stack direction='horizontal' gap="2" className="mb-4">
+            <Container className="mt-2 mb-3">
+                <Stack direction='horizontal' gap="2" className="mb-2">
                     <h1 className="me-auto">Budgets</h1>
-                    <Button variant="primary" onClick={() => setShowAddBudgetModal(true)}>
+                    <Button variant="primary fs-5" onClick={() => setShowAddBudgetModal(true)}>
                         Add Budget
                     </Button>
 
-                    <Button variant="outline-primary" onClick={openAddExpenseModal}>
+                    <Button variant="outline-primary fs-5" onClick={openAddExpenseModal}>
                         Add Expense
                     </Button>
                 </Stack>

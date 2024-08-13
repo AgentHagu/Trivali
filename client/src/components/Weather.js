@@ -67,10 +67,10 @@ export default function Weather({ projectId, data, socket }) {
     };
 
     return (
-        <Container className="my-4">
-            <Stack direction="horizontal" gap="2" className="mb-4">
+        <Container className="mt-2 mb-3">
+            <Stack direction="horizontal" gap="2" className="mb-2">
                 <h1 className="me-auto">Weather</h1>
-                <Button variant="primary" className="ms-auto" onClick={handleShowModal}>
+                <Button variant="primary fs-5" className="ms-auto" onClick={handleShowModal}>
                     Add Location
                 </Button>
             </Stack>
