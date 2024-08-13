@@ -1,5 +1,5 @@
 import Container from "react-bootstrap/Container"
-import { Button, Stack } from "react-bootstrap"
+import { Button, OverlayTrigger, Stack, Tooltip } from "react-bootstrap"
 import React from 'react';
 import BudgetCard from "./BudgetCard/BudgetCard";
 import UncategorizedBudgetCard from "./BudgetCard/UncategorizedBudgetCard";
@@ -32,8 +32,33 @@ export default function Expenses() {
         setAddExpenseModalBudgetId(budgetId)
     }
 
+    const tooltip = (
+        <Tooltip id="tooltip" className="text-info">
+            <strong>Currency Converter</strong>
+        </Tooltip>
+    )
+
     return (
         <>
+            <OverlayTrigger placement="top" overlay={tooltip}>
+                <button
+                    className="btn btn-primary position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
+                    style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "15px",
+                        zIndex: 1000
+                    }}
+                    data-bs-toggle="modal"
+                    data-bs-target="#currencyConverterModal"
+                    title="Currency Converter"
+                >
+                    <i className="bi bi-currency-exchange"
+                        style={{ fontSize: "2.3rem", lineHeight: "1" }}
+                    />
+                </button>
+            </OverlayTrigger>
+
             <Container className="mt-2 mb-3">
                 <Stack direction='horizontal' gap="2" className="mb-2">
                     <h1 className="me-auto">Budgets</h1>
@@ -91,6 +116,27 @@ export default function Expenses() {
                 budgetId={viewExpensesModalBudgetId}
                 handleClose={() => setViewExpensesModalBudgetId()}
             />
+
+            {/* Create Project Modal Form */}
+            <div className="modal fade" id="currencyConverterModal" data-bs-keyboard="false" tabIndex="-1">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Currency Converter</h5>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div className="modal-body">
+                            {/* Add currency converter content here */}
+                            1 SGD <i class="bi bi-arrow-left-right mx-2"></i> 2 USD
+                        </div>
+
+                        {/* <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div> */}
+                    </div>
+                </div>
+            </div>
         </>
     )
 }
