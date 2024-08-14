@@ -8,6 +8,6 @@ export default function Test() {
     console.log(user)
 
     return (
-        <TextEditor page="hi" number="1"/>
+        <TextEditor page="hi" number="1" />
     );
 }

@@ -104,7 +104,7 @@ export default function ProjectPage() {
             }
 
             // Set initial content based on project data
-            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={{...user, color: userColor }} />)
+            setContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={{ ...user, color: userColor }} />)
             setAddedUsersList(project.userList)
         })
 
@@ -243,13 +243,13 @@ export default function ProjectPage() {
                             <div className="btn-group btn-group-lg" role="group">
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                    onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={{...user, color: userColor }} />)} >
+                                    onClick={switchContent(<About projectId={projectIdRef.current} data={project.about} socket={socket} user={{ ...user, color: userColor }} />)} >
                                     Planning
                                 </button>
 
                                 <button
                                     className="btn btn-outline-dark rounded-0 border-bottom-0 border-2 border-dark"
-                                    onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} user={{...user, color: userColor }} />)} >
+                                    onClick={switchContent(<Itinerary projectId={projectIdRef.current} data={project.itinerary} socket={socket} user={{ ...user, color: userColor }} />)} >
                                     Itinerary
                                 </button>
 

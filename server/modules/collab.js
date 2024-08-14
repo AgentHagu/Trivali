@@ -157,7 +157,7 @@ module.exports = (server) => {
                             }
                         )
                     })
-                
+
                 // For tests only
                 socket.emit("project-name-updated")
             })
@@ -192,7 +192,7 @@ module.exports = (server) => {
                             }
                         )
                     })
-                
+
                 // For tests only
                 socket.emit('TEST-user-added')
             })
@@ -288,7 +288,7 @@ module.exports = (server) => {
              */
             socket.on("delete-itinerary-activity", async idPart => {
                 await Document.findByIdAndDelete(projectId + "/" + idPart)
-            
+
                 // For tests only
                 socket.emit("TEST-delete-itinerary-activity-complete")
             })

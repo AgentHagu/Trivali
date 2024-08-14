@@ -58,7 +58,7 @@ const newUser = {
     password: 'newPassword'
 };
 
-describe('Authentication Module Routes', () => {    
+describe('Authentication Module Routes', () => {
     it('should register a new user', async () => {
         try {
             const response = await request(app)
@@ -102,7 +102,7 @@ describe('Authentication Module Routes', () => {
         const response = await request(app)
             .post('/getUserData')
             .send({ userId: testUser._id })
-        
+
         expect(response.status).toBe(200)
         expect(response.body).toHaveProperty('username', testUser.username)
         expect(response.body).toHaveProperty('email', testUser.email)
@@ -112,7 +112,7 @@ describe('Authentication Module Routes', () => {
         const response = await request(app)
             .post('/getUserData')
             .send({ userId: "invalidId" })
-        
+
         expect(response.status).toBe(404)
         expect(response.body.error).toBe("User not found")
     })
@@ -124,7 +124,7 @@ describe('Authentication Module Routes', () => {
                 .post('/register')
                 .set('Content-Type', 'application/json')
                 .send({ username: newUser.username, email: newUser.email, password: newUser.password })
-            
+
             // Get newly created user
             const newUserInDatabase = await User.findOne({ email: newUser.email })
 
@@ -132,10 +132,10 @@ describe('Authentication Module Routes', () => {
             const response = await request(app)
                 .post('/getUserData')
                 .send({ userId: newUserInDatabase._id })
-            
-                expect(response.status).toBe(200)
-                expect(response.body).toHaveProperty('username', newUser.username)
-                expect(response.body).toHaveProperty('email', newUser.email)
+
+            expect(response.status).toBe(200)
+            expect(response.body).toHaveProperty('username', newUser.username)
+            expect(response.body).toHaveProperty('email', newUser.email)
         } finally {
             await User.findOneAndDelete({ email: newUser.email })
         }
@@ -144,7 +144,7 @@ describe('Authentication Module Routes', () => {
     it('should return defined API keys for Google Maps, OpenWeather and CurrencyConverter', async () => {
         const response = await request(app)
             .get('/api')
-        
+
         expect(response.status).toBe(200)
         expect(response.body.googleMapsApiKey).toBeDefined()
         expect(response.body.openWeatherApiKey).toBeDefined()

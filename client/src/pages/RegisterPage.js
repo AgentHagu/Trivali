@@ -29,7 +29,7 @@ export default function RegisterPage() {
                 toast.error("You are already logged in! Redirecting to home page...", {
                     position: "top-center",
                     autoClose: 3000
-                  })
+                })
                 navigate('/home')
                 return
             }

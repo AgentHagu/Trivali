@@ -38,7 +38,7 @@ function useUserData() {
                     const data = await response.json()
                     setUser(data)
 
-                // Otherwise, no valid user was found. Redirect to login page and remove token
+                    // Otherwise, no valid user was found. Redirect to login page and remove token
                 } else {
                     toast.dismiss()
                     toast.error("Cannot find user! Redirecting to login page...", {

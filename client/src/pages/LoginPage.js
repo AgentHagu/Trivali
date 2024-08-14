@@ -31,7 +31,7 @@ export default function LoginPage() {
                 toast.error("You are already logged in! Redirecting to home page...", {
                     position: "top-center",
                     autoClose: 3000
-                  })
+                })
                 navigate('/home')
                 return
             }

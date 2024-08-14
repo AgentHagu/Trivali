@@ -140,7 +140,7 @@ describe('Home Page Interactions', () => {
             const url = await driver.getCurrentUrl()
             const urlPattern = /^http:\/\/localhost:3000\/projects\/[a-zA-Z0-9_-]+$/
             expect(url).to.match(urlPattern)
-            
+
             // Delete new Test User
             await fetch(`http://localhost:3001/delete-user`, {
                 method: 'POST',
@@ -150,5 +150,5 @@ describe('Home Page Interactions', () => {
                 body: JSON.stringify({ email: 'otherTestUser@gmail.com' })
             })
         })
-    }) 
+    })
 })

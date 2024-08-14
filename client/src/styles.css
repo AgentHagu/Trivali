@@ -26,10 +26,10 @@ body {
     padding-bottom: 0%;
 }
 
-.table td.fit, 
+.table td.fit,
 .table th.fit {
-   white-space: nowrap;
-   width: 1%;
+    white-space: nowrap;
+    width: 1%;
 }
 
 @page {
@@ -60,15 +60,20 @@ body {
 }
 
 #moreOptionsButton {
-    border: none; /* Optional: Remove border if desired */
-    cursor: pointer; /* Change cursor to pointer */
-    transition: background-color 0.3s; /* Smooth transition for background color changes */
+    border: none;
+    /* Optional: Remove border if desired */
+    cursor: pointer;
+    /* Change cursor to pointer */
+    transition: background-color 0.3s;
+    /* Smooth transition for background color changes */
 }
 
 #moreOptionsButton:hover {
-    background-color: #E8F0FE; /* Light blue color on hover */
+    background-color: #E8F0FE;
+    /* Light blue color on hover */
 }
 
 #moreOptionsButton:active {
-    background-color: #B2C8FA; /* Darker blue color on click */
+    background-color: #B2C8FA;
+    /* Darker blue color on click */
 }

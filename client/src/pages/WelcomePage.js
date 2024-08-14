@@ -2,9 +2,9 @@
 import HeaderNavbar from "../components/HeaderNavbar"
 
 // Images
-import TravelPlannerImage from '../Images/0002.jpg'; 
-import CollaborativeImage from '../Images/0001.jpg'; 
-import FinanceImage from '../Images/0000.jpg'; 
+import TravelPlannerImage from '../Images/0002.jpg';
+import CollaborativeImage from '../Images/0001.jpg';
+import FinanceImage from '../Images/0000.jpg';
 import Logo from "../Images/0003.png"
 
 /**
@@ -25,7 +25,7 @@ export default function WelcomePage() {
                         alt="Trivali Logo" style={{ height: "300px", width: "300px", display: "block" }} />
                 </div>
             </section>
-            
+
             <div className="py-5 bg-light">
                 <div className="container">
                     <div className="row">
