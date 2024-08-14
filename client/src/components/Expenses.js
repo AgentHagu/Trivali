@@ -270,7 +270,7 @@ export default function Expenses() {
                                             Conversion Rate: {conversionRate.toFixed(4)}
                                         </p>
                                         <p>
-                                            {amount} {sourceCurrency} <i className="bi bi-arrow-right mx-2"></i> {convertedAmount.toFixed(4)} {targetCurrency}
+                                            {amount} {sourceCurrency} <i class="bi bi-arrow-left-right mx-2"></i> {convertedAmount.toFixed(4)} {targetCurrency}
                                         </p>
                                     </div>
                                 )}
