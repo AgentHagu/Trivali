@@ -1,78 +1,41 @@
-# Trivali
-Visit the website [here](http://13.229.199.134:3000/welcome)
+# Trivali Setup
+1. Download Node.js and npm https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+2. In both server/ and client/ directory, run "npm i" to install all the necessary packages
+3. Setup the .env for both server and client (instructions below)
+3. To start the server, run "npm start" or "npm run devStart"
+4. To start the client, run "npm start"
 
-# Project Overview
-**Orbital Project 2024** - Trivali 
+Note: You will need to start both server and client side concurrently.
 
-**Level of Achievement** - Apollo
+## Server .env
+The server .env has the following environment variables:
 
-## Project Scope:
-**Short Version** - Our project aims to develop a collaborative travel planner web application, Trivali. Trivali will offer itinerary planning tools and itinerary recommendations based on user preferences, map navigation support with real-time recommendations to locations, real-time collaboration support as well as budgeting tools to track and manage travel expenses.
+CLIENT_URL=http://localhost:3000
+MONGO_URI=...
+SESSION_SECRET=...
+JWT_SECRET=...
 
-**Long Version** - The project scope encompasses the development of a web application that serves as a collaborative travel planner, similar to Google Docs but tailored towards itinerary creation. 
+GOOGLE_MAPS_API_KEY=...
+OPENWEATHER_API_KEY=...
+CURRENCYCONVERTER_API_KEY=...
+OPENAI_API_KEY=...
+--------------------------------------------------------------
+CLIENT_URL simply refers to the URL the client-side is running on. You can change it to whatever URL it is on or leave it on localhost for development.
 
-Core features include tools for itinerary creation and planning, allowing users to plan their trips comprehensively within one app. Additionally, the app will offer collaborative itinerary editing, sharing recommendations with other users, and tools for budgeting travel expenses and tracking travel documents. Extension features include
-itinerary recommendations based on user interests, map navigation support for online and offline use and real-time recommendations for nearby attractions and activities, as well as weather updates for locations of interest.
+MONGO_URI refers to the connection string for a MongoDB instance. You can get a URI for this project by creating a MongoDB database, navigating to "Connect" and select "Drivers" as connection method. Choose Node.js as the Driver and copy the connection string given.
 
-## Milestone 1 (Ideation)
-**Problem Motivation** - Many travelers struggle to plan their trips effectively, especially when planning as a group. Often, they have problems coordinating their schedules or interests and have to juggle multiple tools and platforms for itinerary creation, recommendations and expense tracking, making the process even more complicated. So, we created the idea for this collaborative travel planner to help such users. 
+SESSION_SECRET and JWT_SECRET are just secret tokens for authentication, simply choose any string for your secret token.
 
-### User Stories
-1. **Itinerary Creation and Planning**
-    - As a user, I want to create a detailed itinerary for my trip so that I can organize my travel plans day by day.
-2. **Budgeting and Tracking Travel Expenses**
-    - As a user, I want to track my travel expenses within the app so taht I can stay within my budget.
-    - As a user, I want to see a summary of how much I owe each person in the trip.
-3. **Collaboration Support**
-    - As a user, I want to share my travel itineraries with friends and family so that they can see my plans and suggest modifications.
-    - As a user, I want to collaborate on a shared itinerary with my travel group so that we can plan our trip together.
-4. **Itinerary Recommendations (Extension)**
-    - As a user, I want to receive personalized recommendations for my trip based off my interests.
-    - As a user, I want the app to suggest attractions and activities basaed on my interests so I can discover new places to visit.
-5. **Map Navigation (Extension)**
-    - As a user, I want to access an online map within the app so that I can easily find my way around my travel destination.
-    - As a user, I want to download offline maps so that I can navigate without an internet connection.
-    - As a user, I want the map to highlight nearby points of interest like restaurants and landmarks so that I can easily find things to do.
-6. **Weather Report (Extension)**
-    - As a user, I want to check on weather updates in areas that I'll be vistiting
+GOOGLE_MAPS_API_KEY is a Google Maps API key that can be created by following the instructions here: https://developers.google.com/maps/documentation/javascript/get-api-key
 
-### Design
-- **Architecture** - Our application will have a client-server architecture with a separate front-end and back-end. The front-end will be a single-page application (SPA) built using React, and the back-end will be an API server built using Node.js and Express.
-<!-- The front-end and back-end will communicate via RESTful APIs. -->
+OPENWEATHER_API_KEY is an OpenWeather API key. You can sign up for OpenWeather and get an API key for it. You can also refer to this for more instructions: https://openweathermap.org/appid
 
-- **Tech Stack**
-    - Front-end: React, Bootstrap
-    - Back-end: Node.js, Express.js
-    - Database: MongoDB for storing user data and travel itineraries
-    - Authentication: Passport.js
-    - Hosting: AWS for hosting the front and back-end server and MongoDB Atlas for the database
+CURRENCYCONVERTER_API_KEY is an API key from CurrencyAPI. You can get a free API key from here: https://currencyapi.com/
 
-<!-- - **User Interface (UI) Design**
-We will use a clean and modern design with a focus on usability. Wireframes and mockups will be created using tools like Figma or Sketch to plan the layout and visual elements of the application. -->
+OPENAI_API_KEY is an API key from OpenAI to generate responses. You can get an API key from signing up on OpenAI and generating it for a project. However, for it to actually work, you'll need to deposit money for OpenAI to take from for every API call.
 
-<!-- - **User Experience (UX) Design**
-Our UX design will focus on ease of use, with user testing conducted to gather feedback and iterate on the design. Key considerations will include intuitive navigation, clear labeling, and providing helpful prompts and tooltips. -->
-
-- **Data Flow** - The front-end will handle user interactions and send requests to the back-end API. The back-end will process these requests, interact with the database as needed, and return the appropriate responses to the front-end. We will use React for state management in the front-end to ensure a smooth and predictable data flow.
-
-- **Security and Performance** - We will implement security best practices such as input validation, secure authentication, and data encryption. Performance optimization will include efficient database queries, caching strategies, and minimizing the load time of the front-end application.
-
-<!-- **Proposed Core Features**
-1. **Itinerary Creation and Planning** - Users can create and organize their trip itineraries, including accomodation and transportation details.
-2. **Manage Travel Finances** - Users can input expenses and the web app will automatically calculate who owes whom how much money at the end of the trip, relieving them of the trouble of managing expenses.
-3. **Collaboration Support** - Users will be able to collaborate and plan trips together in real-time. -->
-# Documentation
-Our documentation can be found on our [GitHub Pages](https://agenthagu.github.io/Trivali/).
-
-# Acknowledgements
-- **Bootstrap Album Template** - This project uses the [Bootstrap Album Template](https://getbootstrap.com/docs/4.0/examples/album/).
-- **Bootstrap Sign In Page Template** - This project uses the [Bootstrap Sign In Page Template](https://getbootstrap.com/docs/5.0/examples/sign-in/)
-- **Collaborative Text Editor** - This project references the text editor from this [video](https://www.youtube.com/watch?v=iRaelG7v0OU)
-- **Passport.js Authentication** - This project references the authentication tutorial from this [video](https://www.youtube.com/watch?v=-RCnNyD0L-s)
-- ChatGPT for
-    - Debugging
-    - Documentation
-    - Testing
-    - Welcome Page photos
-    - Trivali Logo
-    - Poster icons
+## Client .env
+The client .env has the following environment variable:
+REACT_APP_API_URL=http://localhost:3001
+--------------------------------------------------------------
+REACT_APP_API_URL refers to the URL the server-side is running on. You can change it to whatever URL it is on or leave it on localhost for development.
