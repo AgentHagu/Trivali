@@ -35,6 +35,8 @@ export default function BudgetCard({ name, amount, max, gray, hideButtons, onAdd
         classNames.push("bg-light")
     }
 
+    const isChrome = navigator.userAgent.toLowerCase().includes('chrome')
+
     return (
         <Card className={classNames.join(" ")}>
             <Card.Body>
@@ -42,10 +44,16 @@ export default function BudgetCard({ name, amount, max, gray, hideButtons, onAdd
                 align-items-baseline fw-normal mb-5">
                     <div className="me-2">{name}</div>
                     <div className="d-flex align-itmes-baseline">
-                        {currencyFormatter.format(amount)} {name === "Uncategorized" && "SGD"}
+                        {isChrome
+                            ? "$" + currencyFormatter.format(amount).match(/\d+/)[0]
+                            : currencyFormatter.format(amount)}
+                        {name === "Uncategorized" && "SGD"}
+
                         {max && (
                             <span className="text-muted fs-6 ms-1">
-                                / {currencyFormatter.format(max)} SGD
+                                / {isChrome
+                                    ? "$" + currencyFormatter.format(amount).match(/\d+/)[0]
+                                    : currencyFormatter.format(amount)} SGD
                             </span>
                         )}
                     </div>
