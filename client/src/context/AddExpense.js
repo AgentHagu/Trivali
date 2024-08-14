@@ -1,5 +1,5 @@
 import { Form, Modal, Button } from 'react-bootstrap';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useApiKeys } from '../context/ApiKeysContext';
 import { UNCATEGORIZED_BUDGET_ID, useBudgets } from './BudgetsContext';
@@ -21,10 +21,10 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
             console.log(currencyApiUrl)
             const response = await axios.get(currencyApiUrl);
             const rates = response.data.data;
-           
+
             const usdToSgdRate = rates['SGD'].value;
             const usdToFromRate = rates[fromCurrency].value;
-            
+
             const fromToSgdRate = usdToSgdRate / usdToFromRate;
 
             setConversionRate(fromToSgdRate);
@@ -45,7 +45,7 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
 
         addExpense({
             description: descriptionRef.current.value,
-            amount: convertedAmount, 
+            amount: convertedAmount,
             budgetId: budgetIdRef.current.value
         });
         handleClose();
@@ -66,17 +66,18 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
 
                     <Form.Group className="mb-3" controlId="amount">
                         <Form.Label>Amount</Form.Label>
-                        <Form.Control 
-                            ref={amountRef} 
-                            type="number" 
-                            required min={0} 
-                            step={0.01} 
+                        <Form.Control
+                            ref={amountRef}
+                            type="number"
+                            required min={0}
+                            step={0.01}
                         />
                     </Form.Group>
 
                     <Form.Group className="mb-3" controlId="currency">
                         <Form.Label>Currency</Form.Label>
                         <Form.Select ref={fromCurrencyRef} onChange={handleCurrencyChange}>
+                            <option value="SGD">SGD - Singapore Dollar</option>
                             <option value="USD">USD - United States Dollar</option>
                             <option value="EUR">EUR - Euro</option>
                             <option value="GBP">GBP - British Pound Sterling</option>
@@ -89,7 +90,6 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
                             <option value="NZD">NZD - New Zealand Dollar</option>
                             <option value="SEK">SEK - Swedish Krona</option>
                             <option value="KRW">KRW - South Korean Won</option>
-                            <option value="SGD">SGD - Singapore Dollar</option>
                             <option value="NOK">NOK - Norwegian Krone</option>
                             <option value="MXN">MXN - Mexican Peso</option>
                             <option value="INR">INR - Indian Rupee</option>
