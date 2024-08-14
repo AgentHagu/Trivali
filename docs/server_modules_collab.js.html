@@ -86,6 +86,23 @@ module.exports = (server) => {
              */
             socket.on("save-document", async data => {
                 await Document.findByIdAndUpdate(documentId, { data })
+                socket.emit("save-document-complete")
+            })
+
+            socket.on("send-cursor-changes", ({ id, user, range }) => {
+                socket.broadcast.to(documentId).emit("receive-cursor-changes", { id, user, range })
+            })
+
+            socket.on("get-cursors", ({ senderId, toggleFlag }) => {
+                socket.broadcast.to(documentId).emit("send-cursor", { senderId, toggleFlag })
+            })
+
+            socket.on("send-cursor-data", ({ cursor, senderId, toggleFlag }) => {
+                io.to(senderId).emit("receive-cursor", { cursor, toggleFlag })
+            })
+
+            socket.on("send-delete-cursor", id => {
+                socket.broadcast.to(documentId).emit("delete-cursor", id)
             })
         })
 
@@ -168,6 +185,9 @@ module.exports = (server) => {
                             }
                         )
                     })
+
+                // For tests only
+                socket.emit("project-name-updated")
             })
 
             /**
@@ -200,6 +220,9 @@ module.exports = (server) => {
                             }
                         )
                     })
+
+                // For tests only
+                socket.emit('TEST-user-added')
             })
 
             /**
@@ -293,6 +316,9 @@ module.exports = (server) => {
              */
             socket.on("delete-itinerary-activity", async idPart => {
                 await Document.findByIdAndDelete(projectId + "/" + idPart)
+
+                // For tests only
+                socket.emit("TEST-delete-itinerary-activity-complete")
             })
 
             /**
@@ -437,11 +463,23 @@ function userToSimpleUser(user) {
     return simpleUser
 }
 
+/**
+ * Formats a given date object into a string with the format "MMM DD, YYYY".
+ *
+ * @param {Date} date - The date object to format.
+ * @returns {string} - The formatted date string.
+ */
 function formatDate(date) {
     const options = { day: 'numeric', month: 'short', year: 'numeric' }
     return date.toLocaleDateString('en-US', options)
 }
 
+/**
+ * Converts a Project to a SimpleProject model.
+ *
+ * @param {Object} project - The project object to simplify.
+ * @returns {Object} - The simplified project object.
+ */
 function projectToSimpleProject(project) {
     const simpleProject = {
         _id: project._id,
@@ -455,23 +493,30 @@ function projectToSimpleProject(project) {
     return simpleProject
 }
 
+/**
+ * Refreshes the "lastUpdated" field of a project for all users associated with it.
+ *
+ * @param {string} projectId - The unique identifier of the project to update.
+ * @returns {Promise&lt;void>} - A promise that resolves once the updates are complete.
+ */
 async function refreshLastUpdate(projectId) {
     const updatedProject = await Project.findById(
         projectId
     )
-
-    updatedProject.userList.forEach(
-        async user => {
-            await User.findOneAndUpdate(
-                {
-                    _id: user._id,
-                    'projectList._id': projectId
-                },
-                {
-                    $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
-                }
-            )
-        })
+    if (updatedProject) {
+        updatedProject.userList.forEach(
+            async user => {
+                await User.findOneAndUpdate(
+                    {
+                        _id: user._id,
+                        'projectList._id': projectId
+                    },
+                    {
+                        $set: { 'projectList.$': projectToSimpleProject(updatedProject) }
+                    }
+                )
+            })
+    }
 }
 
 /**
@@ -557,7 +602,15 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
     }
 }
 
-</code></pre>
+// For tests ONLY
+if (process.env.NODE_ENV === 'test') {
+    module.exports.userToSimpleUser = userToSimpleUser
+    module.exports.formatDate = formatDate
+    module.exports.projectToSimpleProject = projectToSimpleProject
+    module.exports.refreshLastUpdate = refreshLastUpdate
+    module.exports.findOrCreateDocument = findOrCreateDocument
+    module.exports.findOrCreateProject = findOrCreateProject
+}</code></pre>
         </article>
     </section>
 
@@ -567,13 +620,13 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#formatDate">formatDate</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#projectToSimpleProject">projectToSimpleProject</a></li><li><a href="global.html#refreshLastUpdate">refreshLastUpdate</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Aug 14 2024 12:34:31 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

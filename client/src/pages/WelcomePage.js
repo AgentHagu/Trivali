@@ -7,6 +7,7 @@ import CollaborativeImage from '../Images/0001.jpg';
 import FinanceImage from '../Images/0000.jpg';
 import Logo from "../Images/0003.png"
 
+//TODO: Add more features to welcome page
 /**
  * WelcomePage component to display the welcome page content.
  * 

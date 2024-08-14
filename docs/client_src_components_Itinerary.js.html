@@ -60,7 +60,7 @@ function supportsFirefox() {
  * @param {object} props.socket - Socket.io instance for real-time updates.
  * @returns {JSX.Element} Table component displaying itinerary data.
  */
-function Table({ projectId, data, socket }) {
+function Table({ projectId, data, socket, user }) {
     const MENU_ID = 'Itinerary Menu';
     const [rows, setRows] = useState(data)
 
@@ -417,7 +417,7 @@ function Table({ projectId, data, socket }) {
                             &lt;/td>
 
                             &lt;td className="p-0" style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                &lt;TextEditor page={activity.details.page} number={activity.details.number} projectId={projectId} />
+                                &lt;TextEditor page={activity.details.page} number={activity.details.number} projectId={projectId} user={user} />
                             &lt;/td>
                         &lt;/tr>)
                     )))}
@@ -435,7 +435,7 @@ function Table({ projectId, data, socket }) {
     &lt;/>
 }
 
-export default function Itinerary({ projectId, data, socket }) {
+export default function Itinerary({ projectId, data, socket, user }) {
     const [itineraryData, setItineraryData] = useState(data)
     const [generateItineraryStatus, setGenerateItineraryStatus] = useState(null)
     const [generateItineraryResponse, setGenerateItineraryResponse] = useState()
@@ -530,7 +530,7 @@ export default function Itinerary({ projectId, data, socket }) {
         }
 
     }
-    
+
     /**
      * Renders a tooltip indicating that the text has been copied.
      * 
@@ -546,7 +546,13 @@ export default function Itinerary({ projectId, data, socket }) {
     return &lt;>
         &lt;button
             className="btn position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
-            style={{ width: "60px", height: "60px", borderRadius: "15px", backgroundColor: "#10a37f" }}
+            style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "15px",
+                backgroundColor: "#10a37f",
+                zIndex: 1000
+            }}
             data-bs-toggle="modal"
             data-bs-target="#openAI"
             title="Create project"
@@ -580,7 +586,7 @@ export default function Itinerary({ projectId, data, socket }) {
 
         {
             !replaceItineraryStatus
-                ? &lt;Table projectId={projectId} data={itineraryData.rows} socket={socket} />
+                ? &lt;Table projectId={projectId} data={itineraryData.rows} socket={socket} user={user} />
                 : &lt;div className="py-5 text-center border-top border-black border-2">
                     &lt;div className="spinner-border" role="status">
                         &lt;span className="visually-hidden">Loading...&lt;/span>
@@ -680,13 +686,13 @@ export default function Itinerary({ projectId, data, socket }) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#formatDate">formatDate</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#projectToSimpleProject">projectToSimpleProject</a></li><li><a href="global.html#refreshLastUpdate">refreshLastUpdate</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Aug 14 2024 12:34:31 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

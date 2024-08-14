@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import TextEditor from "./TextEditor";
 
 /**
@@ -10,15 +9,6 @@ import TextEditor from "./TextEditor";
  * @returns {JSX.Element} About component displaying trip information and editable text areas.
  */
 export default function About({ projectId, data, socket, user }) {
-    // useEffect(() => {
-    //     if (socket == null) return
-
-    //     return () => {
-    //         console.log(socket.id)
-    //         console.log('About Component is unmounting');
-    //     };
-    // }, [socket]);
-
     return <div className="container pb-3 px-3">
         <div className="row mb-2">
             <div className="col-8 pt-2 d-flex flex-column">

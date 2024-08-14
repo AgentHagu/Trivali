@@ -2,6 +2,17 @@ import React from 'react'
 import { Card, Button } from 'react-bootstrap'
 //import './TempCard.css'
 
+/**
+ * TemperatureCard Component
+ * 
+ * Displays weather information for a specific location, including temperature, weather description, and additional weather details.
+ * 
+ * @param {Object} props - The component props.
+ * @param {Object} props.data - The weather data for the location.
+ * @param {Function} props.onDelete - The callback function to handle the deletion of the location.
+ * 
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function TemperatureCard({ data, onDelete }) {
     return (
         <Card className="">

@@ -26,29 +26,40 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import Container from "react-bootstrap/Container"
-import { Button, Stack } from "react-bootstrap"
-import React from 'react';
+            <pre class="prettyprint source linenums"><code>import Container from "react-bootstrap/Container";
+import { Button, Form, FormSelect, OverlayTrigger, Stack, Tooltip } from "react-bootstrap";
+import React, { useState } from 'react';
 import BudgetCard from "./BudgetCard/BudgetCard";
 import UncategorizedBudgetCard from "./BudgetCard/UncategorizedBudgetCard";
-import TotalBudgetCard from "./BudgetCard/TotalBudgetCard"
-import ViewExpensesModal from "../context/ViewExpensesModal"
-import AddBudgetModal from "../context/AddBudget"
-import AddExpenseModal from "../context/AddExpense"
-import { useState } from 'react'
+import TotalBudgetCard from "./BudgetCard/TotalBudgetCard";
+import ViewExpensesModal from "../context/ViewExpensesModal";
+import AddBudgetModal from "../context/AddBudget";
+import AddExpenseModal from "../context/AddExpense";
 import { UNCATEGORIZED_BUDGET_ID, useBudgets } from "../context/BudgetsContext";
+import { useApiKeys } from '../context/ApiKeysContext';
+import axios from 'axios';
 
 /**
  * Expenses component to manage budgets and expenses display.
  * 
  * @returns {JSX.Element} Expenses component with budget cards and modals.
  */
+
 export default function Expenses() {
-    const [showAddBudgetModal, setShowAddBudgetModal] = useState(false)
-    const [showAddExpenseModal, setShowAddExpenseModal] = useState(false)
-    const [viewExpensesModalBudgetId, setViewExpensesModalBudgetId] = useState()
-    const [addExpenseModalBudgetId, setAddExpenseModalBudgetId] = useState()
-    const { budgets, getBudgetExpenses } = useBudgets()
+    const [showAddBudgetModal, setShowAddBudgetModal] = useState(false);
+    const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
+    const [viewExpensesModalBudgetId, setViewExpensesModalBudgetId] = useState();
+    const [addExpenseModalBudgetId, setAddExpenseModalBudgetId] = useState();
+    const { budgets, getBudgetExpenses } = useBudgets();
+
+    const [sourceCurrency, setSourceCurrency] = useState('USD');
+    const [targetCurrency, setTargetCurrency] = useState('SGD');
+    const [amount, setAmount] = useState(0);
+    const [convertedAmount, setConvertedAmount] = useState(null);
+    const [conversionRate, setConversionRate] = useState(null);
+    const { currencyConverterApi } = useApiKeys();
+
+    const currencyApiUrl = `https://api.currencyapi.com/v3/latest?apikey=${currencyConverterApi}`;
 
     /**
      * Opens the add expense modal for a specific budget.
@@ -56,20 +67,69 @@ export default function Expenses() {
      * @param {string} budgetId - ID of the budget to add an expense to.
      */
     function openAddExpenseModal(budgetId) {
-        setShowAddExpenseModal(true)
-        setAddExpenseModalBudgetId(budgetId)
+        setShowAddExpenseModal(true);
+        setAddExpenseModalBudgetId(budgetId);
+    }
+
+    const tooltip = (
+        &lt;Tooltip id="tooltip" className="text-info">
+            &lt;strong>Currency Converter&lt;/strong>
+        &lt;/Tooltip>
+    );
+
+    /**
+     * Fetches the conversion rate between the selected currencies using the API.
+     */
+    async function convertCurrency() {
+        try {
+            const response = await axios.get(currencyApiUrl);
+            const rates = response.data.data;
+
+            const usdToSourceRate = rates[sourceCurrency].value;
+            const usdToTargetRate = rates[targetCurrency].value;
+
+            // Calculate the conversion rate from the source currency to the target currency
+            const rate = usdToTargetRate / usdToSourceRate;
+
+            // Calculate the converted amount
+            const converted = amount * rate;
+
+            setConversionRate(rate);
+            setConvertedAmount(converted);
+        } catch (error) {
+            console.error('Error fetching conversion rates:', error);
+        }
     }
 
     return (
         &lt;>
-            &lt;Container className="mt-2">
-                &lt;Stack direction='horizontal' gap="2" className="mb-4">
+            &lt;OverlayTrigger placement="top" overlay={tooltip}>
+                &lt;button
+                    className="btn btn-primary position-fixed bottom-0 end-0 mb-5 me-5 d-flex align-items-center justify-content-center"
+                    style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "15px",
+                        zIndex: 1000
+                    }}
+                    data-bs-toggle="modal"
+                    data-bs-target="#currencyConverterModal"
+                    title="Currency Converter"
+                >
+                    &lt;i className="bi bi-currency-exchange"
+                        style={{ fontSize: "2.3rem", lineHeight: "1" }}
+                    />
+                &lt;/button>
+            &lt;/OverlayTrigger>
+
+            &lt;Container className="mt-2 mb-3">
+                &lt;Stack direction='horizontal' gap="2" className="mb-2">
                     &lt;h1 className="me-auto">Budgets&lt;/h1>
-                    &lt;Button variant="primary" onClick={() => setShowAddBudgetModal(true)}>
+                    &lt;Button variant="primary fs-5" onClick={() => setShowAddBudgetModal(true)}>
                         Add Budget
                     &lt;/Button>
 
-                    &lt;Button variant="outline-primary" onClick={openAddExpenseModal}>
+                    &lt;Button variant="outline-primary fs-5" onClick={openAddExpenseModal}>
                         Add Expense
                     &lt;/Button>
                 &lt;/Stack>
@@ -82,9 +142,9 @@ export default function Expenses() {
                     }}
                 >
                     {budgets.map(budget => {
-                        const amount = getBudgetExpenses(budget.id).reduce((total, expense) => total + expense.amount, 0)
+                        const amount = getBudgetExpenses(budget.id).reduce((total, expense) => total + expense.amount, 0);
                         if (budget.id === UNCATEGORIZED_BUDGET_ID) {
-                            return null
+                            return null;
                         }
 
                         return (
@@ -119,9 +179,145 @@ export default function Expenses() {
                 budgetId={viewExpensesModalBudgetId}
                 handleClose={() => setViewExpensesModalBudgetId()}
             />
+
+            {/* Currency Converter Modal */}
+            &lt;div className="modal fade" id="currencyConverterModal" data-bs-keyboard="false" tabIndex="-1">
+                &lt;div className="modal-dialog modal-dialog-centered">
+                    &lt;div className="modal-content">
+                        &lt;div className="modal-header">
+                            &lt;h5 className="modal-title">Currency Converter&lt;/h5>
+                            &lt;button type="button" className="btn-close" data-bs-dismiss="modal">&lt;/button>
+                        &lt;/div>
+
+                        &lt;div className="modal-body">
+                            &lt;Form.Group className="mb-3">
+                                &lt;Form.Label>Amount&lt;/Form.Label>
+                                &lt;Form.Control
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    placeholder="Enter amount"
+                                />
+                            &lt;/Form.Group>
+
+                            &lt;Form.Group className="mb-3">
+                                &lt;Form.Label>From Currency&lt;/Form.Label>
+                                &lt;FormSelect
+                                    value={sourceCurrency}
+                                    onChange={(e) => setSourceCurrency(e.target.value)}
+                                >
+                                    &lt;option value="USD">USD - United States Dollar&lt;/option>
+                                    &lt;option value="EUR">EUR - Euro&lt;/option>
+                                    &lt;option value="GBP">GBP - British Pound Sterling&lt;/option>
+                                    &lt;option value="JPY">JPY - Japanese Yen&lt;/option>
+                                    &lt;option value="AUD">AUD - Australian Dollar&lt;/option>
+                                    &lt;option value="CAD">CAD - Canadian Dollar&lt;/option>
+                                    &lt;option value="CHF">CHF - Swiss Franc&lt;/option>
+                                    &lt;option value="CNY">CNY - Chinese Yuan&lt;/option>
+                                    &lt;option value="HKD">HKD - Hong Kong Dollar&lt;/option>
+                                    &lt;option value="NZD">NZD - New Zealand Dollar&lt;/option>
+                                    &lt;option value="SEK">SEK - Swedish Krona&lt;/option>
+                                    &lt;option value="KRW">KRW - South Korean Won&lt;/option>
+                                    &lt;option value="SGD">SGD - Singapore Dollar&lt;/option>
+                                    &lt;option value="NOK">NOK - Norwegian Krone&lt;/option>
+                                    &lt;option value="MXN">MXN - Mexican Peso&lt;/option>
+                                    &lt;option value="INR">INR - Indian Rupee&lt;/option>
+                                    &lt;option value="RUB">RUB - Russian Ruble&lt;/option>
+                                    &lt;option value="ZAR">ZAR - South African Rand&lt;/option>
+                                    &lt;option value="TRY">TRY - Turkish Lira&lt;/option>
+                                    &lt;option value="BRL">BRL - Brazilian Real&lt;/option>
+                                    &lt;option value="TWD">TWD - New Taiwan Dollar&lt;/option>
+                                    &lt;option value="DKK">DKK - Danish Krone&lt;/option>
+                                    &lt;option value="PLN">PLN - Polish Zloty&lt;/option>
+                                    &lt;option value="THB">THB - Thai Baht&lt;/option>
+                                    &lt;option value="IDR">IDR - Indonesian Rupiah&lt;/option>
+                                    &lt;option value="HUF">HUF - Hungarian Forint&lt;/option>
+                                    &lt;option value="CZK">CZK - Czech Koruna&lt;/option>
+                                    &lt;option value="ILS">ILS - Israeli New Shekel&lt;/option>
+                                    &lt;option value="CLP">CLP - Chilean Peso&lt;/option>
+                                    &lt;option value="PHP">PHP - Philippine Peso&lt;/option>
+                                    &lt;option value="AED">AED - United Arab Emirates Dirham&lt;/option>
+                                    &lt;option value="COP">COP - Colombian Peso&lt;/option>
+                                    &lt;option value="SAR">SAR - Saudi Riyal&lt;/option>
+                                    &lt;option value="MYR">MYR - Malaysian Ringgit&lt;/option>
+                                    &lt;option value="RON">RON - Romanian Leu&lt;/option>
+                                &lt;/FormSelect>
+                            &lt;/Form.Group>
+
+                            &lt;Form.Group className="mb-3">
+                                &lt;Form.Label>To Currency&lt;/Form.Label>
+                                &lt;FormSelect
+                                    value={targetCurrency}
+                                    onChange={(e) => setTargetCurrency(e.target.value)}
+                                >
+                                    &lt;option value="USD">USD - United States Dollar&lt;/option>
+                                    &lt;option value="EUR">EUR - Euro&lt;/option>
+                                    &lt;option value="GBP">GBP - British Pound Sterling&lt;/option>
+                                    &lt;option value="JPY">JPY - Japanese Yen&lt;/option>
+                                    &lt;option value="AUD">AUD - Australian Dollar&lt;/option>
+                                    &lt;option value="CAD">CAD - Canadian Dollar&lt;/option>
+                                    &lt;option value="CHF">CHF - Swiss Franc&lt;/option>
+                                    &lt;option value="CNY">CNY - Chinese Yuan&lt;/option>
+                                    &lt;option value="HKD">HKD - Hong Kong Dollar&lt;/option>
+                                    &lt;option value="NZD">NZD - New Zealand Dollar&lt;/option>
+                                    &lt;option value="SEK">SEK - Swedish Krona&lt;/option>
+                                    &lt;option value="KRW">KRW - South Korean Won&lt;/option>
+                                    &lt;option value="SGD">SGD - Singapore Dollar&lt;/option>
+                                    &lt;option value="NOK">NOK - Norwegian Krone&lt;/option>
+                                    &lt;option value="MXN">MXN - Mexican Peso&lt;/option>
+                                    &lt;option value="INR">INR - Indian Rupee&lt;/option>
+                                    &lt;option value="RUB">RUB - Russian Ruble&lt;/option>
+                                    &lt;option value="ZAR">ZAR - South African Rand&lt;/option>
+                                    &lt;option value="TRY">TRY - Turkish Lira&lt;/option>
+                                    &lt;option value="BRL">BRL - Brazilian Real&lt;/option>
+                                    &lt;option value="TWD">TWD - New Taiwan Dollar&lt;/option>
+                                    &lt;option value="DKK">DKK - Danish Krone&lt;/option>
+                                    &lt;option value="PLN">PLN - Polish Zloty&lt;/option>
+                                    &lt;option value="THB">THB - Thai Baht&lt;/option>
+                                    &lt;option value="IDR">IDR - Indonesian Rupiah&lt;/option>
+                                    &lt;option value="HUF">HUF - Hungarian Forint&lt;/option>
+                                    &lt;option value="CZK">CZK - Czech Koruna&lt;/option>
+                                    &lt;option value="ILS">ILS - Israeli New Shekel&lt;/option>
+                                    &lt;option value="CLP">CLP - Chilean Peso&lt;/option>
+                                    &lt;option value="PHP">PHP - Philippine Peso&lt;/option>
+                                    &lt;option value="AED">AED - United Arab Emirates Dirham&lt;/option>
+                                    &lt;option value="COP">COP - Colombian Peso&lt;/option>
+                                    &lt;option value="SAR">SAR - Saudi Riyal&lt;/option>
+                                    &lt;option value="MYR">MYR - Malaysian Ringgit&lt;/option>
+                                    &lt;option value="RON">RON - Romanian Leu&lt;/option>
+                                &lt;/FormSelect>
+                            &lt;/Form.Group>
+
+                            &lt;div className="d-flex justify-content-end">
+                                &lt;Button variant="primary" onClick={convertCurrency}>
+                                    Convert
+                                &lt;/Button>
+                            &lt;/div>
+
+                            {convertedAmount !== null &amp;&amp; (&lt;>
+                                &lt;hr />
+                                &lt;div className="mt-2">
+                                    &lt;p>
+                                        Conversion Rate: {conversionRate.toFixed(4)}
+                                    &lt;/p>
+                                    &lt;p>
+                                        {amount} {sourceCurrency} &lt;i class="bi bi-arrow-left-right mx-2">&lt;/i> {convertedAmount.toFixed(4)} {targetCurrency}
+                                    &lt;/p>
+                                &lt;/div>
+                            &lt;/>
+                            )}
+                        &lt;/div>
+
+                        {/* &lt;div className="modal-footer">
+                            &lt;Button variant="secondary" data-bs-dismiss="modal">Close&lt;/Button>
+                        &lt;/div> */}
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
         &lt;/>
-    )
-}</code></pre>
+    );
+}
+</code></pre>
         </article>
     </section>
 
@@ -131,13 +327,13 @@ export default function Expenses() {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#formatDate">formatDate</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#projectToSimpleProject">projectToSimpleProject</a></li><li><a href="global.html#refreshLastUpdate">refreshLastUpdate</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Aug 14 2024 12:34:31 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

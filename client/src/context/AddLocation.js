@@ -1,9 +1,27 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
+/**
+ * AddLocation Component
+ * 
+ * A modal component for adding a new location. It allows users to input a location and submit it.
+ * 
+ * @param {Object} props - The component props.
+ * @param {boolean} props.show - Determines if the modal is visible.
+ * @param {Function} props.handleClose - Callback function to close the modal.
+ * @param {Function} props.addLocation - Callback function to handle adding the new location.
+ * 
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function AddLocation({ show, handleClose, addLocation }) {
     const [location, setLocation] = useState('')
 
+    /**
+     * Handles form submission.
+     * 
+     * @param {Event} event - The form submit event.
+     * @returns {void}
+     */
     const handleSubmit = (event) => {
         event.preventDefault()
         addLocation(location)

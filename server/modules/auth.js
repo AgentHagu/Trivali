@@ -16,7 +16,17 @@ module.exports = (app) => {
 
     app.use(express.urlencoded({ extended: false }));
 
-    // Return User Data Route
+    /**
+     * POST /getUserData
+     * Retrieves user data based on the provided user ID.
+     * 
+     * @param {Object} req - The Express request object.
+     * @param {Object} res - The Express response object.
+     * 
+     * @returns {Object} 200 - The user data if the user is found.
+     * @returns {Object} 404 - Error message if the user is not found.
+     * @returns {Object} 500 - Error message if an internal server error occurs.
+     */
     app.post('/getUserData', async (req, res) => {
         try {
             const user = await User.findOne({ _id: req.body.userId })
@@ -32,11 +42,14 @@ module.exports = (app) => {
     })
 
     /**
-     * Login route handler.
-     * Authenticates the user and issues a JWT.
+     * POST /login
+     * Authenticates the user and issues a JWT if the credentials are valid.
+     * 
      * @param {Object} req - The Express request object.
      * @param {Object} res - The Express response object.
-     * @returns {void}
+     * 
+     * @returns {Object} 200 - JWT and success message if login is successful.
+     * @returns {Object} 401 - Error message if credentials are missing or incorrect.
      */
     app.post('/login', async (req, res) => {
         if (!req.body.email) {
@@ -59,11 +72,15 @@ module.exports = (app) => {
     });
 
     /**
-     * Register route handler.
-     * Registers a new user and issues a JWT.
+     * POST /register
+     * Registers a new user and saves them to the database.
+     * 
      * @param {Object} req - The Express request object.
      * @param {Object} res - The Express response object.
-     * @returns {void}
+     * 
+     * @returns {Object} 200 - Success message if registration is successful.
+     * @returns {Object} 400 - Error message if the email is already registered.
+     * @returns {Object} 500 - Error message if an internal server error occurs.
      */
     app.post('/register', async (req, res) => {
         try {
@@ -87,6 +104,15 @@ module.exports = (app) => {
         }
     });
 
+    /**
+     * GET /api
+     * Returns API keys for Google Maps, OpenWeather, and CurrencyConverter.
+     * 
+     * @param {Object} req - The Express request object.
+     * @param {Object} res - The Express response object.
+     * 
+     * @returns {Object} 200 - JSON object containing API keys.
+     */
     app.get('/api', (req, res) => {
         const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY
         const openWeatherApiKey = process.env.OPENWEATHER_API_KEY
@@ -95,6 +121,16 @@ module.exports = (app) => {
         res.status(200).json({ googleMapsApiKey, openWeatherApiKey, currencyConverterApi })
     })
 
+    /**
+     * POST /delete-user
+     * Deletes a user from the database based on the provided email.
+     * FOR TESTING ONLY
+     * 
+     * @param {Object} req - The Express request object.
+     * @param {Object} res - The Express response object.
+     * 
+     * @returns {Object} 200 - Success message if the user is deleted.
+     */
     app.post('/delete-user', async (req, res) => {
         const email = req.body.email
         await User.findOneAndDelete({ email: email })

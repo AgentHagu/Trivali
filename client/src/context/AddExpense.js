@@ -4,6 +4,18 @@ import axios from 'axios';
 import { useApiKeys } from '../context/ApiKeysContext';
 import { UNCATEGORIZED_BUDGET_ID, useBudgets } from './BudgetsContext';
 
+/**
+ * AddBudgetModal Component
+ * 
+ * A modal component for adding a new expense to a budget. It includes fields for the expense description, amount, currency, and budget selection.
+ * 
+ * @param {Object} props - The component props.
+ * @param {boolean} props.show - Determines if the modal is visible.
+ * @param {Function} props.handleClose - Callback function to close the modal.
+ * @param {string} props.defaultBudgetId - The ID of the default budget to preselect.
+ * 
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
     const descriptionRef = useRef();
     const amountRef = useRef();
@@ -16,6 +28,12 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
 
     const currencyApiUrl = `https://api.currencyapi.com/v3/latest?apikey=${currencyConverterApi}`;
 
+    /**
+     * Fetches conversion rates from the currency API and updates the conversion rate.
+     * 
+     * @param {string} fromCurrency - The currency code to convert from.
+     * @returns {Promise<void>}
+     */
     async function fetchConversionRates(fromCurrency) {
         try {
             console.log(currencyApiUrl)
@@ -33,11 +51,22 @@ export default function AddBudgetModal({ show, handleClose, defaultBudgetId }) {
         }
     }
 
+    /**
+     * Handles changes in the currency selection and updates the conversion rate.
+     * 
+     * @returns {void}
+     */
     function handleCurrencyChange() {
         const fromCurrency = fromCurrencyRef.current.value;
         fetchConversionRates(fromCurrency);
     }
 
+    /**
+     * Handles form submission, converts the amount to the selected currency, and adds the expense.
+     * 
+     * @param {Event} e - The form submit event.
+     * @returns {void}
+     */
     function handleSubmit(e) {
         e.preventDefault();
 

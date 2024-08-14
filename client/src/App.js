@@ -26,11 +26,11 @@ const SERVER_URL = process.env.REACT_APP_API_URL;
 
 // Create router configuration
 const router = createBrowserRouter([
-  {
-    path: "/test",
-    // element: <PrivateRoute element = {<Test />}/>
-    element: <Test />
-  },
+  // {
+  //   path: "/test",
+  //   // element: <PrivateRoute element = {<Test />}/>
+  //   element: <Test />
+  // },
   {
     path: "/",
     element: <Navigate to={"/welcome"} />
@@ -99,18 +99,6 @@ function PrivateRoute({ element }) {
           if (isMounted) setIsAuthenticated(false)
         }
 
-        // const response = await fetch(`${SERVER_URL}`, {
-        //   method: 'GET',
-        //   credentials: 'include'
-        // });
-
-        // console.log(response.ok)
-
-        // if (response.ok) {
-        //   if (isMounted) setIsAuthenticated(true);
-        // } else {
-        //   if (isMounted) setIsAuthenticated(false);
-        // }
       } catch (error) {
         if (isMounted) setIsAuthenticated(false);
       }

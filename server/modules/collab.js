@@ -435,11 +435,23 @@ function userToSimpleUser(user) {
     return simpleUser
 }
 
+/**
+ * Formats a given date object into a string with the format "MMM DD, YYYY".
+ *
+ * @param {Date} date - The date object to format.
+ * @returns {string} - The formatted date string.
+ */
 function formatDate(date) {
     const options = { day: 'numeric', month: 'short', year: 'numeric' }
     return date.toLocaleDateString('en-US', options)
 }
 
+/**
+ * Converts a Project to a SimpleProject model.
+ *
+ * @param {Object} project - The project object to simplify.
+ * @returns {Object} - The simplified project object.
+ */
 function projectToSimpleProject(project) {
     const simpleProject = {
         _id: project._id,
@@ -453,6 +465,12 @@ function projectToSimpleProject(project) {
     return simpleProject
 }
 
+/**
+ * Refreshes the "lastUpdated" field of a project for all users associated with it.
+ *
+ * @param {string} projectId - The unique identifier of the project to update.
+ * @returns {Promise<void>} - A promise that resolves once the updates are complete.
+ */
 async function refreshLastUpdate(projectId) {
     const updatedProject = await Project.findById(
         projectId
@@ -556,6 +574,7 @@ async function findOrCreateProject(projectId, projectName, userId, userList) {
     }
 }
 
+// For tests ONLY
 if (process.env.NODE_ENV === 'test') {
     module.exports.userToSimpleUser = userToSimpleUser
     module.exports.formatDate = formatDate

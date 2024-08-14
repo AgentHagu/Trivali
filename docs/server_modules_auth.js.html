@@ -27,15 +27,11 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>// Authentication Packages
-const express = require('express')
-const bcrypt = require('bcrypt')
-const passport = require('passport')
-const flash = require('express-flash')
-const session = require('express-session')
-const cookieSession = require('cookie-session')
-const methodOverride = require('method-override')
-const mongoose = require("mongoose")
-const User = require("../schema/user")
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const mongoose = require("mongoose");
+const User = require("../schema/user");
 
 /**
  * Initializes authentication middleware and routes.
@@ -43,197 +39,133 @@ const User = require("../schema/user")
  * @returns {void}
  */
 module.exports = (app) => {
-    const mongoUri = process.env.MONGO_URI
-    mongoose.connect(mongoUri)
+    const mongoUri = process.env.MONGO_URI;
+    mongoose.connect(mongoUri);
 
-    // Middleware
-    const initialisedPassport = require('./passport-config')
-    initialisedPassport(
-        passport,
-        async email => await User.findOne({ email: email }),
-        async id => await User.findById(id)
-    )
-    app.use(express.urlencoded({ extended: false }))
-    app.use(flash())
+    app.use(express.urlencoded({ extended: false }));
 
-    app.use(session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
+    /**
+     * POST /getUserData
+     * Retrieves user data based on the provided user ID.
+     * 
+     * @param {Object} req - The Express request object.
+     * @param {Object} res - The Express response object.
+     * 
+     * @returns {Object} 200 - The user data if the user is found.
+     * @returns {Object} 404 - Error message if the user is not found.
+     * @returns {Object} 500 - Error message if an internal server error occurs.
+     */
+    app.post('/getUserData', async (req, res) => {
+        try {
+            const user = await User.findOne({ _id: req.body.userId })
 
-        // Need to move to https and change to secure: true, sameSite: 'None'
-        cookie: { secure: false, sameSite: 'lax' }
-    }))
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' })
+            }
 
-    // app.use(cookieSession({
-    //     name: '__session',
-    //     keys: [process.env.SESSION_SECRET || 'default_secret_key'],
-    //     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    //     secure: false,
-    //     httpOnly: true,
-    //     sameSite: 'lax'
-    // }));
-
-    app.use(passport.initialize())
-    app.use(passport.session())
-    app.use(methodOverride('_method'))
-
-    // app.use((req, res, next) => {
-    //     if (req.session) {
-    //         req.session.regenerate = (cb) => cb();
-    //         req.session.save = (cb) => cb();
-    //     }
-    //     next();
-    // });
-
-    // Authentication Route
-    app.get('/', checkAuthenticated, async (req, res) => {
-        res.send(await req.user)
-        // res.send(req.session.user)
-    })
-
-    // Login Route
-    app.get('/login', checkNotAuthenticated, (req, res) => {
-        res.send('Can access login page')
+            res.status(200).send(user)
+        } catch (error) {
+            res.status(500).json({ error: 'Internal server error' })
+        }
     })
 
     /**
-     * Login route handler.
-     * Authenticates the user using passport-local strategy.
+     * POST /login
+     * Authenticates the user and issues a JWT if the credentials are valid.
+     * 
      * @param {Object} req - The Express request object.
      * @param {Object} res - The Express response object.
-     * @param {Function} next - The next middleware function.
-     * @returns {void}
+     * 
+     * @returns {Object} 200 - JWT and success message if login is successful.
+     * @returns {Object} 401 - Error message if credentials are missing or incorrect.
      */
-    app.post('/login', (req, res, next) => {
-        passport.authenticate('local', (err, user, info) => {
-            // console.log("HEYY")
-            // console.log(err, user, info)
-            if (err) {
-                // Handle error
-                return next(err);
-            }
-            if (!user) {
-                // Authentication failed, send error message to client
-                return res.status(401).send(info.message);
-            }
+    app.post('/login', async (req, res) => {
+        if (!req.body.email) {
+            return res.status(401).send('Missing credentials')
+        }
 
-            // Authentication successful, log in user
-            req.logIn(user, (err) => {
-                if (err) {
-                    // Handle error
-                    return next(err);
-                }
-                // Redirect or send success response
-                return res.send("Logged in successfully")
-            });
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(401).send('Email not registered');
+        }
 
-            // req.session.user = {
-            //     id: user._id,
-            //     username: user.username,
-            //     email: user.email
-            // };
+        const validPassword = await bcrypt.compare(req.body.password, user.password);
+        if (!validPassword) {
+            return res.status(401).send('Incorrect password');
+        }
 
-            // console.log("Session set:", req.session.user);
-            // return res.send("Logged in successfully")
-        })(req, res, next);
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(200).json({ token, message: "Logged in successfully" });
+
     });
 
-
-    // Register Route
-    app.get('/register', checkNotAuthenticated, (req, res) => {
-        res.send('Can access register page')
-    })
-
     /**
-     * Register route handler.
-     * Registers a new user.
+     * POST /register
+     * Registers a new user and saves them to the database.
+     * 
      * @param {Object} req - The Express request object.
      * @param {Object} res - The Express response object.
-     * @returns {void}
+     * 
+     * @returns {Object} 200 - Success message if registration is successful.
+     * @returns {Object} 400 - Error message if the email is already registered.
+     * @returns {Object} 500 - Error message if an internal server error occurs.
      */
-    app.post('/register', checkNotAuthenticated, async (req, res) => {
+    app.post('/register', async (req, res) => {
         try {
-            const hashedPassword = await bcrypt.hash(req.body.password, 10)
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-            await User.create({
+            const user = await User.create({
                 _id: Date.now().toString(),
                 username: req.body.username,
                 email: req.body.email,
                 password: hashedPassword,
                 projectList: []
-            })
+            });
 
             res.send('Registered!')
         } catch (error) {
-            //console.log("ERROR DURING REGISTRATION: ", error)
             if (error.code == 11000) {
-                res.status(400).send("Email is already registered")
+                res.status(400).send("Email is already registered");
             } else {
-                res.status(500).send("Registration failed")
+                res.status(500).send("Registration failed");
             }
         }
-    })
+    });
 
     /**
-     * Logout route handler.
-     * Logs out the current user.
+     * GET /api
+     * Returns API keys for Google Maps, OpenWeather, and CurrencyConverter.
+     * 
      * @param {Object} req - The Express request object.
      * @param {Object} res - The Express response object.
-     * @param {Function} next - The next middleware function.
-     * @returns {void}
+     * 
+     * @returns {Object} 200 - JSON object containing API keys.
      */
-    app.delete('/logout', (req, res, next) => {
-        req.logOut((err) => {
-            if (err) {
-                return next(err)
-            }
-            res.send('/logout success')
-        })
-    })
-
     app.get('/api', (req, res) => {
         const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY
         const openWeatherApiKey = process.env.OPENWEATHER_API_KEY
+        const currencyConverterApi = process.env.CURRENCYCONVERTER_API_KEY
 
-        res.json({ googleMapsApiKey, openWeatherApiKey })
+        res.status(200).json({ googleMapsApiKey, openWeatherApiKey, currencyConverterApi })
     })
-}
 
-/**
- * Middleware to check if a user is authenticated.
- * If the user is authenticated, it proceeds to the next middleware.
- * If the user is not authenticated, it sends a 401 Unauthorized response.
- * @param {Object} req - The Express request object.
- * @param {Object} res - The Express response object.
- * @param {Function} next - The next middleware function.
- * @returns {void}
- */
-function checkAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    } else {
-        res.status(401).send("checkAuthenticated failed");
-    }
-}
-
-/**
- * Middleware to check if a user is not authenticated.
- * If the user is not authenticated, it proceeds to the next middleware.
- * If the user is authenticated, it sends a 403 Forbidden response.
- * @param {Object} req - The Express request object.
- * @param {Object} res - The Express response object.
- * @param {Function} next - The next middleware function.
- * @returns {void}
- */
-function checkNotAuthenticated(req, res, next) {
-    // if (!req.session.user) {
-    if (!req.isAuthenticated || !req.isAuthenticated()) {
-        return next();
-    } else {
-        res.status(403).send("checkNotAuthenticated failed");
-    }
-}</code></pre>
+    /**
+     * POST /delete-user
+     * Deletes a user from the database based on the provided email.
+     * FOR TESTING ONLY
+     * 
+     * @param {Object} req - The Express request object.
+     * @param {Object} res - The Express response object.
+     * 
+     * @returns {Object} 200 - Success message if the user is deleted.
+     */
+    app.post('/delete-user', async (req, res) => {
+        const email = req.body.email
+        await User.findOneAndDelete({ email: email })
+        res.status(200).send('User deleted successfully')
+    })
+};
+</code></pre>
         </article>
     </section>
 
@@ -243,13 +175,13 @@ function checkNotAuthenticated(req, res, next) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#checkAuthenticated">checkAuthenticated</a></li><li><a href="global.html#checkNotAuthenticated">checkNotAuthenticated</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#POST/openAi-generate-itinerary">POST /openAi-generate-itinerary</a></li><li><a href="global.html#POST/openAi-generate-itinerary-json">POST /openAi-generate-itinerary-json</a></li><li><a href="global.html#PrivateRoute">PrivateRoute</a></li><li><a href="global.html#Table">Table</a></li><li><a href="global.html#defaultValue">defaultValue</a></li><li><a href="global.html#findOrCreateDocument">findOrCreateDocument</a></li><li><a href="global.html#findOrCreateProject">findOrCreateProject</a></li><li><a href="global.html#formatDate">formatDate</a></li><li><a href="global.html#getProgressBarVariant">getProgressBarVariant</a></li><li><a href="global.html#projectToSimpleProject">projectToSimpleProject</a></li><li><a href="global.html#refreshLastUpdate">refreshLastUpdate</a></li><li><a href="global.html#userToSimpleUser">userToSimpleUser</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Mon Jul 29 2024 15:37:35 GMT+0800 (Singapore Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Aug 14 2024 12:34:31 GMT+0800 (Singapore Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

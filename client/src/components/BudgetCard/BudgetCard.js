@@ -45,9 +45,9 @@ export default function BudgetCard({ name, amount, max, gray, hideButtons, onAdd
                     <div className="me-2">{name}</div>
                     <div className="d-flex align-itmes-baseline">
                         {isChrome
-                            ? "$" + currencyFormatter.format(amount).match(/\d+/)[0]
+                            ? "$" + currencyFormatter.format(amount).replace('SGD', '').trim()
                             : currencyFormatter.format(amount)}
-                        {name === "Uncategorized" && "SGD"}
+                        {name === "Uncategorized" && " SGD"}
 
                         {max && (
                             <span className="text-muted fs-6 ms-1">

@@ -20,11 +20,13 @@ const createSocketClient = (server) => {
 
 let app, httpServer, senderSocket, receiverSocket, setupSocket
 
+// Existing document already in database for tests
 const existingDocument = {
     _id: "existingDocumentId",
     data: "existingDocumentData"
 }
 
+// User who will be owner of test projects
 const ownerUser = {
     _id: Date.now().toString(),
     username: 'ownerUser',
@@ -32,6 +34,7 @@ const ownerUser = {
     password: 'ownerPassword'
 }
 
+// User who will be collaborative partner of test projects
 const collabUser = {
     _id: Date.now().toString() + "0",
     username: 'collabUser',
@@ -39,6 +42,7 @@ const collabUser = {
     password: 'colllabPassword'
 }
 
+// Existing project already in database for tests
 const existingProject = {
     _id: "existingProjId",
     name: "Existing Project",
@@ -46,7 +50,14 @@ const existingProject = {
     userList: [ownerUser, collabUser]
 }
 
-// Wait for both sockets to connect to room before emitting test event
+/**
+ * Waits for both sender and receiver sockets to connect to a specific object (e.g., a document or project)
+ * before emitting a test event. The function handles different object types by adjusting the socket emissions accordingly.
+ *
+ * @param {string} object - The type of object to connect to (e.g., "document", "project").
+ * @param {string|object} objectId - The identifier of the object to connect to.
+ * @param {Function} emitEvent - The event to emit once both sockets have successfully connected.
+ */
 function waitForSocketsToConnectTo(object, objectId, emitEvent) {
     if (object === "document") {
         senderSocket.emit(`get-${object}`, { documentId: objectId, projectId: objectId })
