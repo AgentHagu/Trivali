@@ -23,7 +23,7 @@ export default function Expenses() {
     const [viewExpensesModalBudgetId, setViewExpensesModalBudgetId] = useState();
     const [addExpenseModalBudgetId, setAddExpenseModalBudgetId] = useState();
     const { budgets, getBudgetExpenses } = useBudgets();
-    
+
     const [sourceCurrency, setSourceCurrency] = useState('USD');
     const [targetCurrency, setTargetCurrency] = useState('SGD');
     const [amount, setAmount] = useState(0);
@@ -178,41 +178,41 @@ export default function Expenses() {
                                     value={sourceCurrency}
                                     onChange={(e) => setSourceCurrency(e.target.value)}
                                 >
- <option value="USD">USD - United States Dollar</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="GBP">GBP - British Pound Sterling</option>
-                            <option value="JPY">JPY - Japanese Yen</option>
-                            <option value="AUD">AUD - Australian Dollar</option>
-                            <option value="CAD">CAD - Canadian Dollar</option>
-                            <option value="CHF">CHF - Swiss Franc</option>
-                            <option value="CNY">CNY - Chinese Yuan</option>
-                            <option value="HKD">HKD - Hong Kong Dollar</option>
-                            <option value="NZD">NZD - New Zealand Dollar</option>
-                            <option value="SEK">SEK - Swedish Krona</option>
-                            <option value="KRW">KRW - South Korean Won</option>
-                            <option value="SGD">SGD - Singapore Dollar</option>
-                            <option value="NOK">NOK - Norwegian Krone</option>
-                            <option value="MXN">MXN - Mexican Peso</option>
-                            <option value="INR">INR - Indian Rupee</option>
-                            <option value="RUB">RUB - Russian Ruble</option>
-                            <option value="ZAR">ZAR - South African Rand</option>
-                            <option value="TRY">TRY - Turkish Lira</option>
-                            <option value="BRL">BRL - Brazilian Real</option>
-                            <option value="TWD">TWD - New Taiwan Dollar</option>
-                            <option value="DKK">DKK - Danish Krone</option>
-                            <option value="PLN">PLN - Polish Zloty</option>
-                            <option value="THB">THB - Thai Baht</option>
-                            <option value="IDR">IDR - Indonesian Rupiah</option>
-                            <option value="HUF">HUF - Hungarian Forint</option>
-                            <option value="CZK">CZK - Czech Koruna</option>
-                            <option value="ILS">ILS - Israeli New Shekel</option>
-                            <option value="CLP">CLP - Chilean Peso</option>
-                            <option value="PHP">PHP - Philippine Peso</option>
-                            <option value="AED">AED - United Arab Emirates Dirham</option>
-                            <option value="COP">COP - Colombian Peso</option>
-                            <option value="SAR">SAR - Saudi Riyal</option>
-                            <option value="MYR">MYR - Malaysian Ringgit</option>
-                            <option value="RON">RON - Romanian Leu</option>
+                                    <option value="USD">USD - United States Dollar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound Sterling</option>
+                                    <option value="JPY">JPY - Japanese Yen</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                    <option value="CHF">CHF - Swiss Franc</option>
+                                    <option value="CNY">CNY - Chinese Yuan</option>
+                                    <option value="HKD">HKD - Hong Kong Dollar</option>
+                                    <option value="NZD">NZD - New Zealand Dollar</option>
+                                    <option value="SEK">SEK - Swedish Krona</option>
+                                    <option value="KRW">KRW - South Korean Won</option>
+                                    <option value="SGD">SGD - Singapore Dollar</option>
+                                    <option value="NOK">NOK - Norwegian Krone</option>
+                                    <option value="MXN">MXN - Mexican Peso</option>
+                                    <option value="INR">INR - Indian Rupee</option>
+                                    <option value="RUB">RUB - Russian Ruble</option>
+                                    <option value="ZAR">ZAR - South African Rand</option>
+                                    <option value="TRY">TRY - Turkish Lira</option>
+                                    <option value="BRL">BRL - Brazilian Real</option>
+                                    <option value="TWD">TWD - New Taiwan Dollar</option>
+                                    <option value="DKK">DKK - Danish Krone</option>
+                                    <option value="PLN">PLN - Polish Zloty</option>
+                                    <option value="THB">THB - Thai Baht</option>
+                                    <option value="IDR">IDR - Indonesian Rupiah</option>
+                                    <option value="HUF">HUF - Hungarian Forint</option>
+                                    <option value="CZK">CZK - Czech Koruna</option>
+                                    <option value="ILS">ILS - Israeli New Shekel</option>
+                                    <option value="CLP">CLP - Chilean Peso</option>
+                                    <option value="PHP">PHP - Philippine Peso</option>
+                                    <option value="AED">AED - United Arab Emirates Dirham</option>
+                                    <option value="COP">COP - Colombian Peso</option>
+                                    <option value="SAR">SAR - Saudi Riyal</option>
+                                    <option value="MYR">MYR - Malaysian Ringgit</option>
+                                    <option value="RON">RON - Romanian Leu</option>
                                 </FormSelect>
                             </Form.Group>
 
@@ -223,62 +223,66 @@ export default function Expenses() {
                                     onChange={(e) => setTargetCurrency(e.target.value)}
                                 >
                                     <option value="USD">USD - United States Dollar</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="GBP">GBP - British Pound Sterling</option>
-                            <option value="JPY">JPY - Japanese Yen</option>
-                            <option value="AUD">AUD - Australian Dollar</option>
-                            <option value="CAD">CAD - Canadian Dollar</option>
-                            <option value="CHF">CHF - Swiss Franc</option>
-                            <option value="CNY">CNY - Chinese Yuan</option>
-                            <option value="HKD">HKD - Hong Kong Dollar</option>
-                            <option value="NZD">NZD - New Zealand Dollar</option>
-                            <option value="SEK">SEK - Swedish Krona</option>
-                            <option value="KRW">KRW - South Korean Won</option>
-                            <option value="SGD">SGD - Singapore Dollar</option>
-                            <option value="NOK">NOK - Norwegian Krone</option>
-                            <option value="MXN">MXN - Mexican Peso</option>
-                            <option value="INR">INR - Indian Rupee</option>
-                            <option value="RUB">RUB - Russian Ruble</option>
-                            <option value="ZAR">ZAR - South African Rand</option>
-                            <option value="TRY">TRY - Turkish Lira</option>
-                            <option value="BRL">BRL - Brazilian Real</option>
-                            <option value="TWD">TWD - New Taiwan Dollar</option>
-                            <option value="DKK">DKK - Danish Krone</option>
-                            <option value="PLN">PLN - Polish Zloty</option>
-                            <option value="THB">THB - Thai Baht</option>
-                            <option value="IDR">IDR - Indonesian Rupiah</option>
-                            <option value="HUF">HUF - Hungarian Forint</option>
-                            <option value="CZK">CZK - Czech Koruna</option>
-                            <option value="ILS">ILS - Israeli New Shekel</option>
-                            <option value="CLP">CLP - Chilean Peso</option>
-                            <option value="PHP">PHP - Philippine Peso</option>
-                            <option value="AED">AED - United Arab Emirates Dirham</option>
-                            <option value="COP">COP - Colombian Peso</option>
-                            <option value="SAR">SAR - Saudi Riyal</option>
-                            <option value="MYR">MYR - Malaysian Ringgit</option>
-                            <option value="RON">RON - Romanian Leu</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound Sterling</option>
+                                    <option value="JPY">JPY - Japanese Yen</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                    <option value="CAD">CAD - Canadian Dollar</option>
+                                    <option value="CHF">CHF - Swiss Franc</option>
+                                    <option value="CNY">CNY - Chinese Yuan</option>
+                                    <option value="HKD">HKD - Hong Kong Dollar</option>
+                                    <option value="NZD">NZD - New Zealand Dollar</option>
+                                    <option value="SEK">SEK - Swedish Krona</option>
+                                    <option value="KRW">KRW - South Korean Won</option>
+                                    <option value="SGD">SGD - Singapore Dollar</option>
+                                    <option value="NOK">NOK - Norwegian Krone</option>
+                                    <option value="MXN">MXN - Mexican Peso</option>
+                                    <option value="INR">INR - Indian Rupee</option>
+                                    <option value="RUB">RUB - Russian Ruble</option>
+                                    <option value="ZAR">ZAR - South African Rand</option>
+                                    <option value="TRY">TRY - Turkish Lira</option>
+                                    <option value="BRL">BRL - Brazilian Real</option>
+                                    <option value="TWD">TWD - New Taiwan Dollar</option>
+                                    <option value="DKK">DKK - Danish Krone</option>
+                                    <option value="PLN">PLN - Polish Zloty</option>
+                                    <option value="THB">THB - Thai Baht</option>
+                                    <option value="IDR">IDR - Indonesian Rupiah</option>
+                                    <option value="HUF">HUF - Hungarian Forint</option>
+                                    <option value="CZK">CZK - Czech Koruna</option>
+                                    <option value="ILS">ILS - Israeli New Shekel</option>
+                                    <option value="CLP">CLP - Chilean Peso</option>
+                                    <option value="PHP">PHP - Philippine Peso</option>
+                                    <option value="AED">AED - United Arab Emirates Dirham</option>
+                                    <option value="COP">COP - Colombian Peso</option>
+                                    <option value="SAR">SAR - Saudi Riyal</option>
+                                    <option value="MYR">MYR - Malaysian Ringgit</option>
+                                    <option value="RON">RON - Romanian Leu</option>
                                 </FormSelect>
                             </Form.Group>
 
-                            <Button variant="primary" onClick={convertCurrency}>
-                                Convert
-                            </Button>
-
-                            {convertedAmount !== null && (
-                                    <div className="mt-2">
-                                        <p>
-                                            Conversion Rate: {conversionRate.toFixed(4)}
-                                        </p>
-                                        <p>
-                                            {amount} {sourceCurrency} <i class="bi bi-arrow-left-right mx-2"></i> {convertedAmount.toFixed(4)} {targetCurrency}
-                                        </p>
-                                    </div>
-                                )}
+                            <div className="d-flex justify-content-end">
+                                <Button variant="primary" onClick={convertCurrency}>
+                                    Convert
+                                </Button>
                             </div>
 
-                        <div className="modal-footer">
-                            <Button variant="secondary" data-bs-dismiss="modal">Close</Button>
+                            {convertedAmount !== null && (<>
+                                <hr />
+                                <div className="mt-2">
+                                    <p>
+                                        Conversion Rate: {conversionRate.toFixed(4)}
+                                    </p>
+                                    <p>
+                                        {amount} {sourceCurrency} <i class="bi bi-arrow-left-right mx-2"></i> {convertedAmount.toFixed(4)} {targetCurrency}
+                                    </p>
+                                </div>
+                            </>
+                            )}
                         </div>
+
+                        {/* <div className="modal-footer">
+                            <Button variant="secondary" data-bs-dismiss="modal">Close</Button>
+                        </div> */}
                     </div>
                 </div>
             </div>
