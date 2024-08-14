@@ -148,6 +148,6 @@ describe('Authentication Module Routes', () => {
         expect(response.status).toBe(200)
         expect(response.body.googleMapsApiKey).toBeDefined()
         expect(response.body.openWeatherApiKey).toBeDefined()
-        expect(response.body.currencyConverterApiKey).toBeDefined()
+        expect(response.body.currencyConverterApi).toBeDefined()
     })
 });
